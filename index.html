@@ -149,7 +149,7 @@
             justify-content: center; align-items: center; gap: 0.5rem;
         }
         button[type="submit"]:hover { background-color: var(--color-primary-dark); }
-        button[type="submit"]:disabled { background-color: var(--color-grey); cursor: not-allowed; }
+        button[type="submit"]:disabled { background-color: #555; cursor: not-allowed; color: #999; }
         
         .form-toggle-links {
             text-align: center;
@@ -219,17 +219,42 @@
         }
         
         #cart-items-list { max-height: 300px; overflow-y: auto; margin-bottom: 1rem; }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--color-border); }
+        .cart-item { 
+            display: flex; 
+            /* justify-content: space-between; */ /* Se quita para alinear imagen */
+            align-items: center; 
+            padding: 0.75rem 0; 
+            border-bottom: 1px solid var(--color-border); 
+            gap: 1rem; /* Espacio entre imagen, nombre y precio */
+        }
         .cart-item:last-child { border-bottom: none; }
-        .cart-item-name { font-weight: 600; color: var(--color-text); }
-        .cart-item-price { color: var(--color-text-muted); }
+        
+        /* AÑADIDO: Estilo para la imagen en el carrito */
+        .cart-item-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid var(--color-border);
+        }
+        
+        .cart-item-name { 
+            font-weight: 600; 
+            color: var(--color-text); 
+            flex-grow: 1; /* Ocupa el espacio restante */
+            margin-right: 1rem; /* Espacio antes del precio */
+        }
+        .cart-item-price { 
+            color: var(--color-text-muted); 
+            white-space: nowrap; /* Evita que el precio se parta */
+        }
 
         #cod-modal h2, #edit-product-modal h2 { text-align: center; }
         #cod-modal h2, #edit-product-modal h2 { margin-bottom: 1rem; }
         
         .close-btn { position: absolute; top: 10px; right: 15px; font-size: 2.5rem; color: #aaa; background: none; border: none; cursor: pointer; line-height: 1; }
         .close-btn:hover { color: #fff; }
-        
+
         /* Estilos para la lista de pedidos del Admin */
         #orders-container, #admin-products-container {
             max-width: 900px;
@@ -294,9 +319,10 @@
         .btn-mark-sent { background-color: var(--color-success); }
         .btn-mark-sent:hover { background-color: #2a9d4f; }
         .btn-mark-sent:disabled {
-            background-color: var(--color-grey);
+            background-color: #555;
             cursor: not-allowed;
             opacity: 0.6;
+            color: #aaa;
         }
         .btn-delete-order { background-color: var(--color-danger); }
         .btn-delete-order:hover { background-color: #cc3d3d; }
@@ -573,6 +599,10 @@
             return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/&/g, '&amp;');
         }
 
+        // #############################################
+        // ## AQUÍ ESTÁ EL CAMBIO 1:                    ##
+        // ## Añadir `data-image-url` al botón          ##
+        // #############################################
         async function loadProducts() {
             if (productsLoaded) return; 
             loadingMessage.textContent = 'Cargando productos...';
@@ -598,7 +628,11 @@
                         <div class="product-info">
                             <h2 class="product-name">${product.name}</h2>
                             <p class="product-price">$${formattedPrice}</p>
-                            <button class="cart-btn" data-id="${product.id}" data-name="${safeName}" data-price="${formattedPrice}">Añadir al Carrito</button>
+                            <button class="cart-btn" 
+                                data-id="${product.id}" 
+                                data-name="${safeName}" 
+                                data-price="${formattedPrice}"
+                                data-image-url="${product.image_url}">Añadir al Carrito</button> 
                         </div>`;
                     grid.appendChild(card);
                 });
@@ -619,13 +653,21 @@
         const cartTotal = document.getElementById('cart-total');
         const checkoutBtn = document.getElementById('checkout-btn');
         
-        function addToCart(id, name, price) {
+        // #############################################
+        // ## AQUÍ ESTÁ EL CAMBIO 2:                    ##
+        // ## `addToCart` ahora guarda `imageUrl`       ##
+        // #############################################
+        function addToCart(id, name, price, imageUrl) {
             decoder.innerHTML = name;
-            cart.push({ id, name: decoder.value, price: parseFloat(price) });
+            cart.push({ id, name: decoder.value, price: parseFloat(price), imageUrl: imageUrl });
             updateCartCount();
         }
         function updateCartCount() { cartCount.textContent = cart.length; }
         
+        // #############################################
+        // ## AQUÍ ESTÁ EL CAMBIO 3:                    ##
+        // ## `renderCartItems` ahora muestra la imagen ##
+        // #############################################
         function renderCartItems() {
             cartItemsList.innerHTML = '';
             let total = 0;
@@ -636,7 +678,11 @@
                 cart.forEach(item => {
                     const itemEl = document.createElement('div');
                     itemEl.className = 'cart-item';
-                    itemEl.innerHTML = `<span class="cart-item-name">${item.name}</span><span class="cart-item-price">$${item.price.toFixed(2)}</span>`;
+                    itemEl.innerHTML = `
+                        <img src="${item.imageUrl}" alt="${item.name}" class="cart-item-image">
+                        <span class="cart-item-name">${item.name}</span>
+                        <span class="cart-item-price">$${item.price.toFixed(2)}</span>
+                    `;
                     cartItemsList.appendChild(itemEl);
                     total += item.price;
                 });
@@ -663,7 +709,7 @@
             const total = cart.reduce((acc, item) => acc + item.price, 0);
             if (total <= 0) return;
             closeCartModal();
-            openCodModal(); // Directamente al modal COD
+            openCodModal(); 
         });
 
         // --- LÓGICA DEL MODAL DE CONTRA ENTREGA ---
@@ -694,7 +740,7 @@
             const orderData = {
                 payment_method: method,
                 total_amount: total,
-                items: items,
+                items: items, // Ya contiene la imageUrl
                 customer_name: customerDetails.name || null,
                 customer_address: customerDetails.address || null,
                 customer_reference: customerDetails.reference || null,
@@ -866,7 +912,14 @@
                     const orderCard = document.createElement('div');
                     orderCard.className = 'order-card';
                     const orderDate = new Date(order.created_at).toLocaleString('es-ES');
-                    const itemsHtml = order.items.map(item => `<li><span>${item.name}</span><span>$${item.price.toFixed(2)}</span></li>`).join('');
+                    // MODIFICADO: Mostrar imagen en la lista de items del pedido
+                    const itemsHtml = order.items.map(item => 
+                        `<li>
+                           <img src="${item.imageUrl}" alt="${item.name}" style="width: 30px; height: 30px; object-fit: cover; margin-right: 10px; border-radius: 4px;"> 
+                           <span>${item.name}</span>
+                           <span>$${item.price.toFixed(2)}</span>
+                         </li>`
+                    ).join('');
                     
                     let customerHtml = '';
                     if (order.customer_name) {
@@ -1094,10 +1147,14 @@
         }
         
         // --- LISTENER DE CLIC GLOBAL ---
+        // #############################################
+        // ## AQUÍ ESTÁ EL CAMBIO 4:                    ##
+        // ## Pasar `imageUrl` a `addToCart`           ##
+        // #############################################
         document.addEventListener('click', (e) => {
             const cartButton = e.target.closest('.cart-btn');
             if (cartButton && cartButton.id !== 'checkout-btn') {
-                addToCart(cartButton.dataset.id, cartButton.dataset.name, cartButton.dataset.price);
+                addToCart(cartButton.dataset.id, cartButton.dataset.name, cartButton.dataset.price, cartButton.dataset.imageUrl); // Añadido imageUrl
                 return; 
             }
             const editButton = e.target.closest('.btn-edit');
