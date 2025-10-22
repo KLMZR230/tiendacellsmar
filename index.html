@@ -48,6 +48,18 @@
             transition: background-color 0.2s;
         }
         nav a:hover { background-color: #f1f1f1; }
+        
+        /* Estilo para el contador del carrito */
+        #cart-count {
+            background-color: var(--color-danger);
+            color: white;
+            font-size: 0.8rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+            vertical-align: super;
+            margin-left: 2px;
+        }
 
         /* --- Estilos Generales de Contenedor --- */
         main { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
@@ -57,7 +69,6 @@
         #loading-message { font-size: 1.2rem; text-align: center; padding: 2rem; }
         #product-grid {
             display: grid;
-            /* MODIFICADO: cuadros más pequeños (200px) */
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 1.5rem;
         }
@@ -145,6 +156,43 @@
         .error { background-color: #fdecea; color: var(--color-danger); border: 1px solid var(--color-danger); }
         
         footer { text-align: center; padding: 2rem; margin-top: 2rem; color: #777; }
+
+        /* --- Estilos del Modal del Carrito --- */
+        #cart-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); z-index: 90;
+            display: none; /* Oculto por defecto */
+        }
+        #cart-modal {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff; padding: 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 91; width: 90%; max-width: 550px;
+            display: none; /* Oculto por defecto */
+        }
+        #cart-overlay.visible,
+        #cart-modal.visible {
+            display: block;
+        }
+        
+        #cart-items-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .cart-item:last-child { border-bottom: none; }
+        .cart-item-name { font-weight: 600; }
+        .cart-item-price { color: var(--color-grey); }
+
         
         /* --- Estilos del Modal de Pago --- */
         #payment-overlay {
@@ -154,8 +202,8 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.6);
-            z-index: 100;
-            display: none; /* Oculto por defecto */
+            z-index: 100; /* Z-index más alto que el carrito */
+            display: none; 
         }
         
         #payment-modal {
@@ -167,13 +215,12 @@
             padding: 2.5rem;
             border-radius: var(--border-radius);
             box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-            z-index: 101;
+            z-index: 101; /* Z-index más alto que el carrito */
             width: 90%;
             max-width: 450px;
-            display: none; /* Oculto por defecto */
+            display: none; 
         }
         
-        /* Clase para mostrar el modal */
         #payment-overlay.visible,
         #payment-modal.visible {
             display: block;
@@ -228,6 +275,9 @@
         <div>
             <a href="#shop">Tienda</a>
             <a href="#admin">Admin</a>
+            <a href="#" id="cart-toggle" title="Ver Carrito">
+                🛒 Carrito (<span id="cart-count">0</span>)
+            </a>
         </div>
     </nav>
 
@@ -290,8 +340,19 @@
 
     </main>
     
-    <div id="payment-overlay" class="hidden"></div>
+    <div id="cart-overlay" class="hidden"></div>
+    <div id="cart-modal" class="hidden">
+        <button id="close-cart-btn" class="close-btn">&times;</button>
+        <h2>Tu Carrito</h2>
+        <div id="cart-items-list">
+            <p>Tu carrito está vacío.</p>
+        </div>
+        <hr style="margin: 1.5rem 0;">
+        <h3 style="text-align: right; margin-bottom: 1.5rem;">Total: <span id="cart-total">$0.00</span></h3>
+        <button type="submit" id="checkout-btn" style="width:100%;" class="cart-btn">Proceder al Pago</button>
+    </div>
     
+    <div id="payment-overlay" class="hidden"></div>
     <div id="payment-modal" class="hidden">
         <button id="close-modal-btn" class="close-btn">&times;</button>
         <h2>Seleccionar Método de Pago</h2>
@@ -317,49 +378,41 @@
 
     <script>
         // -----------------------------------------------------------------
-        // PASO 1: CONFIGURA TUS DATOS DE SUPABASE
-        // ¡¡USA TU NUEVA CLAVE API!!
+        // CONFIGURACIÓN SUPABASE
         // -----------------------------------------------------------------
         const SUPABASE_URL = 'https://kbvheywmgxkpigoldhuw.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtidmhleXdtZ3hrcGlnb2xkaHV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEwODYzOTQsImV4cCI6MjA3NjY2MjM5NH0.KNK1dmVI5iAvKcIdLAjjyhzrLun3ZgwQe1LIuBhgZU0'; 
-        // -----------------------------------------------------------------
-
-        // Inicializar cliente
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // --- ESTADO GLOBAL DEL CARRITO ---
+        let cart = [];
 
-        // Seleccionar Secciones
+        // --- SELECCIÓN DE ELEMENTOS ---
         const shopSection = document.getElementById('shop-section');
         const loginSection = document.getElementById('login-section');
         const adminSection = document.getElementById('admin-section');
         const sections = [shopSection, loginSection, adminSection];
         
-        // --- Elemento de decodificación (para nombres con comillas) ---
         const decoder = document.createElement('textarea');
 
         // --- ENRUTADOR (Router) ---
-        // Esta función decide qué sección mostrar
         async function handleRouting() {
-            const hash = window.location.hash || '#shop'; // Por defecto, muestra la tienda
-            
-            // Ocultar todas las secciones
+            const hash = window.location.hash || '#shop'; 
             sections.forEach(s => s.classList.add('hidden'));
 
             if (hash === '#shop') {
                 shopSection.classList.remove('hidden');
-                loadProducts(); // Cargar productos al ver la tienda
+                loadProducts(); 
             } 
             else if (hash === '#login') {
                 loginSection.classList.remove('hidden');
             }
             else if (hash === '#admin') {
-                // --- ¡EL GUARDIA DE SEGURIDAD! ---
                 const { data: { session } } = await _supabase.auth.getSession();
                 if (session) {
-                    // Usuario logueado: mostrar admin
                     adminSection.classList.remove('hidden');
                 } else {
-                    // Usuario NO logueado: redirigir a login
                     window.location.hash = '#login';
                 }
             }
@@ -368,20 +421,18 @@
         // --- LÓGICA DE LA TIENDA ---
         const grid = document.getElementById('product-grid');
         const loadingMessage = document.getElementById('loading-message');
-        let productsLoaded = false; // Evitar recargar productos innecesariamente
+        let productsLoaded = false; 
 
-        // Función para escapar HTML para atributos
         function escapeHTML(str) {
             if (!str) return '';
             return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/&/g, '&amp;');
         }
 
         async function loadProducts() {
-            if (productsLoaded) return; // Si ya están cargados, no hacer nada
-
+            if (productsLoaded) return; 
             loadingMessage.textContent = 'Cargando productos...';
             loadingMessage.style.display = 'block';
-            grid.innerHTML = ''; // Limpiar la cuadrícula
+            grid.innerHTML = ''; 
 
             try {
                 const { data, error } = await _supabase
@@ -390,18 +441,14 @@
                     .order('created_at', { ascending: false });
 
                 if (error) throw error;
-
                 if (data.length === 0) {
                     loadingMessage.textContent = 'Aún no hay productos en la tienda.';
                     return;
                 }
-
                 loadingMessage.style.display = 'none';
 
                 data.forEach(product => {
                     const formattedPrice = parseFloat(product.price).toFixed(2);
-                    
-                    // Escapar nombre para data-name y alt
                     const safeName = escapeHTML(product.name);
                     
                     const card = document.createElement('div');
@@ -413,13 +460,16 @@
                         <div class="product-info">
                             <h2 class="product-name">${product.name}</h2>
                             <p class="product-price">$${formattedPrice}</p>
-                            <button class="cart-btn" data-id="${product.id}" data-name="${safeName}">Añadir al Carrito</button>
+                            <button class="cart-btn" 
+                                data-id="${product.id}" 
+                                data-name="${safeName}"
+                                data-price="${formattedPrice}">Añadir al Carrito</button>
                         </div>
                     `;
                     grid.appendChild(card);
                 });
                 
-                productsLoaded = true; // Marcar como cargados
+                productsLoaded = true; 
 
             } catch (error) {
                 console.error('Error cargando productos:', error.message);
@@ -427,89 +477,161 @@
             }
         }
         
-        // --- LÓGICA DEL MODAL DE PAGO ---
+        // --- LÓGICA DEL NUEVO CARRITO ---
+        const cartToggle = document.getElementById('cart-toggle');
+        const cartCount = document.getElementById('cart-count');
+        const cartModal = document.getElementById('cart-modal');
+        const cartOverlay = document.getElementById('cart-overlay');
+        const closeCartBtn = document.getElementById('close-cart-btn');
+        const cartItemsList = document.getElementById('cart-items-list');
+        const cartTotal = document.getElementById('cart-total');
+        const checkoutBtn = document.getElementById('checkout-btn');
+        
+        function addToCart(id, name, price) {
+            // Decodificar el nombre antes de añadirlo
+            decoder.innerHTML = name;
+            const decodedName = decoder.value;
+
+            cart.push({ id, name: decodedName, price: parseFloat(price) });
+            updateCartCount();
+            // Opcional: Mostrar una pequeña alerta
+            // alert(`${decodedName} añadido al carrito!`);
+        }
+        
+        function updateCartCount() {
+            cartCount.textContent = cart.length;
+        }
+        
+        function renderCartItems() {
+            cartItemsList.innerHTML = ''; // Limpiar lista
+            let total = 0;
+            
+            if (cart.length === 0) {
+                cartItemsList.innerHTML = '<p>Tu carrito está vacío.</p>';
+                cartTotal.textContent = '$0.00';
+                checkoutBtn.disabled = true;
+                return;
+            }
+            
+            cart.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'cart-item';
+                itemEl.innerHTML = `
+                    <span class="cart-item-name">${item.name}</span>
+                    <span class="cart-item-price">$${item.price.toFixed(2)}</span>
+                `;
+                cartItemsList.appendChild(itemEl);
+                total += item.price;
+            });
+            
+            cartTotal.textContent = `$${total.toFixed(2)}`;
+            checkoutBtn.disabled = false;
+        }
+
+        function openCartModal() {
+            renderCartItems(); // Actualizar items antes de mostrar
+            cartOverlay.classList.remove('hidden');
+            cartModal.classList.remove('hidden');
+            cartOverlay.classList.add('visible');
+            cartModal.classList.add('visible');
+        }
+        
+        function closeCartModal() {
+            cartOverlay.classList.remove('visible');
+            cartModal.classList.remove('visible');
+            cartOverlay.classList.add('hidden');
+            cartModal.classList.add('hidden');
+        }
+        
+        // Listeners para el modal del carrito
+        cartToggle.addEventListener('click', (e) => {
+            e.preventDefault(); // Evitar que el link '#' mueva la página
+            openCartModal();
+        });
+        closeCartBtn.addEventListener('click', closeCartModal);
+        cartOverlay.addEventListener('click', closeCartModal);
+        
+        checkoutBtn.addEventListener('click', () => {
+            const total = cart.reduce((acc, item) => acc + item.price, 0);
+            if (total <= 0) return;
+            
+            closeCartModal();
+            // Abrir el modal de pago ORIGINAL, pero con el total
+            openModal(`Total a Pagar: $${total.toFixed(2)}`, null);
+        });
+
+
+        // --- LÓGICA DEL MODAL DE PAGO (Existente, pero modificada) ---
         const paymentOverlay = document.getElementById('payment-overlay');
         const paymentModal = document.getElementById('payment-modal');
         const closeModalBtn = document.getElementById('close-modal-btn');
         const modalProductName = document.getElementById('modal-product-name');
         const paymentOptions = document.querySelector('.payment-options');
 
-        // ######################################################
-        // ## AQUÍ ESTÁ LA CORRECCIÓN (FUNCIÓN openModal)       ##
-        // ######################################################
+        /**
+         * Abre el modal de pago.
+         * @param {string} name - El texto a mostrar (ej. "Producto X" o "Total a Pagar: $XX.XX")
+         * @param {string|null} id - El ID del producto (ya no se usa para el flujo del carrito)
+         */
         function openModal(name, id) {
-            // Decodificar el nombre para mostrarlo
+            // Decodificar el nombre si viene de un producto individual (aunque ya no es el flujo)
             decoder.innerHTML = name;
             modalProductName.textContent = decoder.value;
             
-            paymentModal.dataset.productId = id; // Guarda el ID en el modal
+            // paymentModal.dataset.productId = id; // Ya no es necesario guardar el ID de un solo producto
             
-            // --- CORRECCIÓN ---
-            // Primero quitamos 'hidden' para anular el 'display: none !important;'
             paymentOverlay.classList.remove('hidden');
             paymentModal.classList.remove('hidden');
-            
-            // Luego añadimos 'visible' para que se muestre (display: block;)
             paymentOverlay.classList.add('visible');
             paymentModal.classList.add('visible');
         }
 
-        // ######################################################
-        // ## AQUÍ ESTÁ LA CORRECCIÓN (FUNCIÓN closeModal)      ##
-        // ######################################################
         function closeModal() {
-            // Quitamos 'visible' para dejar de mostrarlo
             paymentOverlay.classList.remove('visible');
             paymentModal.classList.remove('visible');
-            
-            // Volvemos a añadir 'hidden' para ocultarlo la próxima vez
             paymentOverlay.classList.add('hidden');
             paymentModal.classList.add('hidden');
         }
 
         closeModalBtn.addEventListener('click', closeModal);
-        paymentOverlay.addEventListener('click', closeModal); // Cierra al hacer clic afuera
+        paymentOverlay.addEventListener('click', closeModal); 
 
         paymentOptions.addEventListener('click', (e) => {
             const button = e.target.closest('.payment-btn');
-            if (!button) return; // No se hizo clic en un botón
+            if (!button) return; 
 
             const method = button.dataset.method;
-            const productId = paymentModal.dataset.productId;
-            const productName = modalProductName.textContent;
+            const totalInfo = modalProductName.textContent; // "Total a Pagar: $XX.XX"
 
-            // Aquí es donde procesarías el pago
-            alert(`Has seleccionado: ${button.textContent.trim()}\nPara el producto: ${productName}`);
+            alert(`Has seleccionado: ${button.textContent.trim()}\nPara tu compra de: ${totalInfo}`);
             
-            // TODO:
-            // if (method === 'paypal') { /* redirigir a paypal */ }
-            // if (method === 'card') { /* abrir modal de Stripe */ }
-            // if (method === 'cod') { /* enviar a pág de gracias */ }
-
-            closeModal();
+            // --- VACIAR CARRITO DESPUÉS DE PAGAR ---
+            cart = [];
+            updateCartCount(); // Actualizar contador a 0
+            
+            closeModal(); // Cerrar modal de pago
         });
         
-        // --- CORRECCIÓN FINAL V2: Listener de clic en 'document' ---
-        // Esto es infalible. Escucha en TODA la página.
+        // --- LISTENER DE CLIC GLOBAL (MODIFICADO) ---
+        // Ahora solo escucha por clics de "Añadir al Carrito"
         document.addEventListener('click', (e) => {
-            // 1. Busca si el clic fue en un botón de carrito
             const cartButton = e.target.closest('.cart-btn');
-
-            // 2. Si no fue en un botón de carrito, no hagas nada.
-            if (!cartButton) {
-                return; 
-            }
+            if (!cartButton) return; 
             
-            // 3. Si SÍ fue en un botón, obten los datos y abre el modal
+            // Evitar que el botón "Proceder al Pago" (que también tiene .cart-btn) se active aquí
+            if (cartButton.id === 'checkout-btn') return;
+
             try {
                 const name = cartButton.dataset.name;
                 const id = cartButton.dataset.id;
-                openModal(name, id); // Abre el modal con los datos
+                const price = cartButton.dataset.price;
+                
+                addToCart(id, name, price); // <-- LÓGICA CAMBIADA
+                
             } catch (error) {
                 console.error("Error al procesar clic de carrito:", error);
             }
         });
-        // --- FIN DE LA CORRECCIÓN ---
         
         // --- LÓGICA DE AUTENTICACIÓN (Login/Logout) ---
         const loginForm = document.getElementById('login-form');
@@ -527,7 +649,7 @@
             try {
                 const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
                 if (error) throw error;
-                window.location.hash = '#admin'; // Éxito: redirigir al panel de admin
+                window.location.hash = '#admin'; 
             } catch (error) {
                 loginStatus.textContent = 'Error: Email o contraseña incorrectos.';
                 loginStatus.classList.add('error');
@@ -536,7 +658,7 @@
 
         logoutBtn.addEventListener('click', async () => {
             await _supabase.auth.signOut();
-            window.location.hash = '#login'; // Al cerrar sesión, ir a login
+            window.location.hash = '#login'; 
         });
 
         // --- LÓGICA DEL PANEL DE ADMIN ---
@@ -583,7 +705,7 @@
                 showStatus('¡Producto guardado con éxito!', 'success');
                 productForm.reset();
                 fileNameDiv.textContent = 'Ningún archivo seleccionado';
-                productsLoaded = false; // Forzar recarga de productos en la tienda la próxima vez
+                productsLoaded = false; // Forzar recarga de productos
 
             } catch (error) {
                 console.error('Error:', error.message);
@@ -601,15 +723,11 @@
         }
         function showStatus(message, type) {
             adminStatus.textContent = message;
-            // -- CORRECCIÓN DE BUG MENOR --
-            // La variable se llamaba 'statusDiv' pero debería ser 'adminStatus'
-            adminStatus.className = `status-message ${type}`; 
+            adminStatus.className = `status-message ${type}`; // Corrección de bug de 'statusDiv'
         }
 
         // --- INICIALIZACIÓN ---
-        // Escuchar cambios en el hash (ej. #shop -> #admin)
         window.addEventListener('hashchange', handleRouting);
-        // Cargar la ruta inicial cuando la página esté lista
         document.addEventListener('DOMContentLoaded', handleRouting);
 
     </script>
