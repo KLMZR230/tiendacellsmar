@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin de Tienda</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        main {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #222;
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        label {
+            font-weight: 600;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* Importante para que el padding no desborde */
+        }
+        button {
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #status {
+            text-align: center;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+
+    <main>
+        <h1>Cargar Nuevo Producto</h1>
+        <form id="product-form">
+            <div>
+                <label for="product-name">Nombre del Producto:</label>
+                <input type="text" id="product-name" required>
+            </div>
+            
+            <div>
+                <label for="product-price">Precio (ej: 29.99):</label>
+                <input type="number" id="product-price" step="0.01" min="0" required>
+            </div>
+            
+            <div>
+                <label for="product-image">Imagen del Producto:</label>
+                <input type="file" id="product-image" accept="image/*" required>
+            </div>
+            
+            <button type="submit" id="submit-btn">Guardar Producto</button>
+        </form>
+        
+        <div id="status"></div>
+    </main>
+
+    <script>
+        // -----------------------------------------------------------------
+        // PASO 1: CONFIGURA TUS DATOS DE SUPABASE
+        // (Encuentra esto en "Project Settings" > "API" en tu panel de Supabase)
+        // -----------------------------------------------------------------
+        const SUPABASE_URL = 'https://TU_ID_DE_PROYECTO.supabase.co';
+        const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY';
+        // -----------------------------------------------------------------
+
+        // Inicializar el cliente de Supabase
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Seleccionar los elementos del formulario
+        const form = document.getElementById('product-form');
+        const statusDiv = document.getElementById('status');
+        const submitBtn = document.getElementById('submit-btn');
+
+        // Escuchar el evento "submit" del formulario
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Evitar que la página se recargue
+
+            // Desactivar el botón y mostrar "Guardando..."
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Guardando...';
+            statusDiv.textContent = '';
+            statusDiv.className = '';
+
+            try {
+                // 1. Obtener los valores del formulario
+                const name = document.getElementById('product-name').value;
+                const price = parseFloat(document.getElementById('product-price').value);
+                const imageFile = document.getElementById('product-image').files[0];
+
+                if (!name || !price || !imageFile) {
+                    throw new Error('Por favor, completa todos los campos.');
+                }
+
+                // 2. Crear un nombre único para el archivo (para evitar sobreescribir)
+                const fileName = `${Date.now()}-${imageFile.name}`;
+
+                // 3. Subir la imagen a Supabase Storage
+                // (Asegúrate de haber creado un bucket llamado 'product-images')
+                const { data: uploadData, error: uploadError } = await _supabase.storage
+                    .from('product-images') // Nombre del "bucket"
+                    .upload(fileName, imageFile);
+
+                if (uploadError) {
+                    throw uploadError; // Si hay un error al subir, detenerse aquí
+                }
+
+                // 4. Obtener la URL pública de la imagen que acabamos de subir
+                const { data: urlData } = _supabase.storage
+                    .from('product-images')
+                    .getPublicUrl(fileName);
+                
+                const imageUrl = urlData.publicUrl;
+
+                // 5. Guardar los datos del producto (incluida la URL) en la base de datos
+                // (Asegúrate de tener una tabla llamada 'products')
+                const { data: insertData, error: insertError } = await _supabase
+                    .from('products') // Nombre de la tabla
+                    .insert([
+                        { 
+                            name: name, 
+                            price: price, 
+                            image_url: imageUrl 
+                        }
+                    ]);
+
+                if (insertError) {
+                    throw insertError; // Si hay un error al guardar, detenerse aquí
+                }
+
+                // 6. Éxito
+                statusDiv.textContent = '¡Producto guardado con éxito!';
+                statusDiv.className = 'success';
+                form.reset(); // Limpiar el formulario
+
+            } catch (error) {
+                // 7. Manejo de errores
+                console.error('Error:', error.message);
+                statusDiv.textContent = `Error: ${error.message}`;
+                statusDiv.className = 'error';
+            } finally {
+                // 8. Reactivar el botón sin importar si hubo éxito o error
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Guardar Producto';
+            }
+        });
+    </script>
+
+</body>
+</html>
