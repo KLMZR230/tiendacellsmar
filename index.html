@@ -177,7 +177,6 @@
         #payment-overlay { z-index: 100; }
         #payment-modal { z-index: 101; max-width: 450px; }
         
-        /* AÑADIDO: Estilos para el modal de Contra Entrega */
         #cod-overlay { z-index: 102; }
         #cod-modal { z-index: 103; max-width: 500px; }
         
@@ -241,7 +240,7 @@
         <h1><a href="#shop" style="text-decoration:none; color:inherit;">Tienda Cell Smar</a></h1>
         <div>
             <a href="#shop">Tienda</a>
-            <a href="#admin">Admin</a>
+            <a href="#admin" id="admin-link" class="hidden">Admin</a>
             <a href="#" id="cart-toggle" title="Ver Carrito">
                 🛒 Carrito (<span id="cart-count">0</span>)
             </a>
@@ -364,9 +363,6 @@
     <script>
         // --- CONFIGURACIÓN E INICIALIZACIÓN ---
         const SUPABASE_URL = 'https://kbvheywmgxkpigoldhuw.supabase.co';
-        // ######################################################
-        // ## AQUÍ ESTÁ LA CORRECCIÓN DE LA API KEY            ##
-        // ######################################################
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtidmhleXdtZ3hrcGlnb2xkaHV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEwODYzOTQsImV4cCI6MjA3NjY2MjM5NH0.KNK1dmVI5iAvKcIdLAjjyhzrLun3ZgwQe1LIuBhgZU0'; 
         
         const { createClient } = supabase;
@@ -596,11 +592,9 @@
             const total = cart.reduce((acc, item) => acc + item.price, 0);
 
             if (method === 'cod') {
-                // Es Contra Entrega: cerrar modal de pago y abrir modal de COD
                 closeModal();
                 openCodModal();
             } else {
-                // Es PayPal o Tarjeta: procesar inmediatamente
                 paymentStatus.textContent = 'Procesando pedido...';
                 paymentStatus.className = 'status-message';
                 paymentStatus.classList.remove('hidden');
@@ -678,12 +672,14 @@
                 document.getElementById('login-status').classList.add('error');
             } else {
                 window.location.hash = '#admin';
+                // El onAuthStateChange se encargará de mostrar el enlace "Admin"
             }
         });
 
         document.getElementById('logout-btn').addEventListener('click', async () => {
             await _supabase.auth.signOut();
             window.location.hash = '#login';
+            // El onAuthStateChange se encargará de ocultar el enlace "Admin"
         });
 
         // --- LÓGICA DEL PANEL DE ADMIN ---
@@ -767,7 +763,6 @@
                         `<li><span>${item.name}</span><span>$${item.price.toFixed(2)}</span></li>`
                     ).join('');
                     
-                    // Mostrar datos del cliente si existen (para COD)
                     let customerHtml = '';
                     if (order.customer_name) {
                         customerHtml = `
@@ -799,7 +794,29 @@
 
         // --- INICIALIZACIÓN ---
         window.addEventListener('hashchange', handleRouting);
-        document.addEventListener('DOMContentLoaded', handleRouting);
+        
+        // #############################################
+        // ## AQUÍ ESTÁ EL CAMBIO 2:                  ##
+        // ## Listener de autenticación para el link  ##
+        // #############################################
+        document.addEventListener('DOMContentLoaded', () => {
+            handleRouting(); // Cargar la ruta inicial
+
+            // Seleccionar el enlace de Admin
+            const adminLink = document.getElementById('admin-link');
+            
+            // onAuthStateChange se dispara al cargar la página,
+            // al iniciar sesión y al cerrar sesión.
+            _supabase.auth.onAuthStateChange((event, session) => {
+                if (session) {
+                    // Si hay una sesión (estás logueado), muestra el enlace
+                    adminLink.classList.remove('hidden');
+                } else {
+                    // Si no hay sesión, oculta el enlace
+                    adminLink.classList.add('hidden');
+                }
+            });
+        });
     </script>
 </body>
 </html>
