@@ -193,7 +193,7 @@
         .payment-btn:hover { background-color: #f1f1f1; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .payment-btn .emoji { font-size: 1.5rem; }
 
-        /* --- AÑADIDO: Estilos para la lista de pedidos del Admin --- */
+        /* Estilos para la lista de pedidos del Admin */
         #orders-container {
             max-width: 900px;
             margin: 3rem auto;
@@ -355,7 +355,7 @@
                 const { data: { session } } = await _supabase.auth.getSession();
                 if (session) {
                     adminSection.classList.remove('hidden');
-                    loadOrders(); // AÑADIDO: Cargar pedidos cuando el admin entra
+                    loadOrders();
                 } else {
                     window.location.hash = '#login';
                 }
@@ -447,13 +447,22 @@
             cartTotal.textContent = `$${total.toFixed(2)}`;
         }
 
+        // #############################################
+        // ## AQUÍ ESTÁ LA CORRECCIÓN 1 (Carrito)     ##
+        // #############################################
         function openCartModal() {
             renderCartItems();
             cartOverlay.classList.remove('hidden');
             cartModal.classList.remove('hidden');
+            // AÑADIDO:
+            cartOverlay.classList.add('visible');
+            cartModal.classList.add('visible');
         }
         
         function closeCartModal() {
+            // AÑADIDO:
+            cartOverlay.classList.remove('visible');
+            cartModal.classList.remove('visible');
             cartOverlay.classList.add('hidden');
             cartModal.classList.add('hidden');
         }
@@ -477,14 +486,23 @@
         const paymentOptions = document.querySelector('.payment-options');
         const paymentStatus = document.getElementById('payment-status');
 
+        // #############################################
+        // ## AQUÍ ESTÁ LA CORRECCIÓN 2 (Pago)        ##
+        // #############################################
         function openModal(name) {
             modalProductName.textContent = name;
             paymentStatus.classList.add('hidden');
             paymentOverlay.classList.remove('hidden');
             paymentModal.classList.remove('hidden');
+            // AÑADIDO:
+            paymentOverlay.classList.add('visible');
+            paymentModal.classList.add('visible');
         }
 
         function closeModal() {
+            // AÑADIDO:
+            paymentOverlay.classList.remove('visible');
+            paymentModal.classList.remove('visible');
             paymentOverlay.classList.add('hidden');
             paymentModal.classList.add('hidden');
         }
@@ -499,7 +517,6 @@
             const method = button.dataset.method;
             const total = cart.reduce((acc, item) => acc + item.price, 0);
 
-            // MODIFICADO: Ahora guarda el pedido en Supabase
             try {
                 const { error } = await _supabase
                     .from('orders')
@@ -511,15 +528,13 @@
 
                 if (error) throw error;
 
-                // Pedido guardado con éxito
                 paymentStatus.textContent = '¡Pedido realizado con éxito! Gracias por tu compra.';
                 paymentStatus.className = 'status-message success';
                 paymentStatus.classList.remove('hidden');
                 
-                cart = []; // Vaciar carrito
+                cart = [];
                 updateCartCount();
                 
-                // Ocultar modal después de 3 segundos
                 setTimeout(closeModal, 3000);
 
             } catch (error) {
@@ -606,7 +621,7 @@
             adminStatus.className = `status-message ${type}`;
         }
         
-        // --- AÑADIDO: Función para cargar y mostrar pedidos al Admin ---
+        // --- Función para cargar y mostrar pedidos al Admin ---
         const ordersListDiv = document.getElementById('orders-list');
         const loadingOrdersMsg = document.getElementById('loading-orders-message');
 
