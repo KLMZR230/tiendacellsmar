@@ -9,32 +9,39 @@
 
     <style>
         :root {
-            --color-primary: #007bff;
-            --color-primary-dark: #0056b3;
-            --color-success: #28a745;
-            --color-danger: #dc3545;
-            --color-light: #f8f9fa;
-            --color-dark: #343a40;
-            --color-grey: #6c757d;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            /* Colores Base Dark Theme */
+            --color-bg: #1a1a1a;
+            --color-card-bg: #2a2a2a;
+            --color-text: #e0e0e0;
+            --color-text-muted: #888;
+            --color-border: #444;
+
+            /* Colores de Acento */
+            --color-primary: #00aaff; /* Azul más brillante */
+            --color-primary-dark: #0088cc;
+            --color-success: #33cc66; /* Verde más brillante */
+            --color-danger: #ff4d4d; /* Rojo más brillante */
+            --color-accent-bright: #00ffff; /* Cian "encendido" */
+
+            /* Otros */
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.4); /* Sombra más oscura */
             --border-radius: 8px;
-            --color-accent-yellow: #ffc107; 
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             line-height: 1.6;
-            background-color: #f0f8ff; 
-            color: var(--color-dark);
+            background-color: var(--color-bg); 
+            color: var(--color-text);
         }
         .hidden { display: none !important; }
 
         /* --- Estilos de Navegación --- */
         nav {
-            background-color: #fff;
+            background-color: var(--color-card-bg);
             padding: 1rem 2rem;
             box-shadow: none;
-            border-bottom: 3px solid var(--color-accent-yellow); 
+            border-bottom: 3px solid var(--color-accent-bright); /* Borde encendido */
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -49,11 +56,11 @@
             border-radius: var(--border-radius);
             transition: background-color 0.2s;
         }
-        nav a:hover { background-color: #f1f1f1; }
+        nav a:hover { background-color: #3a3a3a; } /* Hover más oscuro */
         
         #cart-count {
             background-color: var(--color-danger);
-            color: white;
+            color: #fff; /* Texto blanco para contraste */
             font-size: 0.8rem;
             padding: 2px 6px;
             border-radius: 10px;
@@ -67,69 +74,76 @@
         section { padding: 1rem; }
 
         /* --- 1. Estilos de la TIENDA --- */
-        #loading-message { font-size: 1.2rem; text-align: center; padding: 2rem; }
+        #loading-message { font-size: 1.2rem; text-align: center; padding: 2rem; color: var(--color-text-muted); }
         #product-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 1.5rem;
         }
         .product-card {
-            background-color: #fff;
+            background-color: var(--color-card-bg);
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            transition: transform 0.2s ease;
-            border: 1px solid var(--color-accent-yellow); 
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid var(--color-accent-bright); /* Borde encendido */
         }
-        .product-card:hover { transform: translateY(-5px); }
+        /* Efecto de "glow" al pasar el mouse */
+        .product-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6), 0 0 10px var(--color-accent-bright); 
+        }
         .product-image-container { width: 100%; aspect-ratio: 1 / 1; }
         .product-image { width: 100%; height: 100%; object-fit: cover; }
         .product-info { padding: 1.25rem; flex-grow: 1; display: flex; flex-direction: column; }
-        .product-name { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .product-name { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--color-text); }
         .product-price { font-size: 1.15rem; color: var(--color-primary); font-weight: 700; margin-bottom: 1rem; }
         .cart-btn {
-            padding: 0.75rem; background-color: var(--color-primary); color: white;
+            padding: 0.75rem; background-color: var(--color-primary); color: #fff; /* Texto blanco */
             border: none; border-radius: var(--border-radius); cursor: pointer;
             font-size: 1rem; font-weight: 600; text-align: center;
             transition: background-color 0.2s; margin-top: auto;
         }
-        .cart-btn:hover { background-color: #0056b3; }
+        .cart-btn:hover { background-color: var(--color-primary-dark); }
 
         /* --- 2. Estilos de LOGIN y ADMIN (Formularios) --- */
         .form-container {
             max-width: 500px;
             margin: 2rem auto;
             padding: 2.5rem;
-            background-color: #fff;
+            background-color: var(--color-card-bg);
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
-            border-top: 4px solid var(--color-accent-yellow); 
+            border-top: 4px solid var(--color-accent-bright); /* Borde encendido */
         }
-        .form-container h2 { text-align: center; margin-bottom: 2rem; }
+        .form-container h2 { text-align: center; margin-bottom: 2rem; color: var(--color-text); }
         form { display: grid; gap: 1.25rem; }
         .form-group { display: flex; flex-direction: column; }
-        .form-group label { font-weight: 600; margin-bottom: 0.5rem; }
+        .form-group label { font-weight: 600; margin-bottom: 0.5rem; color: var(--color-text); }
         .form-group input[type="text"],
         .form-group input[type="number"],
         .form-group input[type="email"],
         .form-group input[type="password"] {
-            width: 100%; padding: 0.75rem; border: 1px solid #ccc;
+            width: 100%; padding: 0.75rem; border: 1px solid var(--color-border);
             border-radius: var(--border-radius); font-size: 1rem;
+            background-color: #333; /* Fondo de input oscuro */
+            color: var(--color-text); /* Texto de input claro */
         }
         .file-label {
-            display: inline-block; padding: 0.75rem 1rem; background-color: #fff;
-            border: 1px solid var(--color-grey); border-radius: var(--border-radius);
+            display: inline-block; padding: 0.75rem 1rem; background-color: #444; /* Botón de archivo más oscuro */
+            border: 1px solid var(--color-border); border-radius: var(--border-radius);
             cursor: pointer; transition: background-color 0.2s; text-align: center;
+            color: var(--color-text);
         }
-        .file-label:hover { background-color: #f1f1f1; }
+        .file-label:hover { background-color: #555; }
         #file-name, #edit-file-name { 
-            font-style: italic; color: var(--color-grey); margin-top: 0.5rem; text-align: center; 
+            font-style: italic; color: var(--color-text-muted); margin-top: 0.5rem; text-align: center; 
         }
         
         button[type="submit"] {
-            padding: 0.85rem; background-color: var(--color-primary); color: white;
+            padding: 0.85rem; background-color: var(--color-primary); color: #fff; /* Texto blanco */
             border: none; border-radius: var(--border-radius); cursor: pointer;
             font-size: 1rem; font-weight: 600; display: flex;
             justify-content: center; align-items: center; gap: 0.5rem;
@@ -141,6 +155,7 @@
             text-align: center;
             margin-top: 1.5rem;
             font-size: 0.9rem;
+            color: var(--color-text-muted);
         }
         .form-toggle-links a {
             color: var(--color-primary);
@@ -150,13 +165,13 @@
         }
         
         #logout-btn {
-            width: 100%; padding: 0.75rem; background-color: var(--color-danger); color: white;
+            width: 100%; padding: 0.75rem; background-color: var(--color-danger); color: #fff; /* Texto blanco */
             border: none; border-radius: var(--border-radius); cursor: pointer;
             font-size: 1rem; font-weight: 600; margin-top: 1rem;
         }
 
         .loader {
-            width: 18px; height: 18px; border: 2px solid #FFF;
+            width: 18px; height: 18px; border: 2px solid #fff; /* Borde blanco */
             border-bottom-color: transparent; border-radius: 50%;
             display: inline-block; animation: rotation 1s linear infinite;
         }
@@ -165,25 +180,27 @@
         .status-message {
             text-align: center; font-weight: 600; margin-top: 1.5rem;
             padding: 0.75rem; border-radius: var(--border-radius);
+            border-width: 1px;
+            border-style: solid;
         }
-        .success { background-color: #e6f7ec; color: var(--color-success); border: 1px solid var(--color-success); }
-        .error { background-color: #fdecea; color: var(--color-danger); border: 1px solid var(--color-danger); }
+        .success { background-color: rgba(51, 204, 102, 0.1); color: var(--color-success); border-color: var(--color-success); }
+        .error { background-color: rgba(255, 77, 77, 0.1); color: var(--color-danger); border-color: var(--color-danger); }
         
-        footer { text-align: center; padding: 2rem; margin-top: 2rem; color: #777; }
+        footer { text-align: center; padding: 2rem; margin-top: 2rem; color: var(--color-text-muted); }
 
         /* --- ESTILOS DE TODOS LOS MODALES --- */
-        /* MODIFICADO: Eliminadas referencias a #payment-overlay y #payment-modal */
         #cart-overlay, #cod-overlay, #edit-product-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.6); display: none;
+            background-color: rgba(0, 0, 0, 0.8); /* Fondo más oscuro */ display: none;
         }
         #cart-modal, #cod-modal, #edit-product-modal {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            background-color: #fff; padding: 2.5rem;
+            background-color: var(--color-card-bg); /* Fondo de modal oscuro */ padding: 2.5rem;
             border-radius: var(--border-radius);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
             width: 90%; display: none;
+            color: var(--color-text); /* Texto claro en modales */
         }
         
         #cart-overlay { z-index: 90; }
@@ -195,7 +212,6 @@
         #edit-product-overlay { z-index: 104; }
         #edit-product-modal { z-index: 105; max-width: 500px; }
         
-        /* MODIFICADO: Eliminadas referencias a #payment-overlay y #payment-modal */
         #cart-overlay.visible, #cart-modal.visible,
         #cod-overlay.visible, #cod-modal.visible,
         #edit-product-overlay.visible, #edit-product-modal.visible {
@@ -203,33 +219,36 @@
         }
         
         #cart-items-list { max-height: 300px; overflow-y: auto; margin-bottom: 1rem; }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #eee; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--color-border); }
         .cart-item:last-child { border-bottom: none; }
-        .cart-item-name { font-weight: 600; }
-        .cart-item-price { color: var(--color-grey); }
+        .cart-item-name { font-weight: 600; color: var(--color-text); }
+        .cart-item-price { color: var(--color-text-muted); }
 
-        /* MODIFICADO: Eliminadas referencias a #payment-modal */
         #cod-modal h2, #edit-product-modal h2 { text-align: center; }
         #cod-modal h2, #edit-product-modal h2 { margin-bottom: 1rem; }
         
         .close-btn { position: absolute; top: 10px; right: 15px; font-size: 2.5rem; color: #aaa; background: none; border: none; cursor: pointer; line-height: 1; }
+        .close-btn:hover { color: #fff; }
         
-        /* ELIMINADO: Estilos .payment-options y .payment-btn */
-
         /* Estilos para la lista de pedidos del Admin */
         #orders-container, #admin-products-container {
             max-width: 900px;
             margin: 3rem auto;
             padding: 2.5rem;
-            background-color: #fff;
+            background-color: var(--color-card-bg);
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
+            border-top: 4px solid var(--color-accent-bright); /* Borde encendido */
+        }
+        #orders-container h2, #admin-products-container h2 {
+             color: var(--color-text);
         }
         .order-card {
-            border: 1px solid #ddd;
+            border: 1px solid var(--color-border);
             border-radius: var(--border-radius);
             padding: 1.5rem;
             margin-bottom: 1.5rem;
+            background-color: #333; /* Fondo ligeramente diferente para tarjetas de pedido */
         }
         .order-header {
             display: flex;
@@ -239,12 +258,13 @@
             gap: 1rem;
             margin-bottom: 1rem;
             padding-bottom: 1rem;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--color-border);
         }
-        .order-header p { margin: 0; }
+        .order-header p { margin: 0; color: var(--color-text-muted); }
+        .order-header p strong { color: var(--color-text); }
         .order-total { font-size: 1.2rem; font-weight: bold; color: var(--color-primary); }
         .order-items-list { list-style-type: none; padding-left: 0; }
-        .order-items-list li { display: flex; justify-content: space-between; padding: 0.5rem 0; }
+        .order-items-list li { display: flex; justify-content: space-between; padding: 0.5rem 0; color: var(--color-text); }
         
         .order-status {
             font-weight: bold;
@@ -260,7 +280,7 @@
             display: flex;
             gap: 1rem;
             margin-top: 1.5rem;
-            border-top: 1px solid #eee;
+            border-top: 1px solid var(--color-border);
             padding-top: 1rem;
         }
         .order-actions button {
@@ -272,13 +292,14 @@
             color: white;
         }
         .btn-mark-sent { background-color: var(--color-success); }
-        .btn-mark-sent:hover { background-color: #218838; }
+        .btn-mark-sent:hover { background-color: #2a9d4f; }
         .btn-mark-sent:disabled {
             background-color: var(--color-grey);
             cursor: not-allowed;
+            opacity: 0.6;
         }
         .btn-delete-order { background-color: var(--color-danger); }
-        .btn-delete-order:hover { background-color: #c82333; }
+        .btn-delete-order:hover { background-color: #cc3d3d; }
         
         /* Estilos para la lista de productos del Admin */
         #admin-products-list {
@@ -287,12 +308,13 @@
             gap: 1.5rem;
         }
         .admin-product-card {
-            border: 1px solid #ddd;
+            border: 1px solid var(--color-border);
             border-radius: var(--border-radius);
             overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             display: flex;
             flex-direction: column;
+            background-color: #333; /* Fondo ligeramente diferente */
         }
         .admin-product-card img {
             width: 100%;
@@ -306,11 +328,13 @@
         .admin-product-info h4 {
             font-size: 1.1rem;
             margin-bottom: 0.5rem;
+            color: var(--color-text);
         }
+        .admin-product-info p { color: var(--color-text-muted); }
         .admin-product-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            border-top: 1px solid #eee;
+            border-top: 1px solid var(--color-border);
         }
         .admin-product-actions button {
             padding: 0.75rem;
@@ -321,11 +345,11 @@
         }
         .btn-edit {
             color: var(--color-primary);
-            border-right: 1px solid #eee;
+            border-right: 1px solid var(--color-border);
         }
-        .btn-edit:hover { background-color: #f0f8ff; }
+        .btn-edit:hover { background-color: #444; }
         .btn-delete { color: var(--color-danger); }
-        .btn-delete:hover { background-color: #fdecea; }
+        .btn-delete:hover { background-color: rgba(255, 77, 77, 0.1); }
     </style>
 </head>
 <body>
@@ -350,7 +374,6 @@
 
         <section id="login-section" class="hidden">
             <div class="form-container">
-                
                 <form id="login-form">
                     <h2>Admin Login</h2>
                     <div class="form-group">
@@ -368,7 +391,6 @@
                         ¿No tienes cuenta? <a id="show-register">Regístrate</a>
                     </div>
                 </form>
-
                 <form id="register-form" class="hidden">
                     <h2>Registrarse</h2>
                     <div class="form-group">
@@ -386,7 +408,6 @@
                         ¿Ya tienes cuenta? <a id="show-login">Inicia Sesión</a>
                     </div>
                 </form>
-                
                 <div id="login-status" class="status-message"></div>
             </div>
         </section>
@@ -418,13 +439,11 @@
                 <div id="admin-status" class="status-message"></div>
                 <button id="logout-btn">Cerrar Sesión</button>
             </div>
-
             <div id="orders-container">
                 <h2 style="text-align: center; margin-bottom: 2rem;">Pedidos Recibidos</h2>
                 <div id="orders-list"></div>
                 <p id="loading-orders-message">Cargando pedidos...</p>
             </div>
-            
             <div id="admin-products-container">
                 <h2 style="text-align: center; margin-bottom: 2rem;">Gestionar Productos</h2>
                 <div id="admin-products-list"></div>
@@ -440,11 +459,11 @@
         <button id="close-cart-btn" class="close-btn">&times;</button>
         <h2>Tu Carrito</h2>
         <div id="cart-items-list"><p>Tu carrito está vacío.</p></div>
-        <hr style="margin: 1.5rem 0;">
+        <hr style="margin: 1.5rem 0; border-color: var(--color-border);">
         <h3 style="text-align: right; margin-bottom: 1.5rem;">Total: <span id="cart-total">$0.00</span></h3>
         <button type="submit" id="checkout-btn" style="width:100%;" class="cart-btn">Proceder al Pago</button>
     </div>
-    
+        
     <div id="cod-overlay" class="hidden"></div>
     <div id="cod-modal" class="hidden">
         <button id="close-cod-btn" class="close-btn">&times;</button>
@@ -640,18 +659,14 @@
         closeCartBtn.addEventListener('click', closeCartModal);
         cartOverlay.addEventListener('click', closeCartModal);
         
-        // MODIFICADO: checkoutBtn ahora abre el modal COD directamente
         checkoutBtn.addEventListener('click', () => {
             const total = cart.reduce((acc, item) => acc + item.price, 0);
             if (total <= 0) return;
             closeCartModal();
-            openCodModal(); // <-- CAMBIO
+            openCodModal(); // Directamente al modal COD
         });
 
-        // --- LÓGICA DEL MODAL DE PAGO (Solo Contra Entrega) ---
-        
-        // ELIMINADO: Lógica del modal de pago (paymentModal)
-        
+        // --- LÓGICA DEL MODAL DE CONTRA ENTREGA ---
         const codOverlay = document.getElementById('cod-overlay');
         const codModal = document.getElementById('cod-modal');
         const closeCodBtn = document.getElementById('close-cod-btn');
@@ -689,8 +704,6 @@
             const { error } = await _supabase.from('orders').insert([orderData]);
             return { error };
         }
-
-        // ELIMINADO: Listener de paymentOptions
         
         function setCodFormLoading(isLoading) {
             codSubmitBtn.disabled = isLoading;
@@ -710,7 +723,6 @@
                 phone: document.getElementById('cod-phone').value
             };
             
-            // Llama a saveOrder siempre con el método 'cod'
             const { error } = await saveOrder('cod', total, cart, customerDetails);
             
             if (error) {
@@ -859,7 +871,7 @@
                     let customerHtml = '';
                     if (order.customer_name) {
                         customerHtml = `
-                            <hr style="margin: 1rem 0;">
+                            <hr style="margin: 1rem 0; border-color: var(--color-border);">
                             <p><strong>Cliente:</strong> ${order.customer_name}</p>
                             <p><strong>Dirección:</strong> ${order.customer_address}</p>
                         `;
@@ -1081,7 +1093,7 @@
             }
         }
         
-        // --- LISTENER DE CLIC GLOBAL (MODIFICADO) ---
+        // --- LISTENER DE CLIC GLOBAL ---
         document.addEventListener('click', (e) => {
             const cartButton = e.target.closest('.cart-btn');
             if (cartButton && cartButton.id !== 'checkout-btn') {
