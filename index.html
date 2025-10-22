@@ -57,7 +57,8 @@
         #loading-message { font-size: 1.2rem; text-align: center; padding: 2rem; }
         #product-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            /* MODIFICADO: cuadros más pequeños (240px) */
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 1.5rem;
         }
         .product-card {
@@ -144,6 +145,80 @@
         .error { background-color: #fdecea; color: var(--color-danger); border: 1px solid var(--color-danger); }
         
         footer { text-align: center; padding: 2rem; margin-top: 2rem; color: #777; }
+        
+        /* --- AÑADIDO: Estilos del Modal de Pago --- */
+        #payment-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 100;
+            display: none; /* Oculto por defecto */
+        }
+        
+        #payment-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 101;
+            width: 90%;
+            max-width: 450px;
+            display: none; /* Oculto por defecto */
+        }
+        
+        /* Clase para mostrar el modal */
+        #payment-overlay.visible,
+        #payment-modal.visible {
+            display: block;
+        }
+
+        #payment-modal h2 { text-align: center; margin-bottom: 1rem; }
+        #payment-modal p { text-align: center; margin-bottom: 2rem; font-size: 1.1rem; }
+        
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 2.5rem;
+            color: #aaa;
+            background: none;
+            border: none;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .payment-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .payment-btn {
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: 1px solid #ccc;
+            border-radius: var(--border-radius);
+            background-color: #f9f9f9;
+            cursor: pointer;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .payment-btn:hover {
+            background-color: #f1f1f1;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .payment-btn .emoji { font-size: 1.5rem; }
     </style>
 </head>
 <body>
@@ -214,6 +289,26 @@
         </section>
 
     </main>
+    
+    <div id="payment-overlay" class="hidden"></div>
+    
+    <div id="payment-modal" class="hidden">
+        <button id="close-modal-btn" class="close-btn">&times;</button>
+        <h2>Seleccionar Método de Pago</h2>
+        <p>Estás comprando: <strong id="modal-product-name">Producto</strong></p>
+        
+        <div class="payment-options">
+            <button class="payment-btn" data-method="cod">
+                <span class="emoji">🚚</span> Contra Entrega
+            </button>
+            <button class="payment-btn" data-method="paypal">
+                <span class="emoji">🅿️</span> PayPal
+            </button>
+            <button class="payment-btn" data-method="card">
+                <span class="emoji">💳</span> Tarjeta de Crédito/Débito
+            </button>
+        </div>
+    </div>
     
     <footer>
         <p>&copy; 2025 Cell Smar. Todos los derechos reservados.</p>
@@ -305,11 +400,28 @@
                         <div class="product-info">
                             <h2 class="product-name">${product.name}</h2>
                             <p class="product-price">$${formattedPrice}</p>
-                            <button class="cart-btn" data-id="${product.id}">Añadir al Carrito</button>
+                            <button class="cart-btn" data-id="${product.id}" data-name="${product.name}">Añadir al Carrito</button>
                         </div>
                     `;
                     grid.appendChild(card);
                 });
+                
+                // --- AÑADIDO: Listener para los botones del carrito ---
+                // Usamos un solo listener en la cuadrícula (delegación de eventos)
+                // Se añade un 'if' para evitar duplicar el listener
+                if (!grid.dataset.listenerAttached) {
+                    grid.addEventListener('click', (e) => {
+                        const cartButton = e.target.closest('.cart-btn'); // Busca el botón
+                        if (cartButton) {
+                            const name = cartButton.dataset.name;
+                            const id = cartButton.dataset.id;
+                            openModal(name, id); // Abre el modal con los datos
+                        }
+                    });
+                    grid.dataset.listenerAttached = 'true';
+                }
+                // --- FIN DEL BLOQUE AÑADIDO ---
+
                 productsLoaded = true; // Marcar como cargados
 
             } catch (error) {
@@ -317,6 +429,47 @@
                 loadingMessage.textContent = `Error al cargar la tienda: ${error.message}`;
             }
         }
+        
+        // --- AÑADIDO: LÓGICA DEL MODAL DE PAGO ---
+        const paymentOverlay = document.getElementById('payment-overlay');
+        const paymentModal = document.getElementById('payment-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const modalProductName = document.getElementById('modal-product-name');
+        const paymentOptions = document.querySelector('.payment-options');
+
+        function openModal(name, id) {
+            modalProductName.textContent = name; // Pone el nombre del producto
+            paymentModal.dataset.productId = id; // Guarda el ID en el modal
+            paymentOverlay.classList.add('visible');
+            paymentModal.classList.add('visible');
+        }
+
+        function closeModal() {
+            paymentOverlay.classList.remove('visible');
+            paymentModal.classList.remove('visible');
+        }
+
+        closeModalBtn.addEventListener('click', closeModal);
+        paymentOverlay.addEventListener('click', closeModal); // Cierra al hacer clic afuera
+
+        paymentOptions.addEventListener('click', (e) => {
+            const button = e.target.closest('.payment-btn');
+            if (!button) return; // No se hizo clic en un botón
+
+            const method = button.dataset.method;
+            const productId = paymentModal.dataset.productId;
+            const productName = modalProductName.textContent;
+
+            // Aquí es donde procesarías el pago
+            alert(`Has seleccionado: ${button.textContent.trim()}\nPara el producto: ${productName}`);
+
+            // TODO:
+            // if (method === 'paypal') { /* redirigir a paypal */ }
+            // if (method === 'card') { /* abrir modal de Stripe */ }
+            // if (method === 'cod') { /* enviar a pág de gracias */ }
+            
+            closeModal();
+        });
         
         // --- LÓGICA DE AUTENTICACIÓN (Login/Logout) ---
         const loginForm = document.getElementById('login-form');
