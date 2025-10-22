@@ -194,7 +194,6 @@
         #cod-overlay { z-index: 102; }
         #cod-modal { z-index: 103; max-width: 500px; }
         
-        /* AÑADIDO: Estilos para el modal de Edición */
         #edit-product-overlay { z-index: 104; }
         #edit-product-modal { z-index: 105; max-width: 500px; }
         
@@ -252,7 +251,42 @@
         .order-items-list { list-style-type: none; padding-left: 0; }
         .order-items-list li { display: flex; justify-content: space-between; padding: 0.5rem 0; }
         
-        /* AÑADIDO: Estilos para la lista de productos del Admin */
+        /* AÑADIDO: Estilos para acciones y estado del pedido */
+        .order-status {
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 5px;
+            color: #fff;
+            text-transform: capitalize;
+        }
+        .order-status.pendiente { background-color: var(--color-danger); }
+        .order-status.enviado { background-color: var(--color-success); }
+        
+        .order-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            border-top: 1px solid #eee;
+            padding-top: 1rem;
+        }
+        .order-actions button {
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            color: white;
+        }
+        .btn-mark-sent { background-color: var(--color-success); }
+        .btn-mark-sent:hover { background-color: #218838; }
+        .btn-mark-sent:disabled {
+            background-color: var(--color-grey);
+            cursor: not-allowed;
+        }
+        .btn-delete-order { background-color: var(--color-danger); }
+        .btn-delete-order:hover { background-color: #c82333; }
+        
+        /* Estilos para la lista de productos del Admin */
         #admin-products-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -462,7 +496,6 @@
         <form id="edit-product-form">
             <input type="hidden" id="edit-product-id">
             <input type="hidden" id="edit-old-image-url">
-            
             <div class="form-group">
                 <label for="edit-product-name">Nombre del Producto:</label>
                 <input type="text" id="edit-product-name" required>
@@ -520,7 +553,7 @@
                 if (session) {
                     adminSection.classList.remove('hidden');
                     loadOrders();
-                    loadAdminProducts(); // AÑADIDO: Cargar productos en el admin
+                    loadAdminProducts(); 
                 } else {
                     window.location.hash = '#login';
                 }
@@ -678,7 +711,8 @@
                 items: items,
                 customer_name: customerDetails.name || null,
                 customer_address: customerDetails.address || null,
-                customer_phone: customerDetails.phone || null
+                customer_phone: customerDetails.phone || null,
+                status: 'pendiente' // MODIFICADO: Asegurar que el estado inicial sea 'pendiente'
             };
             const { error } = await _supabase.from('orders').insert([orderData]);
             return { error };
@@ -821,7 +855,7 @@
                 productForm.reset();
                 document.getElementById('file-name').textContent = 'Ningún archivo seleccionado';
                 productsLoaded = false;
-                loadAdminProducts(); // AÑADIDO: Refrescar la lista de productos
+                loadAdminProducts(); 
             } catch (error) {
                 console.error('Error:', error.message);
                 showStatus(error.message, 'error');
@@ -846,9 +880,11 @@
             adminStatus.className = `status-message ${type}`;
         }
         
-        // Cargar Pedidos
+        // --- GESTIÓN DE PEDIDOS (Admin) ---
         const ordersListDiv = document.getElementById('orders-list');
         const loadingOrdersMsg = document.getElementById('loading-orders-message');
+        
+        // Cargar Pedidos
         async function loadOrders() {
             loadingOrdersMsg.textContent = 'Cargando pedidos...';
             loadingOrdersMsg.style.display = 'block';
@@ -860,6 +896,7 @@
                     loadingOrdersMsg.textContent = 'No se han recibido pedidos todavía.'; return;
                 }
                 loadingOrdersMsg.style.display = 'none';
+                
                 data.forEach(order => {
                     const orderCard = document.createElement('div');
                     orderCard.className = 'order-card';
@@ -869,7 +906,29 @@
                     if (order.customer_name) {
                         customerHtml = `<hr style="margin: 1rem 0;"><p><strong>Cliente:</strong> ${order.customer_name}</p><p><strong>Dirección:</strong> ${order.customer_address}</p><p><strong>Teléfono:</strong> ${order.customer_phone}</p>`;
                     }
-                    orderCard.innerHTML = `<div class="order-header"><p><strong>Fecha:</strong> ${orderDate}</p><p><strong>Método de Pago:</strong> ${order.payment_method.toUpperCase()}</p><p class="order-total">Total: $${parseFloat(order.total_amount).toFixed(2)}</p></div><h4>Productos:</h4><ul class="order-items-list">${itemsHtml}</ul>${customerHtml} `;
+                    
+                    // AÑADIDO: Botones de estado y acciones
+                    const isEnviado = order.status === 'enviado';
+                    
+                    orderCard.innerHTML = `
+                        <div class="order-header">
+                            <p><strong>Fecha:</strong> ${orderDate}</p>
+                            <p><strong>Método:</strong> ${order.payment_method.toUpperCase()}</p>
+                            <p><strong>Estado:</strong> <span class="order-status ${order.status}">${order.status}</span></p>
+                            <p class="order-total">Total: $${parseFloat(order.total_amount).toFixed(2)}</p>
+                        </div>
+                        <h4>Productos:</h4>
+                        <ul class="order-items-list">${itemsHtml}</ul>
+                        ${customerHtml}
+                        <div class="order-actions">
+                            <button class="btn-mark-sent" data-id="${order.id}" ${isEnviado ? 'disabled' : ''}>
+                                ${isEnviado ? '✓ Enviado' : 'Marcar como Enviado'}
+                            </button>
+                            <button class="btn-delete-order" data-id="${order.id}">
+                                Eliminar Pedido
+                            </button>
+                        </div>
+                    `;
                     ordersListDiv.appendChild(orderCard);
                 });
             } catch (error) {
@@ -878,20 +937,43 @@
             }
         }
         
-        // 
-        // #############################################
-        // ## AQUÍ ESTÁ EL CAMBIO 3:                    ##
-        // ## Toda la lógica nueva para GESTIONAR       ##
-        // ## productos (Leer, Actualizar, Eliminar)    ##
-        // #############################################
-        //
+        // AÑADIDO: Actualizar estado del pedido
+        async function updateOrderStatus(id, newStatus) {
+            try {
+                const { error } = await _supabase
+                    .from('orders')
+                    .update({ status: newStatus })
+                    .eq('id', id);
+                if (error) throw error;
+                loadOrders(); // Recargar la lista de pedidos
+            } catch (error) {
+                console.error('Error al actualizar estado del pedido:', error.message);
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        // AÑADIDO: Eliminar pedido
+        async function deleteOrder(id) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este pedido? Esta acción es permanente.')) {
+                return;
+            }
+            try {
+                const { error } = await _supabase
+                    .from('orders')
+                    .delete()
+                    .eq('id', id);
+                if (error) throw error;
+                loadOrders(); // Recargar la lista de pedidos
+            } catch (error) {
+                console.error('Error al eliminar pedido:', error.message);
+                alert(`Error: ${error.message}`);
+            }
+        }
         
-        // Selectores para la gestión de productos
+        // --- GESTIÓN DE PRODUCTOS (Admin) ---
         const adminProductsList = document.getElementById('admin-products-list');
         const loadingAdminProductsMsg = document.getElementById('loading-admin-products-message');
         const adminProductsStatus = document.getElementById('admin-products-status');
-        
-        // Selectores del Modal de Edición
         const editModal = document.getElementById('edit-product-modal');
         const editOverlay = document.getElementById('edit-product-overlay');
         const closeEditModalBtn = document.getElementById('close-edit-modal-btn');
@@ -902,7 +984,7 @@
         const editFileInput = document.getElementById('edit-product-image');
         const editFileNameDiv = document.getElementById('edit-file-name');
 
-        // 1. Función para LEER y mostrar productos en el Admin
+        // Cargar productos en el Admin
         async function loadAdminProducts() {
             loadingAdminProductsMsg.textContent = 'Cargando productos...';
             loadingAdminProductsMsg.style.display = 'block';
@@ -927,14 +1009,8 @@
                             <p>$${parseFloat(product.price).toFixed(2)}</p>
                         </div>
                         <div class="admin-product-actions">
-                            <button class="btn-edit" 
-                                data-id="${product.id}" 
-                                data-name="${product.name}" 
-                                data-price="${product.price}" 
-                                data-image-url="${product.image_url}">Editar</button>
-                            <button class="btn-delete" 
-                                data-id="${product.id}" 
-                                data-image-url="${product.image_url}">Eliminar</button>
+                            <button class="btn-edit" data-id="${product.id}" data-name="${escapeHTML(product.name)}" data-price="${product.price}" data-image-url="${product.image_url}">Editar</button>
+                            <button class="btn-delete" data-id="${product.id}" data-image-url="${product.image_url}">Eliminar</button>
                         </div>
                     `;
                     adminProductsList.appendChild(card);
@@ -945,19 +1021,15 @@
             }
         }
         
-        // 2. Funciones para ABRIR/CERRAR el modal de edición
+        // Abrir/Cerrar modal de edición
         function openEditModal(id, name, price, imageUrl) {
-            // Rellenar el formulario con los datos existentes
+            decoder.innerHTML = name; // Decodificar el nombre
             document.getElementById('edit-product-id').value = id;
-            document.getElementById('edit-product-name').value = name;
+            document.getElementById('edit-product-name').value = decoder.value;
             document.getElementById('edit-product-price').value = price;
             document.getElementById('edit-old-image-url').value = imageUrl;
-            
-            // Limpiar el input de archivo
             editFileInput.value = '';
             editFileNameDiv.textContent = 'Ningún archivo nuevo';
-            
-            // Mostrar el modal
             editOverlay.classList.remove('hidden'); editModal.classList.remove('hidden');
             editOverlay.classList.add('visible'); editModal.classList.add('visible');
         }
@@ -969,12 +1041,11 @@
         closeEditModalBtn.addEventListener('click', closeEditModal);
         editOverlay.addEventListener('click', closeEditModal);
         
-        // Listener para el nombre de archivo en el modal de edición
         editFileInput.addEventListener('change', () => {
             editFileNameDiv.textContent = editFileInput.files.length > 0 ? editFileInput.files[0].name : 'Ningún archivo nuevo';
         });
 
-        // 3. Función para ACTUALIZAR (Edit) el producto
+        // Actualizar (Edit) producto
         function setEditFormLoading(isLoading) {
             editSubmitBtn.disabled = isLoading;
             editLoader.classList.toggle('hidden', !isLoading);
@@ -988,7 +1059,6 @@
             const id = document.getElementById('edit-product-id').value;
             const oldImageUrl = document.getElementById('edit-old-image-url').value;
             const newImageFile = editFileInput.files[0];
-            
             const updateData = {
                 name: document.getElementById('edit-product-name').value,
                 price: parseFloat(document.getElementById('edit-product-price').value)
@@ -996,39 +1066,26 @@
             
             try {
                 if (newImageFile) {
-                    // 1. Si hay imagen nueva, subirla
                     const newFileName = `${Date.now()}-${newImageFile.name}`;
-                    const { error: uploadError } = await _supabase.storage
-                        .from('product-images')
-                        .upload(newFileName, newImageFile);
+                    const { error: uploadError } = await _supabase.storage.from('product-images').upload(newFileName, newImageFile);
                     if (uploadError) throw uploadError;
                     
-                    // 2. Obtener la URL pública de la nueva imagen
-                    const { data: urlData } = _supabase.storage
-                        .from('product-images')
-                        .getPublicUrl(newFileName);
+                    const { data: urlData } = _supabase.storage.from('product-images').getPublicUrl(newFileName);
                     updateData.image_url = urlData.publicUrl;
                 }
                 
-                // 3. Actualizar la base de datos
-                const { error: updateError } = await _supabase
-                    .from('products')
-                    .update(updateData)
-                    .eq('id', id);
+                const { error: updateError } = await _supabase.from('products').update(updateData).eq('id', id);
                 if (updateError) throw updateError;
                 
                 if (newImageFile) {
-                    // 4. Si la actualización fue exitosa y hubo imagen nueva,
-                    // borrar la imagen antigua del storage
                     const oldFileName = oldImageUrl.split('product-images/')[1];
                     if (oldFileName) {
                         await _supabase.storage.from('product-images').remove([oldFileName]);
                     }
                 }
                 
-                // 5. Éxito
-                productsLoaded = false; // Forzar recarga en la tienda
-                loadAdminProducts(); // Recargar lista de admin
+                productsLoaded = false; 
+                loadAdminProducts(); 
                 closeEditModal();
                 
             } catch (error) {
@@ -1040,33 +1097,26 @@
             }
         });
         
-        // 4. Función para ELIMINAR producto
+        // Eliminar producto
         async function deleteProduct(id, imageUrl) {
             if (!confirm('¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.')) {
                 return;
             }
-            
             try {
-                // 1. Eliminar de la base de datos
-                const { error: dbError } = await _supabase
-                    .from('products')
-                    .delete()
-                    .eq('id', id);
+                const { error: dbError } = await _supabase.from('products').delete().eq('id', id);
                 if (dbError) throw dbError;
                 
-                // 2. Eliminar imagen del Storage
                 const fileName = imageUrl.split('product-images/')[1];
                 if (fileName) {
                     await _supabase.storage.from('product-images').remove([fileName]);
                 }
                 
-                // 3. Éxito
                 adminProductsStatus.textContent = 'Producto eliminado con éxito.';
                 adminProductsStatus.className = 'status-message success';
                 adminProductsStatus.classList.remove('hidden');
                 
-                productsLoaded = false; // Forzar recarga en la tienda
-                loadAdminProducts(); // Recargar lista de admin
+                productsLoaded = false; 
+                loadAdminProducts(); 
 
             } catch (error) {
                 console.error('Error al eliminar producto:', error.message);
@@ -1082,7 +1132,7 @@
             const cartButton = e.target.closest('.cart-btn');
             if (cartButton && cartButton.id !== 'checkout-btn') {
                 addToCart(cartButton.dataset.id, cartButton.dataset.name, cartButton.dataset.price);
-                return; // Importante para no seguir
+                return; 
             }
             
             // Botón de Editar Producto
@@ -1097,6 +1147,20 @@
             const deleteButton = e.target.closest('.btn-delete');
             if (deleteButton) {
                 deleteProduct(deleteButton.dataset.id, deleteButton.dataset.imageUrl);
+                return;
+            }
+            
+            // AÑADIDO: Botón de Marcar Pedido como Enviado
+            const markSentButton = e.target.closest('.btn-mark-sent');
+            if (markSentButton) {
+                updateOrderStatus(markSentButton.dataset.id, 'enviado');
+                return;
+            }
+
+            // AÑADIDO: Botón de Eliminar Pedido
+            const deleteOrderButton = e.target.closest('.btn-delete-order');
+            if (deleteOrderButton) {
+                deleteOrder(deleteOrderButton.dataset.id);
                 return;
             }
         });
