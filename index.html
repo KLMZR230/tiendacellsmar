@@ -105,10 +105,37 @@
             transform: translateY(-5px);
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6), 0 0 10px var(--color-accent-bright);
         }
-        .product-image-container { width: 100%; aspect-ratio: 1 / 1; }
-        .product-image { width: 100%; height: 100%; object-fit: cover; }
-        .product-info { padding: 1.25rem; flex-grow: 1; display: flex; flex-direction: column; }
-        .product-name { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--color-text); }
+        .product-image-container { 
+            width: 100%; 
+            aspect-ratio: 1 / 1; 
+            overflow: hidden; /* Asegurar recorte */
+        }
+        .product-image { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; /* Escalar y recortar */
+        }
+        .product-info { 
+            padding: 1.25rem; 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; /* Evitar que el texto se salga */
+        }
+        .product-name { 
+            font-size: 1.25rem; 
+            font-weight: 600; 
+            margin-bottom: 0.5rem; 
+            color: var(--color-text);
+            /* --- AJUSTE: Limitar a 2 líneas y añadir ellipsis --- */
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Máximo 2 líneas */
+            -webkit-box-orient: vertical;  
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-height: 2.5em; /* Ajusta si es necesario basado en line-height */
+            word-break: break-word; 
+        }
         .product-price { font-size: 1.15rem; color: var(--color-primary); font-weight: 700; margin-bottom: 1rem; }
         .cart-btn {
             padding: 0.75rem; background-color: var(--color-primary); color: #fff; /* Texto blanco */
@@ -360,10 +387,18 @@
             padding: 1rem;
             flex-grow: 1;
         }
-        .admin-product-info h4 {
+        .admin-product-info h4 { /* Aplica también límite de líneas aquí */
             font-size: 1.1rem;
             margin-bottom: 0.5rem;
             color: var(--color-text);
+            /* --- AJUSTE: Limitar a 2 líneas y añadir ellipsis --- */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-height: 2.2em; /* Ajusta si es necesario */
+            word-break: break-word;
         }
         .admin-product-info p { color: var(--color-text-muted); }
 
@@ -472,7 +507,7 @@
                         <select id="product-category" required>
                             <option value="">-- Selecciona Categoría --</option>
                             <option value="Pantallas">Pantallas</option>
-                            <option value="Llinas Originales Adidas">Llinas Originales Adidas</option>
+                            <option value="Chanclas Adidas Originales">Chanclas Adidas Originales</option>
                             <option value="Cargadores Samsung">Cargadores Samsung</option>
                             <option value="Cargadores de Iphone">Cargadores de Iphone</option>
                             <option value="Otros">Otros</option>
@@ -567,7 +602,7 @@
                 <select id="edit-product-category" required>
                     <option value="">-- Selecciona Categoría --</option>
                     <option value="Pantallas">Pantallas</option>
-                    <option value="Llinas Originales Adidas">Llinas Originales Adidas</option>
+                    <option value="Chanclas Adidas Originales">Chanclas Adidas Originales</option>
                     <option value="Cargadores Samsung">Cargadores Samsung</option>
                     <option value="Cargadores de Iphone">Cargadores de Iphone</option>
                     <option value="Otros">Otros</option>
