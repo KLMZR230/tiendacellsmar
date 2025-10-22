@@ -13,18 +13,18 @@
             --color-primary-dark: #0056b3;
             --color-success: #28a745;
             --color-danger: #dc3545;
-            --color-light: #f8f9fa; /* Este ya no se usa para el fondo */
+            --color-light: #f8f9fa;
             --color-dark: #343a40;
             --color-grey: #6c757d;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             --border-radius: 8px;
-            --color-accent-yellow: #ffc107; /* AÑADIDO: Amarillo Nítido */
+            --color-accent-yellow: #ffc107; 
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             line-height: 1.6;
-            background-color: #f0f8ff; /* MODIFICADO: Fondo Azul Claro */
+            background-color: #f0f8ff; 
             color: var(--color-dark);
         }
         .hidden { display: none !important; }
@@ -33,7 +33,6 @@
         nav {
             background-color: #fff;
             padding: 1rem 2rem;
-            /* MODIFICADO: Borde Amarillo */
             box-shadow: none;
             border-bottom: 3px solid var(--color-accent-yellow); 
             display: flex;
@@ -82,7 +81,7 @@
             display: flex;
             flex-direction: column;
             transition: transform 0.2s ease;
-            border: 1px solid var(--color-accent-yellow); /* AÑADIDO: Borde Amarillo */
+            border: 1px solid var(--color-accent-yellow); 
         }
         .product-card:hover { transform: translateY(-5px); }
         .product-image-container { width: 100%; aspect-ratio: 1 / 1; }
@@ -106,7 +105,6 @@
             background-color: #fff;
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
-            /* MODIFICADO: Borde Amarillo */
             border-top: 4px solid var(--color-accent-yellow); 
         }
         .form-container h2 { text-align: center; margin-bottom: 2rem; }
@@ -159,11 +157,12 @@
         
         footer { text-align: center; padding: 2rem; margin-top: 2rem; color: #777; }
 
-        #cart-overlay, #payment-overlay {
+        /* --- ESTILOS DE TODOS LOS MODALES --- */
+        #cart-overlay, #payment-overlay, #cod-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0, 0, 0, 0.6); display: none;
         }
-        #cart-modal, #payment-modal {
+        #cart-modal, #payment-modal, #cod-modal {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             background-color: #fff; padding: 2.5rem;
@@ -171,13 +170,20 @@
             box-shadow: 0 5px 20px rgba(0,0,0,0.3);
             width: 90%; display: none;
         }
+        
         #cart-overlay { z-index: 90; }
         #cart-modal { z-index: 91; max-width: 550px; }
+        
         #payment-overlay { z-index: 100; }
         #payment-modal { z-index: 101; max-width: 450px; }
         
+        /* AÑADIDO: Estilos para el modal de Contra Entrega */
+        #cod-overlay { z-index: 102; }
+        #cod-modal { z-index: 103; max-width: 500px; }
+        
         #cart-overlay.visible, #cart-modal.visible,
-        #payment-overlay.visible, #payment-modal.visible {
+        #payment-overlay.visible, #payment-modal.visible,
+        #cod-overlay.visible, #cod-modal.visible {
             display: block;
         }
         
@@ -187,8 +193,8 @@
         .cart-item-name { font-weight: 600; }
         .cart-item-price { color: var(--color-grey); }
 
-        #payment-modal h2, #payment-modal p { text-align: center; }
-        #payment-modal h2 { margin-bottom: 1rem; }
+        #payment-modal h2, #payment-modal p, #cod-modal h2 { text-align: center; }
+        #payment-modal h2, #cod-modal h2 { margin-bottom: 1rem; }
         #payment-modal p { margin-bottom: 2rem; font-size: 1.1rem; }
         
         .close-btn { position: absolute; top: 10px; right: 15px; font-size: 2.5rem; color: #aaa; background: none; border: none; cursor: pointer; line-height: 1; }
@@ -328,12 +334,37 @@
         </div>
     </div>
     
+    <div id="cod-overlay" class="hidden"></div>
+    <div id="cod-modal" class="hidden">
+        <button id="close-cod-btn" class="close-btn">&times;</button>
+        <h2>Datos para Contra Entrega</h2>
+        <form id="cod-form">
+            <div class="form-group">
+                <label for="cod-name">Nombre Completo:</label>
+                <input type="text" id="cod-name" required>
+            </div>
+            <div class="form-group">
+                <label for="cod-address">Dirección de Entrega:</label>
+                <input type="text" id="cod-address" required>
+            </div>
+            <div class="form-group">
+                <label for="cod-phone">Número de Teléfono:</label>
+                <input type="text" id="cod-phone" required>
+            </div>
+            <button type="submit" id="cod-submit-btn">
+                <span id="cod-loader" class="loader hidden"></span>
+                <span id="cod-btn-text">Confirmar Pedido</span>
+            </button>
+        </form>
+        <div id="cod-status" class="status-message hidden"></div>
+    </div>
+    
     <footer><p>&copy; 2025 Cell Smar. Todos los derechos reservados.</p></footer>
 
     <script>
         // --- CONFIGURACIÓN E INICIALIZACIÓN ---
         const SUPABASE_URL = 'https://kbvheywmgxkpigoldhuw.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtidmhleXdtZ3hrcGlnb2xkaHV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEwODYzOTQsImV4cCI6MjA3NjY2MjM5NH0.KNK1dmVI5iAvKcIdLAjjyhzrLun3ZgwQe1LIuBhgZU0'; 
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtidmhleXdtZ3hrcGlnb2xkaHV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEwODYzOTQsImV4cCI6MjA3NjY2MjM5NH0.KNK1dmVI5iAvKcIdLAjjyhzrLun3ZgwQe1LIuBhgZU0'; 
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
@@ -486,8 +517,20 @@
         const paymentOptions = document.querySelector('.payment-options');
         const paymentStatus = document.getElementById('payment-status');
 
+        // AÑADIDO: Elementos del Modal COD
+        const codOverlay = document.getElementById('cod-overlay');
+        const codModal = document.getElementById('cod-modal');
+        const closeCodBtn = document.getElementById('close-cod-btn');
+        const codForm = document.getElementById('cod-form');
+        const codSubmitBtn = document.getElementById('cod-submit-btn');
+        const codLoader = document.getElementById('cod-loader');
+        const codBtnText = document.getElementById('cod-btn-text');
+        const codStatus = document.getElementById('cod-status');
+
+
         function openModal(name) {
             modalProductName.textContent = name;
+            paymentStatus.textContent = '';
             paymentStatus.classList.add('hidden');
             paymentOverlay.classList.remove('hidden');
             paymentModal.classList.remove('hidden');
@@ -501,10 +544,46 @@
             paymentOverlay.classList.add('hidden');
             paymentModal.classList.add('hidden');
         }
+        
+        // AÑADIDO: Funciones para el modal COD
+        function openCodModal() {
+            codStatus.textContent = '';
+            codStatus.classList.add('hidden');
+            codOverlay.classList.remove('hidden');
+            codModal.classList.remove('hidden');
+            codOverlay.classList.add('visible');
+            codModal.classList.add('visible');
+        }
+        
+        function closeCodModal() {
+            codOverlay.classList.remove('visible');
+            codModal.classList.remove('visible');
+            codOverlay.classList.add('hidden');
+            codModal.classList.add('hidden');
+            codForm.reset();
+        }
 
         closeModalBtn.addEventListener('click', closeModal);
         paymentOverlay.addEventListener('click', closeModal); 
+        closeCodBtn.addEventListener('click', closeCodModal);
+        codOverlay.addEventListener('click', closeCodModal); 
+        
+        // MODIFICADO: Función reutilizable para guardar el pedido
+        async function saveOrder(method, total, items, customerDetails = {}) {
+            const orderData = {
+                payment_method: method,
+                total_amount: total,
+                items: items,
+                customer_name: customerDetails.name || null,
+                customer_address: customerDetails.address || null,
+                customer_phone: customerDetails.phone || null
+            };
+            
+            const { error } = await _supabase.from('orders').insert([orderData]);
+            return { error };
+        }
 
+        // MODIFICADO: Listener de Opciones de Pago
         paymentOptions.addEventListener('click', async (e) => {
             const button = e.target.closest('.payment-btn');
             if (!button) return; 
@@ -512,31 +591,66 @@
             const method = button.dataset.method;
             const total = cart.reduce((acc, item) => acc + item.price, 0);
 
-            try {
-                const { error } = await _supabase
-                    .from('orders')
-                    .insert([{
-                        payment_method: method,
-                        total_amount: total,
-                        items: cart 
-                    }]);
-
-                if (error) throw error;
-
-                paymentStatus.textContent = '¡Pedido realizado con éxito! Gracias por tu compra.';
-                paymentStatus.className = 'status-message success';
+            if (method === 'cod') {
+                // Es Contra Entrega: cerrar modal de pago y abrir modal de COD
+                closeModal();
+                openCodModal();
+            } else {
+                // Es PayPal o Tarjeta: procesar inmediatamente
+                paymentStatus.textContent = 'Procesando pedido...';
+                paymentStatus.className = 'status-message';
                 paymentStatus.classList.remove('hidden');
-                
+
+                const { error } = await saveOrder(method, total, cart);
+
+                if (error) {
+                    console.error('Error al guardar el pedido:', error.message);
+                    paymentStatus.textContent = `Error al procesar el pedido: ${error.message}`;
+                    paymentStatus.className = 'status-message error';
+                } else {
+                    paymentStatus.textContent = '¡Pedido realizado con éxito! Gracias por tu compra.';
+                    paymentStatus.className = 'status-message success';
+                    cart = [];
+                    updateCartCount();
+                    setTimeout(closeModal, 3000);
+                }
+            }
+        });
+        
+        // AÑADIDO: Listener para el formulario de Contra Entrega
+        function setCodFormLoading(isLoading) {
+            codSubmitBtn.disabled = isLoading;
+            codLoader.classList.toggle('hidden', !isLoading);
+            codBtnText.textContent = isLoading ? 'Confirmando...' : 'Confirmar Pedido';
+        }
+        
+        codForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            setCodFormLoading(true);
+            
+            const total = cart.reduce((acc, item) => acc + item.price, 0);
+            const customerDetails = {
+                name: document.getElementById('cod-name').value,
+                address: document.getElementById('cod-address').value,
+                phone: document.getElementById('cod-phone').value
+            };
+            
+            const { error } = await saveOrder('cod', total, cart, customerDetails);
+            
+            if (error) {
+                console.error('Error al guardar el pedido COD:', error.message);
+                codStatus.textContent = `Error al procesar el pedido: ${error.message}`;
+                codStatus.className = 'status-message error';
+                codStatus.classList.remove('hidden');
+                setCodFormLoading(false);
+            } else {
+                codStatus.textContent = '¡Pedido realizado con éxito! Gracias por tu compra.';
+                codStatus.className = 'status-message success';
+                codStatus.classList.remove('hidden');
                 cart = [];
                 updateCartCount();
-                
-                setTimeout(closeModal, 3000);
-
-            } catch (error) {
-                console.error('Error al guardar el pedido:', error.message);
-                paymentStatus.textContent = `Error al procesar el pedido: ${error.message}`;
-                paymentStatus.className = 'status-message error';
-                paymentStatus.classList.remove('hidden');
+                setCodFormLoading(false);
+                setTimeout(closeCodModal, 3000);
             }
         });
         
@@ -577,7 +691,7 @@
                 const name = document.getElementById('product-name').value;
                 const price = parseFloat(document.getElementById('product-price').value);
                 const imageFile = document.getElementById('product-image').files[0];
-                if (!name || !price || !imageFile) throw new Error('Completa todos los campos.');
+                if (!name || !price || !imageFile) throw new Error('Completa todos loscampos.');
 
                 const fileName = `${Date.now()}-${imageFile.name}`;
                 const { error: uploadError } = await _supabase.storage.from('product-images').upload(fileName, imageFile);
@@ -648,6 +762,17 @@
                     const itemsHtml = order.items.map(item => 
                         `<li><span>${item.name}</span><span>$${item.price.toFixed(2)}</span></li>`
                     ).join('');
+                    
+                    // AÑADIDO: Mostrar datos del cliente si existen (para COD)
+                    let customerHtml = '';
+                    if (order.customer_name) {
+                        customerHtml = `
+                            <hr style="margin: 1rem 0;">
+                            <p><strong>Cliente:</strong> ${order.customer_name}</p>
+                            <p><strong>Dirección:</strong> ${order.customer_address}</p>
+                            <p><strong>Teléfono:</strong> ${order.customer_phone}</p>
+                        `;
+                    }
 
                     orderCard.innerHTML = `
                         <div class="order-header">
@@ -657,6 +782,7 @@
                         </div>
                         <h4>Productos:</h4>
                         <ul class="order-items-list">${itemsHtml}</ul>
+                        ${customerHtml} 
                     `;
                     ordersListDiv.appendChild(orderCard);
                 });
