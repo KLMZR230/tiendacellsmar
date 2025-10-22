@@ -57,8 +57,8 @@
         #loading-message { font-size: 1.2rem; text-align: center; padding: 2rem; }
         #product-grid {
             display: grid;
-            /* MODIFICADO: cuadros más pequeños (240px) */
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            /* MODIFICADO: cuadros más pequeños (200px) */
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 1.5rem;
         }
         .product-card {
@@ -146,7 +146,7 @@
         
         footer { text-align: center; padding: 2rem; margin-top: 2rem; color: #777; }
         
-        /* --- AÑADIDO: Estilos del Modal de Pago --- */
+        /* --- Estilos del Modal de Pago --- */
         #payment-overlay {
             position: fixed;
             top: 0;
@@ -321,7 +321,7 @@
         // ¡¡USA TU NUEVA CLAVE API!!
         // -----------------------------------------------------------------
         const SUPABASE_URL = 'https://kbvheywmgxkpigoldhuw.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtidmhleXdtZ3hrcGlnb2xkaHV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEwODYzOTQsImV4cCI6MjA3NjY2MjM5NH0.KNK1dmVI5iAvKcIdLAjjyhzrLun3ZgwQe1LIuBhgZU0'; 
+        const SUPABASE_ANON_KEY = 'PEGA_TU_NUEVA_CLAVE_API_AQUI'; 
         // -----------------------------------------------------------------
 
         // Inicializar cliente
@@ -406,22 +406,6 @@
                     grid.appendChild(card);
                 });
                 
-                // --- AÑADIDO: Listener para los botones del carrito ---
-                // Usamos un solo listener en la cuadrícula (delegación de eventos)
-                // Se añade un 'if' para evitar duplicar el listener
-                if (!grid.dataset.listenerAttached) {
-                    grid.addEventListener('click', (e) => {
-                        const cartButton = e.target.closest('.cart-btn'); // Busca el botón
-                        if (cartButton) {
-                            const name = cartButton.dataset.name;
-                            const id = cartButton.dataset.id;
-                            openModal(name, id); // Abre el modal con los datos
-                        }
-                    });
-                    grid.dataset.listenerAttached = 'true';
-                }
-                // --- FIN DEL BLOQUE AÑADIDO ---
-
                 productsLoaded = true; // Marcar como cargados
 
             } catch (error) {
@@ -462,14 +446,27 @@
 
             // Aquí es donde procesarías el pago
             alert(`Has seleccionado: ${button.textContent.trim()}\nPara el producto: ${productName}`);
-
+            
             // TODO:
             // if (method === 'paypal') { /* redirigir a paypal */ }
             // if (method === 'card') { /* abrir modal de Stripe */ }
             // if (method === 'cod') { /* enviar a pág de gracias */ }
-            
+
             closeModal();
         });
+        
+        // --- CORRECCIÓN: Listener del botón "Añadir al Carrito" ---
+        // Se añade el listener a la sección de la tienda (shopSection)
+        // Esto funciona aunque los productos se carguen después.
+        shopSection.addEventListener('click', (e) => {
+            const cartButton = e.target.closest('.cart-btn'); // Busca el botón
+            if (cartButton) {
+                const name = cartButton.dataset.name;
+                const id = cartButton.dataset.id;
+                openModal(name, id); // Abre el modal con los datos
+            }
+        });
+        // --- FIN DE LA CORRECCIÓN ---
         
         // --- LÓGICA DE AUTENTICACIÓN (Login/Logout) ---
         const loginForm = document.getElementById('login-form');
