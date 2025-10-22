@@ -75,11 +75,24 @@
 
         /* --- 1. Estilos de la TIENDA --- */
         #loading-message { font-size: 1.2rem; text-align: center; padding: 2rem; color: var(--color-text-muted); }
-        #product-grid {
+        
+        /* AÑADIDO: Estilo para títulos de categoría */
+        .category-title {
+            font-size: 1.8rem;
+            color: var(--color-accent-bright);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--color-border);
+        }
+        
+        /* MODIFICADO: Ahora es una clase para múltiples grids */
+        .product-grid { 
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 1.5rem;
+            margin-bottom: 3rem; /* Espacio entre categorías */
         }
+        
         .product-card {
             background-color: var(--color-card-bg);
             border-radius: var(--border-radius);
@@ -90,7 +103,6 @@
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             border: 1px solid var(--color-accent-bright); /* Borde encendido */
         }
-        /* Efecto de "glow" al pasar el mouse */
         .product-card:hover { 
             transform: translateY(-5px); 
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6), 0 0 10px var(--color-accent-bright); 
@@ -122,10 +134,12 @@
         form { display: grid; gap: 1.25rem; }
         .form-group { display: flex; flex-direction: column; }
         .form-group label { font-weight: 600; margin-bottom: 0.5rem; color: var(--color-text); }
+        /* Estilo para <select> igual que <input> */
         .form-group input[type="text"],
         .form-group input[type="number"],
         .form-group input[type="email"],
-        .form-group input[type="password"] {
+        .form-group input[type="password"],
+        .form-group select {
             width: 100%; padding: 0.75rem; border: 1px solid var(--color-border);
             border-radius: var(--border-radius); font-size: 1rem;
             background-color: #333; /* Fondo de input oscuro */
@@ -221,15 +235,13 @@
         #cart-items-list { max-height: 300px; overflow-y: auto; margin-bottom: 1rem; }
         .cart-item { 
             display: flex; 
-            /* justify-content: space-between; */ /* Se quita para alinear imagen */
             align-items: center; 
             padding: 0.75rem 0; 
             border-bottom: 1px solid var(--color-border); 
-            gap: 1rem; /* Espacio entre imagen, nombre y precio */
+            gap: 1rem; 
         }
         .cart-item:last-child { border-bottom: none; }
         
-        /* AÑADIDO: Estilo para la imagen en el carrito */
         .cart-item-image {
             width: 50px;
             height: 50px;
@@ -241,12 +253,12 @@
         .cart-item-name { 
             font-weight: 600; 
             color: var(--color-text); 
-            flex-grow: 1; /* Ocupa el espacio restante */
-            margin-right: 1rem; /* Espacio antes del precio */
+            flex-grow: 1; 
+            margin-right: 1rem; 
         }
         .cart-item-price { 
             color: var(--color-text-muted); 
-            white-space: nowrap; /* Evita que el precio se parta */
+            white-space: nowrap; 
         }
 
         #cod-modal h2, #edit-product-modal h2 { text-align: center; }
@@ -289,7 +301,7 @@
         .order-header p strong { color: var(--color-text); }
         .order-total { font-size: 1.2rem; font-weight: bold; color: var(--color-primary); }
         .order-items-list { list-style-type: none; padding-left: 0; }
-        .order-items-list li { display: flex; justify-content: space-between; padding: 0.5rem 0; color: var(--color-text); }
+        .order-items-list li { display: flex; align-items: center; /* Alinea imagen y texto */ justify-content: space-between; padding: 0.5rem 0; color: var(--color-text); }
         
         .order-status {
             font-weight: bold;
@@ -357,6 +369,15 @@
             color: var(--color-text);
         }
         .admin-product-info p { color: var(--color-text-muted); }
+        
+        /* AÑADIDO: Mostrar categoría en admin */
+        .admin-product-category {
+            font-size: 0.85rem;
+            color: var(--color-accent-bright);
+            font-style: italic;
+            margin-top: 0.5rem;
+        }
+        
         .admin-product-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -394,7 +415,7 @@
 
     <main>
         <section id="shop-section">
-            <div id="product-grid"></div>
+            <div id="shop-categories-container"></div>
             <p id="loading-message">Cargando productos...</p>
         </section>
 
@@ -450,6 +471,18 @@
                         <label for="product-price">Precio:</label>
                         <input type="number" id="product-price" step="0.01" min="0" required>
                     </div>
+                    
+                    <div class="form-group">
+                        <label for="product-category">Categoría:</label>
+                        <select id="product-category" required>
+                            <option value="">-- Selecciona Categoría --</option>
+                            <option value="Pantallas">Pantallas</option>
+                            <option value="Llinas Originales Adidas">Llinas Originales Adidas</option>
+                            <option value="Cargadores Samsung">Cargadores Samsung</option>
+                            <option value="Otros">Otros</option> 
+                        </select>
+                    </div>
+
                     <div class="form-group">
                         <label for="product-image" class="file-label">
                             Haz clic para subir una imagen
@@ -534,6 +567,18 @@
                 <label for="edit-product-price">Precio:</label>
                 <input type="number" id="edit-product-price" step="0.01" min="0" required>
             </div>
+            
+             <div class="form-group">
+                <label for="edit-product-category">Categoría:</label>
+                <select id="edit-product-category" required>
+                    <option value="">-- Selecciona Categoría --</option>
+                    <option value="Pantallas">Pantallas</option>
+                    <option value="Llinas Originales Adidas">Llinas Originales Adidas</option>
+                    <option value="Cargadores Samsung">Cargadores Samsung</option>
+                    <option value="Otros">Otros</option> 
+                </select>
+            </div>
+
             <div class="form-group">
                 <label for="edit-product-image" class="file-label">
                     Cambiar imagen (Opcional)
@@ -591,7 +636,8 @@
         }
 
         // --- LÓGICA DE LA TIENDA ---
-        const grid = document.getElementById('product-grid');
+        // MODIFICADO: Contenedor principal de la tienda
+        const shopCategoriesContainer = document.getElementById('shop-categories-container'); 
         const loadingMessage = document.getElementById('loading-message');
 
         function escapeHTML(str) {
@@ -600,17 +646,17 @@
         }
 
         // #############################################
-        // ## AQUÍ ESTÁ EL CAMBIO 1:                    ##
-        // ## Añadir `data-image-url` al botón          ##
+        // ## AQUÍ ESTÁ EL CAMBIO 3:                    ##
+        // ## `loadProducts` ahora agrupa por categoría ##
         // #############################################
         async function loadProducts() {
             if (productsLoaded) return; 
             loadingMessage.textContent = 'Cargando productos...';
             loadingMessage.style.display = 'block';
-            grid.innerHTML = ''; 
+            shopCategoriesContainer.innerHTML = ''; // Limpiar contenedor principal
 
             try {
-                const { data, error } = await _supabase.from('products').select('*').order('created_at', { ascending: false });
+                const { data, error } = await _supabase.from('products').select('*').order('category').order('created_at', { ascending: false }); // Ordenar por categoría también
                 if (error) throw error;
                 if (data.length === 0) {
                     loadingMessage.textContent = 'Aún no hay productos en la tienda.';
@@ -618,24 +664,55 @@
                 }
                 loadingMessage.style.display = 'none';
 
+                // 1. Agrupar productos por categoría
+                const groupedProducts = {};
                 data.forEach(product => {
-                    const formattedPrice = parseFloat(product.price).toFixed(2);
-                    const safeName = escapeHTML(product.name);
-                    const card = document.createElement('div');
-                    card.className = 'product-card';
-                    card.innerHTML = `
-                        <div class="product-image-container"><img src="${product.image_url}" alt="${safeName}" class="product-image"></div>
-                        <div class="product-info">
-                            <h2 class="product-name">${product.name}</h2>
-                            <p class="product-price">$${formattedPrice}</p>
-                            <button class="cart-btn" 
-                                data-id="${product.id}" 
-                                data-name="${safeName}" 
-                                data-price="${formattedPrice}"
-                                data-image-url="${product.image_url}">Añadir al Carrito</button> 
-                        </div>`;
-                    grid.appendChild(card);
+                    const category = product.category || 'Otros'; // Usar 'Otros' si la categoría es nula/vacía
+                    if (!groupedProducts[category]) {
+                        groupedProducts[category] = [];
+                    }
+                    groupedProducts[category].push(product);
                 });
+
+                // 2. Renderizar cada categoría y sus productos
+                for (const category in groupedProducts) {
+                    // Crear contenedor para la categoría
+                    const categorySection = document.createElement('div');
+                    
+                    // Crear título de la categoría
+                    const categoryTitle = document.createElement('h2');
+                    categoryTitle.className = 'category-title';
+                    categoryTitle.textContent = category;
+                    categorySection.appendChild(categoryTitle);
+
+                    // Crear grid para los productos de esta categoría
+                    const categoryGrid = document.createElement('div');
+                    categoryGrid.className = 'product-grid'; 
+                    
+                    // Añadir productos al grid de la categoría
+                    groupedProducts[category].forEach(product => {
+                        const formattedPrice = parseFloat(product.price).toFixed(2);
+                        const safeName = escapeHTML(product.name);
+                        const card = document.createElement('div');
+                        card.className = 'product-card';
+                        card.innerHTML = `
+                            <div class="product-image-container"><img src="${product.image_url}" alt="${safeName}" class="product-image"></div>
+                            <div class="product-info">
+                                <h2 class="product-name">${product.name}</h2>
+                                <p class="product-price">$${formattedPrice}</p>
+                                <button class="cart-btn" 
+                                    data-id="${product.id}" 
+                                    data-name="${safeName}" 
+                                    data-price="${formattedPrice}"
+                                    data-image-url="${product.image_url}">Añadir al Carrito</button> 
+                            </div>`;
+                        categoryGrid.appendChild(card);
+                    });
+                    
+                    categorySection.appendChild(categoryGrid); // Añadir grid a la sección
+                    shopCategoriesContainer.appendChild(categorySection); // Añadir sección al contenedor principal
+                }
+
                 productsLoaded = true; 
             } catch (error) {
                 console.error('Error cargando productos:', error.message);
@@ -653,10 +730,6 @@
         const cartTotal = document.getElementById('cart-total');
         const checkoutBtn = document.getElementById('checkout-btn');
         
-        // #############################################
-        // ## AQUÍ ESTÁ EL CAMBIO 2:                    ##
-        // ## `addToCart` ahora guarda `imageUrl`       ##
-        // #############################################
         function addToCart(id, name, price, imageUrl) {
             decoder.innerHTML = name;
             cart.push({ id, name: decoder.value, price: parseFloat(price), imageUrl: imageUrl });
@@ -664,10 +737,6 @@
         }
         function updateCartCount() { cartCount.textContent = cart.length; }
         
-        // #############################################
-        // ## AQUÍ ESTÁ EL CAMBIO 3:                    ##
-        // ## `renderCartItems` ahora muestra la imagen ##
-        // #############################################
         function renderCartItems() {
             cartItemsList.innerHTML = '';
             let total = 0;
@@ -740,7 +809,7 @@
             const orderData = {
                 payment_method: method,
                 total_amount: total,
-                items: items, // Ya contiene la imageUrl
+                items: items, 
                 customer_name: customerDetails.name || null,
                 customer_address: customerDetails.address || null,
                 customer_reference: customerDetails.reference || null,
@@ -846,21 +915,31 @@
         
         // Cargar Nuevo Producto
         const productForm = document.getElementById('product-form');
+        
+        // #############################################
+        // ## AQUÍ ESTÁ EL CAMBIO 4:                    ##
+        // ## `submit` de carga ahora incluye categoría ##
+        // #############################################
         productForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             setLoading(true);
             try {
                 const name = document.getElementById('product-name').value;
                 const price = parseFloat(document.getElementById('product-price').value);
+                const category = document.getElementById('product-category').value; // OBTENER CATEGORÍA
                 const imageFile = document.getElementById('product-image').files[0];
-                if (!name || !price || !imageFile) throw new Error('Completa todos los campos.');
+                
+                // VALIDAR CATEGORÍA
+                if (!name || !price || !category || !imageFile) throw new Error('Completa todos los campos, incluida la categoría.');
 
                 const fileName = `${Date.now()}-${imageFile.name}`;
                 const { error: uploadError } = await _supabase.storage.from('product-images').upload(fileName, imageFile);
                 if (uploadError) throw uploadError;
 
                 const { data: urlData } = _supabase.storage.from('product-images').getPublicUrl(fileName);
-                const { error: insertError } = await _supabase.from('products').insert([{ name, price, image_url: urlData.publicUrl }]);
+                
+                // INCLUIR CATEGORÍA EN INSERT
+                const { error: insertError } = await _supabase.from('products').insert([{ name, price, image_url: urlData.publicUrl, category }]); 
                 if (insertError) throw insertError;
 
                 showStatus('¡Producto guardado con éxito!', 'success');
@@ -912,10 +991,10 @@
                     const orderCard = document.createElement('div');
                     orderCard.className = 'order-card';
                     const orderDate = new Date(order.created_at).toLocaleString('es-ES');
-                    // MODIFICADO: Mostrar imagen en la lista de items del pedido
+                    // Mostrar imagen en la lista de items del pedido
                     const itemsHtml = order.items.map(item => 
                         `<li>
-                           <img src="${item.imageUrl}" alt="${item.name}" style="width: 30px; height: 30px; object-fit: cover; margin-right: 10px; border-radius: 4px;"> 
+                           ${item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.name}" style="width: 30px; height: 30px; object-fit: cover; margin-right: 10px; border-radius: 4px;">` : ''} 
                            <span>${item.name}</span>
                            <span>$${item.price.toFixed(2)}</span>
                          </li>`
@@ -1008,6 +1087,10 @@
         const editFileInput = document.getElementById('edit-product-image');
         const editFileNameDiv = document.getElementById('edit-file-name');
 
+        // #############################################
+        // ## AQUÍ ESTÁ EL CAMBIO 5:                    ##
+        // ## `loadAdminProducts` ahora muestra cat.    ##
+        // #############################################
         async function loadAdminProducts() {
             loadingAdminProductsMsg.textContent = 'Cargando productos...';
             loadingAdminProductsMsg.style.display = 'block';
@@ -1025,14 +1108,21 @@
                 data.forEach(product => {
                     const card = document.createElement('div');
                     card.className = 'admin-product-card';
+                    // Añadido data-category al botón editar
                     card.innerHTML = `
                         <img src="${product.image_url}" alt="${product.name}">
                         <div class="admin-product-info">
                             <h4>${product.name}</h4>
                             <p>$${parseFloat(product.price).toFixed(2)}</p>
+                            <p class="admin-product-category">${product.category || 'Sin categoría'}</p> 
                         </div>
                         <div class="admin-product-actions">
-                            <button class="btn-edit" data-id="${product.id}" data-name="${escapeHTML(product.name)}" data-price="${product.price}" data-image-url="${product.image_url}">Editar</button>
+                            <button class="btn-edit" 
+                                data-id="${product.id}" 
+                                data-name="${escapeHTML(product.name)}" 
+                                data-price="${product.price}" 
+                                data-image-url="${product.image_url}" 
+                                data-category="${product.category}">Editar</button>
                             <button class="btn-delete" data-id="${product.id}" data-image-url="${product.image_url}">Eliminar</button>
                         </div>
                     `;
@@ -1044,12 +1134,18 @@
             }
         }
         
-        function openEditModal(id, name, price, imageUrl) {
+        // #############################################
+        // ## AQUÍ ESTÁ EL CAMBIO 6:                    ##
+        // ## `openEditModal` ahora recibe y usa cat.   ##
+        // #############################################
+        function openEditModal(id, name, price, imageUrl, category) {
             decoder.innerHTML = name;
             document.getElementById('edit-product-id').value = id;
             document.getElementById('edit-product-name').value = decoder.value;
             document.getElementById('edit-product-price').value = price;
             document.getElementById('edit-old-image-url').value = imageUrl;
+            document.getElementById('edit-product-category').value = category || ''; // Seleccionar categoría actual
+            
             editFileInput.value = '';
             editFileNameDiv.textContent = 'Ningún archivo nuevo';
             editOverlay.classList.remove('hidden'); editModal.classList.remove('hidden');
@@ -1073,6 +1169,10 @@
             editBtnText.textContent = isLoading ? 'Guardando...' : 'Guardar Cambios';
         }
         
+        // #############################################
+        // ## AQUÍ ESTÁ EL CAMBIO 7:                    ##
+        // ## `submit` de edición incluye categoría     ##
+        // #############################################
         editForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             setEditFormLoading(true);
@@ -1080,10 +1180,21 @@
             const id = document.getElementById('edit-product-id').value;
             const oldImageUrl = document.getElementById('edit-old-image-url').value;
             const newImageFile = editFileInput.files[0];
+            
+            // Añadida categoría a los datos de actualización
             const updateData = {
                 name: document.getElementById('edit-product-name').value,
-                price: parseFloat(document.getElementById('edit-product-price').value)
+                price: parseFloat(document.getElementById('edit-product-price').value),
+                category: document.getElementById('edit-product-category').value
             };
+
+            // Validar que la categoría no esté vacía
+            if (!updateData.category) {
+                 document.getElementById('edit-product-status').textContent = `Error: Debes seleccionar una categoría.`;
+                document.getElementById('edit-product-status').className = 'status-message error';
+                setEditFormLoading(false);
+                return; 
+            }
             
             try {
                 if (newImageFile) {
@@ -1098,10 +1209,11 @@
                 const { error: updateError } = await _supabase.from('products').update(updateData).eq('id', id);
                 if (updateError) throw updateError;
                 
-                if (newImageFile) {
+                if (newImageFile && updateData.image_url !== oldImageUrl) { // Solo borrar si la URL cambió
                     const oldFileName = oldImageUrl.split('product-images/')[1];
                     if (oldFileName) {
-                        await _supabase.storage.from('product-images').remove([oldFileName]);
+                        // Intentar borrar, pero no fallar si no se encuentra (puede haber sido borrada antes)
+                        await _supabase.storage.from('product-images').remove([oldFileName]); 
                     }
                 }
                 
@@ -1128,7 +1240,7 @@
                 
                 const fileName = imageUrl.split('product-images/')[1];
                 if (fileName) {
-                    await _supabase.storage.from('product-images').remove([fileName]);
+                   await _supabase.storage.from('product-images').remove([fileName]);
                 }
                 
                 adminProductsStatus.textContent = 'Producto eliminado con éxito.';
@@ -1147,20 +1259,17 @@
         }
         
         // --- LISTENER DE CLIC GLOBAL ---
-        // #############################################
-        // ## AQUÍ ESTÁ EL CAMBIO 4:                    ##
-        // ## Pasar `imageUrl` a `addToCart`           ##
-        // #############################################
         document.addEventListener('click', (e) => {
             const cartButton = e.target.closest('.cart-btn');
             if (cartButton && cartButton.id !== 'checkout-btn') {
-                addToCart(cartButton.dataset.id, cartButton.dataset.name, cartButton.dataset.price, cartButton.dataset.imageUrl); // Añadido imageUrl
+                addToCart(cartButton.dataset.id, cartButton.dataset.name, cartButton.dataset.price, cartButton.dataset.imageUrl); 
                 return; 
             }
             const editButton = e.target.closest('.btn-edit');
             if (editButton) {
                 const ds = editButton.dataset;
-                openEditModal(ds.id, ds.name, ds.price, ds.imageUrl);
+                // Pasar categoría al abrir modal
+                openEditModal(ds.id, ds.name, ds.price, ds.imageUrl, ds.category); 
                 return;
             }
             const deleteButton = e.target.closest('.btn-delete');
