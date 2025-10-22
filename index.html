@@ -172,11 +172,12 @@
         footer { text-align: center; padding: 2rem; margin-top: 2rem; color: #777; }
 
         /* --- ESTILOS DE TODOS LOS MODALES --- */
-        #cart-overlay, #payment-overlay, #cod-overlay, #edit-product-overlay {
+        /* MODIFICADO: Eliminadas referencias a #payment-overlay y #payment-modal */
+        #cart-overlay, #cod-overlay, #edit-product-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0, 0, 0, 0.6); display: none;
         }
-        #cart-modal, #payment-modal, #cod-modal, #edit-product-modal {
+        #cart-modal, #cod-modal, #edit-product-modal {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             background-color: #fff; padding: 2.5rem;
@@ -188,17 +189,14 @@
         #cart-overlay { z-index: 90; }
         #cart-modal { z-index: 91; max-width: 550px; }
         
-        #payment-overlay { z-index: 100; }
-        #payment-modal { z-index: 101; max-width: 450px; }
-        
         #cod-overlay { z-index: 102; }
         #cod-modal { z-index: 103; max-width: 500px; }
         
         #edit-product-overlay { z-index: 104; }
         #edit-product-modal { z-index: 105; max-width: 500px; }
         
+        /* MODIFICADO: Eliminadas referencias a #payment-overlay y #payment-modal */
         #cart-overlay.visible, #cart-modal.visible,
-        #payment-overlay.visible, #payment-modal.visible,
         #cod-overlay.visible, #cod-modal.visible,
         #edit-product-overlay.visible, #edit-product-modal.visible {
             display: block;
@@ -210,16 +208,13 @@
         .cart-item-name { font-weight: 600; }
         .cart-item-price { color: var(--color-grey); }
 
-        #payment-modal h2, #payment-modal p, #cod-modal h2, #edit-product-modal h2 { text-align: center; }
-        #payment-modal h2, #cod-modal h2, #edit-product-modal h2 { margin-bottom: 1rem; }
-        #payment-modal p { margin-bottom: 2rem; font-size: 1.1rem; }
+        /* MODIFICADO: Eliminadas referencias a #payment-modal */
+        #cod-modal h2, #edit-product-modal h2 { text-align: center; }
+        #cod-modal h2, #edit-product-modal h2 { margin-bottom: 1rem; }
         
         .close-btn { position: absolute; top: 10px; right: 15px; font-size: 2.5rem; color: #aaa; background: none; border: none; cursor: pointer; line-height: 1; }
         
-        .payment-options { display: flex; flex-direction: column; gap: 1rem; }
-        .payment-btn { padding: 1rem; font-size: 1.1rem; font-weight: 600; border: 1px solid #ccc; border-radius: var(--border-radius); background-color: #f9f9f9; cursor: pointer; transition: background-color 0.2s, box-shadow 0.2s; display: flex; align-items: center; gap: 0.75rem; }
-        .payment-btn:hover { background-color: #f1f1f1; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .payment-btn .emoji { font-size: 1.5rem; }
+        /* ELIMINADO: Estilos .payment-options y .payment-btn */
 
         /* Estilos para la lista de pedidos del Admin */
         #orders-container, #admin-products-container {
@@ -450,19 +445,6 @@
         <button type="submit" id="checkout-btn" style="width:100%;" class="cart-btn">Proceder al Pago</button>
     </div>
     
-    <div id="payment-overlay" class="hidden"></div>
-    <div id="payment-modal" class="hidden">
-        <button id="close-modal-btn" class="close-btn">&times;</button>
-        <h2>Seleccionar Método de Pago</h2>
-        <p><strong id="modal-product-name"></strong></p>
-        <div id="payment-status" class="status-message hidden"></div>
-        <div class="payment-options">
-            <button class="payment-btn" data-method="cod"><span class="emoji">🚚</span> Contra Entrega</button>
-            <button class="payment-btn" data-method="paypal"><span class="emoji">🅿️</span> PayPal</button>
-            <button class="payment-btn" data-method="card"><span class="emoji">💳</span> Tarjeta de Crédito/Débito</button>
-        </div>
-    </div>
-    
     <div id="cod-overlay" class="hidden"></div>
     <div id="cod-modal" class="hidden">
         <button id="close-cod-btn" class="close-btn">&times;</button>
@@ -476,12 +458,10 @@
                 <label for="cod-address">Dirección de Entrega:</label>
                 <input type="text" id="cod-address" required>
             </div>
-            
             <div class="form-group">
                 <label for="cod-reference">Punto de Referencia (Opcional):</label>
                 <input type="text" id="cod-reference">
             </div>
-            
             <div class="form-group">
                 <label for="cod-phone">Número de Teléfono:</label>
                 <input type="text" id="cod-phone" required>
@@ -660,20 +640,18 @@
         closeCartBtn.addEventListener('click', closeCartModal);
         cartOverlay.addEventListener('click', closeCartModal);
         
+        // MODIFICADO: checkoutBtn ahora abre el modal COD directamente
         checkoutBtn.addEventListener('click', () => {
             const total = cart.reduce((acc, item) => acc + item.price, 0);
             if (total <= 0) return;
             closeCartModal();
-            openModal(`Total a Pagar: $${total.toFixed(2)}`);
+            openCodModal(); // <-- CAMBIO
         });
 
-        // --- LÓGICA DEL MODAL DE PAGO Y GUARDADO DE PEDIDOS ---
-        const paymentOverlay = document.getElementById('payment-overlay');
-        const paymentModal = document.getElementById('payment-modal');
-        const closeModalBtn = document.getElementById('close-modal-btn');
-        const modalProductName = document.getElementById('modal-product-name');
-        const paymentOptions = document.querySelector('.payment-options');
-        const paymentStatus = document.getElementById('payment-status');
+        // --- LÓGICA DEL MODAL DE PAGO (Solo Contra Entrega) ---
+        
+        // ELIMINADO: Lógica del modal de pago (paymentModal)
+        
         const codOverlay = document.getElementById('cod-overlay');
         const codModal = document.getElementById('cod-modal');
         const closeCodBtn = document.getElementById('close-cod-btn');
@@ -683,16 +661,6 @@
         const codBtnText = document.getElementById('cod-btn-text');
         const codStatus = document.getElementById('cod-status');
 
-        function openModal(name) {
-            modalProductName.textContent = name;
-            paymentStatus.textContent = ''; paymentStatus.classList.add('hidden');
-            paymentOverlay.classList.remove('hidden'); paymentModal.classList.remove('hidden');
-            paymentOverlay.classList.add('visible'); paymentModal.classList.add('visible');
-        }
-        function closeModal() {
-            paymentOverlay.classList.remove('visible'); paymentModal.classList.remove('visible');
-            paymentOverlay.classList.add('hidden'); paymentModal.classList.add('hidden');
-        }
         function openCodModal() {
             codStatus.textContent = ''; codStatus.classList.add('hidden');
             codOverlay.classList.remove('hidden'); codModal.classList.remove('hidden');
@@ -704,15 +672,9 @@
             codForm.reset();
         }
 
-        closeModalBtn.addEventListener('click', closeModal);
-        paymentOverlay.addEventListener('click', closeModal); 
         closeCodBtn.addEventListener('click', closeCodModal);
         codOverlay.addEventListener('click', closeCodModal); 
         
-        // #############################################
-        // ## AQUÍ ESTÁ EL CAMBIO 2:                    ##
-        // ## Función `saveOrder` actualizada           ##
-        // #############################################
         async function saveOrder(method, total, items, customerDetails = {}) {
             const orderData = {
                 payment_method: method,
@@ -720,7 +682,7 @@
                 items: items,
                 customer_name: customerDetails.name || null,
                 customer_address: customerDetails.address || null,
-                customer_reference: customerDetails.reference || null, // AÑADIDO
+                customer_reference: customerDetails.reference || null,
                 customer_phone: customerDetails.phone || null,
                 status: 'pendiente' 
             };
@@ -728,30 +690,7 @@
             return { error };
         }
 
-        paymentOptions.addEventListener('click', async (e) => {
-            const button = e.target.closest('.payment-btn');
-            if (!button) return; 
-            const method = button.dataset.method;
-            const total = cart.reduce((acc, item) => acc + item.price, 0);
-
-            if (method === 'cod') {
-                closeModal(); openCodModal();
-            } else {
-                paymentStatus.textContent = 'Procesando pedido...';
-                paymentStatus.className = 'status-message';
-                paymentStatus.classList.remove('hidden');
-                const { error } = await saveOrder(method, total, cart);
-                if (error) {
-                    paymentStatus.textContent = `Error al procesar el pedido: ${error.message}`;
-                    paymentStatus.className = 'status-message error';
-                } else {
-                    paymentStatus.textContent = '¡Pedido realizado con éxito! Gracias por tu compra.';
-                    paymentStatus.className = 'status-message success';
-                    cart = []; updateCartCount();
-                    setTimeout(closeModal, 3000);
-                }
-            }
-        });
+        // ELIMINADO: Listener de paymentOptions
         
         function setCodFormLoading(isLoading) {
             codSubmitBtn.disabled = isLoading;
@@ -759,10 +698,6 @@
             codBtnText.textContent = isLoading ? 'Confirmando...' : 'Confirmar Pedido';
         }
         
-        // #############################################
-        // ## AQUÍ ESTÁ EL CAMBIO 3:                    ##
-        // ## Listener del form COD actualizado         ##
-        // #############################################
         codForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             setCodFormLoading(true);
@@ -771,10 +706,11 @@
             const customerDetails = {
                 name: document.getElementById('cod-name').value,
                 address: document.getElementById('cod-address').value,
-                reference: document.getElementById('cod-reference').value, // AÑADIDO
+                reference: document.getElementById('cod-reference').value,
                 phone: document.getElementById('cod-phone').value
             };
             
+            // Llama a saveOrder siempre con el método 'cod'
             const { error } = await saveOrder('cod', total, cart, customerDetails);
             
             if (error) {
@@ -902,10 +838,6 @@
         const ordersListDiv = document.getElementById('orders-list');
         const loadingOrdersMsg = document.getElementById('loading-orders-message');
         
-        // #############################################
-        // ## AQUÍ ESTÁ EL CAMBIO 4:                    ##
-        // ## Función `loadOrders` actualizada          ##
-        // #############################################
         async function loadOrders() {
             loadingOrdersMsg.textContent = 'Cargando pedidos...';
             loadingOrdersMsg.style.display = 'block';
@@ -931,7 +863,6 @@
                             <p><strong>Cliente:</strong> ${order.customer_name}</p>
                             <p><strong>Dirección:</strong> ${order.customer_address}</p>
                         `;
-                        // AÑADIDO: Mostrar referencia si existe
                         if (order.customer_reference) {
                             customerHtml += `<p><strong>Referencia:</strong> ${order.customer_reference}</p>`;
                         }
