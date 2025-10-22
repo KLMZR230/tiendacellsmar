@@ -364,7 +364,11 @@
     <script>
         // --- CONFIGURACIÓN E INICIALIZACIÓN ---
         const SUPABASE_URL = 'https://kbvheywmgxkpigoldhuw.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtidmhleXdtZ3hrcGlnb2xkaHV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEwODYzOTQsImV4cCI6MjA3NjY2MjM5NH0.KNK1dmVI5iAvKcIdLAjjyhzrLun3ZgwQe1LIuBhgZU0'; 
+        // ######################################################
+        // ## AQUÍ ESTÁ LA CORRECCIÓN DE LA API KEY            ##
+        // ######################################################
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtidmhleXdtZ3hrcGlnb2xkaHV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEwODYzOTQsImV4cCI6MjA3NjY2MjM5NH0.KNK1dmVI5iAvKcIdLAjjyhzrLun3ZgwQe1LIuBhgZU0'; 
+        
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
@@ -517,7 +521,7 @@
         const paymentOptions = document.querySelector('.payment-options');
         const paymentStatus = document.getElementById('payment-status');
 
-        // AÑADIDO: Elementos del Modal COD
+        // Elementos del Modal COD
         const codOverlay = document.getElementById('cod-overlay');
         const codModal = document.getElementById('cod-modal');
         const closeCodBtn = document.getElementById('close-cod-btn');
@@ -545,7 +549,7 @@
             paymentModal.classList.add('hidden');
         }
         
-        // AÑADIDO: Funciones para el modal COD
+        // Funciones para el modal COD
         function openCodModal() {
             codStatus.textContent = '';
             codStatus.classList.add('hidden');
@@ -568,7 +572,7 @@
         closeCodBtn.addEventListener('click', closeCodModal);
         codOverlay.addEventListener('click', closeCodModal); 
         
-        // MODIFICADO: Función reutilizable para guardar el pedido
+        // Función reutilizable para guardar el pedido
         async function saveOrder(method, total, items, customerDetails = {}) {
             const orderData = {
                 payment_method: method,
@@ -583,7 +587,7 @@
             return { error };
         }
 
-        // MODIFICADO: Listener de Opciones de Pago
+        // Listener de Opciones de Pago
         paymentOptions.addEventListener('click', async (e) => {
             const button = e.target.closest('.payment-btn');
             if (!button) return; 
@@ -617,7 +621,7 @@
             }
         });
         
-        // AÑADIDO: Listener para el formulario de Contra Entrega
+        // Listener para el formulario de Contra Entrega
         function setCodFormLoading(isLoading) {
             codSubmitBtn.disabled = isLoading;
             codLoader.classList.toggle('hidden', !isLoading);
@@ -691,7 +695,7 @@
                 const name = document.getElementById('product-name').value;
                 const price = parseFloat(document.getElementById('product-price').value);
                 const imageFile = document.getElementById('product-image').files[0];
-                if (!name || !price || !imageFile) throw new Error('Completa todos loscampos.');
+                if (!name || !price || !imageFile) throw new Error('Completa todos los campos.');
 
                 const fileName = `${Date.now()}-${imageFile.name}`;
                 const { error: uploadError } = await _supabase.storage.from('product-images').upload(fileName, imageFile);
@@ -763,7 +767,7 @@
                         `<li><span>${item.name}</span><span>$${item.price.toFixed(2)}</span></li>`
                     ).join('');
                     
-                    // AÑADIDO: Mostrar datos del cliente si existen (para COD)
+                    // Mostrar datos del cliente si existen (para COD)
                     let customerHtml = '';
                     if (order.customer_name) {
                         customerHtml = `
