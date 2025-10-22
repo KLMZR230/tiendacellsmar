@@ -434,19 +434,37 @@
         const modalProductName = document.getElementById('modal-product-name');
         const paymentOptions = document.querySelector('.payment-options');
 
+        // ######################################################
+        // ## AQUÍ ESTÁ LA CORRECCIÓN (FUNCIÓN openModal)       ##
+        // ######################################################
         function openModal(name, id) {
             // Decodificar el nombre para mostrarlo
             decoder.innerHTML = name;
             modalProductName.textContent = decoder.value;
             
             paymentModal.dataset.productId = id; // Guarda el ID en el modal
+            
+            // --- CORRECCIÓN ---
+            // Primero quitamos 'hidden' para anular el 'display: none !important;'
+            paymentOverlay.classList.remove('hidden');
+            paymentModal.classList.remove('hidden');
+            
+            // Luego añadimos 'visible' para que se muestre (display: block;)
             paymentOverlay.classList.add('visible');
             paymentModal.classList.add('visible');
         }
 
+        // ######################################################
+        // ## AQUÍ ESTÁ LA CORRECCIÓN (FUNCIÓN closeModal)      ##
+        // ######################################################
         function closeModal() {
+            // Quitamos 'visible' para dejar de mostrarlo
             paymentOverlay.classList.remove('visible');
             paymentModal.classList.remove('visible');
+            
+            // Volvemos a añadir 'hidden' para ocultarlo la próxima vez
+            paymentOverlay.classList.add('hidden');
+            paymentModal.classList.add('hidden');
         }
 
         closeModalBtn.addEventListener('click', closeModal);
@@ -583,7 +601,9 @@
         }
         function showStatus(message, type) {
             adminStatus.textContent = message;
-            statusDiv.className = `status-message ${type}`;
+            // -- CORRECCIÓN DE BUG MENOR --
+            // La variable se llamaba 'statusDiv' pero debería ser 'adminStatus'
+            adminStatus.className = `status-message ${type}`; 
         }
 
         // --- INICIALIZACIÓN ---
