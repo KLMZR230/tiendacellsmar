@@ -135,6 +135,19 @@
         button[type="submit"]:hover { background-color: var(--color-primary-dark); }
         button[type="submit"]:disabled { background-color: var(--color-grey); cursor: not-allowed; }
         
+        /* AÑADIDO: Estilos para alternar Login/Registro */
+        .form-toggle-links {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+        }
+        .form-toggle-links a {
+            color: var(--color-primary);
+            font-weight: 600;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        
         #logout-btn {
             width: 100%; padding: 0.75rem; background-color: var(--color-danger); color: white;
             border: none; border-radius: var(--border-radius); cursor: pointer;
@@ -240,7 +253,10 @@
         <h1><a href="#shop" style="text-decoration:none; color:inherit;">Tienda Cell Smar</a></h1>
         <div>
             <a href="#shop">Tienda</a>
-            <a href="#admin" id="admin-link" class="hidden">Admin</a>
+            
+            <a href="#login" id="login-nav-link">👤 Iniciar Sesión</a>
+            <a href="#admin" id="admin-nav-link" class="hidden">⚙️ Admin</a>
+            
             <a href="#" id="cart-toggle" title="Ver Carrito">
                 🛒 Carrito (<span id="cart-count">0</span>)
             </a>
@@ -255,8 +271,9 @@
 
         <section id="login-section" class="hidden">
             <div class="form-container">
-                <h2>Admin Login</h2>
+                
                 <form id="login-form">
+                    <h2>Admin Login</h2>
                     <div class="form-group">
                         <label for="email">Email:</label>
                         <input type="email" id="email" required>
@@ -268,7 +285,31 @@
                     <button type="submit" id="login-btn">
                         <span id="login-btn-text">Iniciar Sesión</span>
                     </button>
+                    
+                    <div class="form-toggle-links">
+                        ¿No tienes cuenta? <a id="show-register">Regístrate</a>
+                    </div>
                 </form>
+
+                <form id="register-form" class="hidden">
+                    <h2>Registrarse</h2>
+                    <div class="form-group">
+                        <label for="register-email">Email:</label>
+                        <input type="email" id="register-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Contraseña:</label>
+                        <input type="password" id="register-password" required>
+                    </div>
+                    <button type="submit" id="register-btn">
+                        <span id="register-btn-text">Crear Cuenta</span>
+                    </button>
+                    
+                    <div class="form-toggle-links">
+                        ¿Ya tienes cuenta? <a id="show-login">Inicia Sesión</a>
+                    </div>
+                </form>
+                
                 <div id="login-status" class="status-message"></div>
             </div>
         </section>
@@ -660,26 +701,75 @@
             }
         });
         
-        // --- LÓGICA DE AUTENTICACIÓN (Login/Logout) ---
+        // --- LÓGICA DE AUTENTICACIÓN (Login/Logout/Register) ---
         const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const showLogin = document.getElementById('show-login');
+        const showRegister = document.getElementById('show-register');
+        const loginStatus = document.getElementById('login-status');
+
+        // Alternar formularios
+        showRegister.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.classList.add('hidden');
+            registerForm.classList.remove('hidden');
+            loginStatus.textContent = '';
+            loginStatus.classList.add('hidden');
+        });
+        
+        showLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.classList.remove('hidden');
+            registerForm.classList.add('hidden');
+            loginStatus.textContent = '';
+            loginStatus.classList.add('hidden');
+        });
+
+        // Submit de Login
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            loginStatus.textContent = '';
+            loginStatus.classList.add('hidden');
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            
             const { error } = await _supabase.auth.signInWithPassword({ email, password });
+            
             if (error) {
-                document.getElementById('login-status').textContent = 'Error: Email o contraseña incorrectos.';
-                document.getElementById('login-status').classList.add('error');
+                loginStatus.textContent = 'Error: Email o contraseña incorrectos.';
+                loginStatus.className = 'status-message error';
+                loginStatus.classList.remove('hidden');
             } else {
                 window.location.hash = '#admin';
-                // El onAuthStateChange se encargará de mostrar el enlace "Admin"
+            }
+        });
+        
+        // AÑADIDO: Submit de Registro
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            loginStatus.textContent = 'Registrando...';
+            loginStatus.className = 'status-message';
+            loginStatus.classList.remove('hidden');
+            
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+
+            const { data, error } = await _supabase.auth.signUp({ email, password });
+
+            if (error) {
+                loginStatus.textContent = `Error: ${error.message}`;
+                loginStatus.className = 'status-message error';
+            } else {
+                loginStatus.textContent = '¡Registro exitoso! Revisa tu email para confirmar tu cuenta.';
+                loginStatus.className = 'status-message success';
+                registerForm.reset();
             }
         });
 
+        // Submit de Logout
         document.getElementById('logout-btn').addEventListener('click', async () => {
             await _supabase.auth.signOut();
-            window.location.hash = '#login';
-            // El onAuthStateChange se encargará de ocultar el enlace "Admin"
+            window.location.hash = '#shop'; // Ir a la tienda al cerrar sesión
         });
 
         // --- LÓGICA DEL PANEL DE ADMIN ---
@@ -795,24 +885,25 @@
         // --- INICIALIZACIÓN ---
         window.addEventListener('hashchange', handleRouting);
         
-        // #############################################
-        // ## AQUÍ ESTÁ EL CAMBIO 2:                  ##
-        // ## Listener de autenticación para el link  ##
-        // #############################################
         document.addEventListener('DOMContentLoaded', () => {
             handleRouting(); // Cargar la ruta inicial
 
-            // Seleccionar el enlace de Admin
-            const adminLink = document.getElementById('admin-link');
+            // #############################################
+            // ## AQUÍ ESTÁ EL CAMBIO 3:                  ##
+            // ## Listener de autenticación para los      ##
+            // ## enlaces de la barra de navegación       ##
+            // #############################################
+            const loginLink = document.getElementById('login-nav-link');
+            const adminLink = document.getElementById('admin-nav-link');
             
-            // onAuthStateChange se dispara al cargar la página,
-            // al iniciar sesión y al cerrar sesión.
             _supabase.auth.onAuthStateChange((event, session) => {
                 if (session) {
-                    // Si hay una sesión (estás logueado), muestra el enlace
+                    // Usuario logueado
+                    loginLink.classList.add('hidden');
                     adminLink.classList.remove('hidden');
                 } else {
-                    // Si no hay sesión, oculta el enlace
+                    // Usuario no logueado
+                    loginLink.classList.remove('hidden');
                     adminLink.classList.add('hidden');
                 }
             });
