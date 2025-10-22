@@ -111,7 +111,7 @@
         }
         .file-label:hover { background-color: #f1f1f1; }
         #file-name { font-style: italic; color: var(--color-grey); margin-top: 0.5rem; text-align: center; }
-        
+        
         button[type="submit"] {
             padding: 0.85rem; background-color: var(--color-primary); color: white;
             border: none; border-radius: var(--border-radius); cursor: pointer;
@@ -120,7 +120,7 @@
         }
         button[type="submit"]:hover { background-color: var(--color-primary-dark); }
         button[type="submit"]:disabled { background-color: var(--color-grey); cursor: not-allowed; }
-        
+        
         #logout-btn {
             width: 100%; padding: 0.75rem; background-color: var(--color-danger); color: white;
             border: none; border-radius: var(--border-radius); cursor: pointer;
@@ -142,7 +142,7 @@
         }
         .success { background-color: #e6f7ec; color: var(--color-success); border: 1px solid var(--color-success); }
         .error { background-color: #fdecea; color: var(--color-danger); border: 1px solid var(--color-danger); }
-        
+        
         footer { text-align: center; padding: 2rem; margin-top: 2rem; color: #777; }
     </style>
 </head>
@@ -196,14 +196,25 @@
                         <label for="product-price">Precio:</label>
                         <input type="number" id="product-price" step="0.01" min="0" required>
                     </div>
-            _form>
+                    <div class="form-group">
+                        <label for="product-image" class="file-label">
+                            Haz clic para subir una imagen
+                        </label>
+                        <input type="file" id="product-image" accept="image/*" class="hidden" required>
+                        <div id="file-name">Ningún archivo seleccionado</div>
+                    </div>
+                    <button type="submit" id="submit-btn">
+                        <span id="loader" class="loader hidden"></span>
+                        <span id="btn-text">Guardar Producto</span>
+                    </button>
+                </form>
                 <div id="admin-status" class="status-message"></div>
                 <button id="logout-btn">Cerrar Sesión</button>
             </div>
         </section>
 
     </main>
-    
+    
     <footer>
         <p>&copy; 2025 Cell Smar. Todos los derechos reservados.</p>
     </footer>
@@ -232,7 +243,7 @@
         // Esta función decide qué sección mostrar
         async function handleRouting() {
             const hash = window.location.hash || '#shop'; // Por defecto, muestra la tienda
-            
+            
             // Ocultar todas las secciones
             sections.forEach(s => s.classList.add('hidden'));
 
@@ -292,7 +303,63 @@
                             <img src="${product.image_url}" alt="${product.name}" class="product-image">
                         </div>
                         <div class="product-info">
-     (e) => {
+                            <h2 class="product-name">${product.name}</h2>
+                            <p class="product-price">$${formattedPrice}</p>
+                            <button class="cart-btn" data-id="${product.id}">Añadir al Carrito</button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+                productsLoaded = true; // Marcar como cargados
+
+            } catch (error) {
+                console.error('Error cargando productos:', error.message);
+                loadingMessage.textContent = `Error al cargar la tienda: ${error.message}`;
+            }
+        }
+        
+        // --- LÓGICA DE AUTENTICACIÓN (Login/Logout) ---
+        const loginForm = document.getElementById('login-form');
+        const loginStatus = document.getElementById('login-status');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            loginStatus.textContent = '';
+            loginStatus.className = 'status-message';
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                window.location.hash = '#admin'; // Éxito: redirigir al panel de admin
+            } catch (error) {
+                loginStatus.textContent = 'Error: Email o contraseña incorrectos.';
+                loginStatus.classList.add('error');
+            }
+        });
+
+        logoutBtn.addEventListener('click', async () => {
+            await _supabase.auth.signOut();
+            window.location.hash = '#login'; // Al cerrar sesión, ir a login
+        });
+
+        // --- LÓGICA DEL PANEL DE ADMIN ---
+        const productForm = document.getElementById('product-form');
+        const adminStatus = document.getElementById('admin-status');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const loader = document.getElementById('loader');
+        const fileInput = document.getElementById('product-image');
+        const fileNameDiv = document.getElementById('file-name');
+
+        fileInput.addEventListener('change', () => {
+            fileNameDiv.textContent = fileInput.files.length > 0 ? fileInput.files[0].name : 'Ningún archivo seleccionado';
+        });
+
+        productForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             setLoading(true);
 
@@ -303,7 +370,7 @@
                 if (!name || !price || !imageFile) throw new Error('Completa todos los campos.');
 
                 const fileName = `${Date.now()}-${imageFile.name}`;
-                
+                
                 // 1. Subir imagen
                 const { error: uploadError } = await _supabase.storage
                     .from('product-images')
