@@ -251,7 +251,6 @@
         .order-items-list { list-style-type: none; padding-left: 0; }
         .order-items-list li { display: flex; justify-content: space-between; padding: 0.5rem 0; }
         
-        /* AÑADIDO: Estilos para acciones y estado del pedido */
         .order-status {
             font-weight: bold;
             padding: 3px 8px;
@@ -477,6 +476,12 @@
                 <label for="cod-address">Dirección de Entrega:</label>
                 <input type="text" id="cod-address" required>
             </div>
+            
+            <div class="form-group">
+                <label for="cod-reference">Punto de Referencia (Opcional):</label>
+                <input type="text" id="cod-reference">
+            </div>
+            
             <div class="form-group">
                 <label for="cod-phone">Número de Teléfono:</label>
                 <input type="text" id="cod-phone" required>
@@ -704,6 +709,10 @@
         closeCodBtn.addEventListener('click', closeCodModal);
         codOverlay.addEventListener('click', closeCodModal); 
         
+        // #############################################
+        // ## AQUÍ ESTÁ EL CAMBIO 2:                    ##
+        // ## Función `saveOrder` actualizada           ##
+        // #############################################
         async function saveOrder(method, total, items, customerDetails = {}) {
             const orderData = {
                 payment_method: method,
@@ -711,8 +720,9 @@
                 items: items,
                 customer_name: customerDetails.name || null,
                 customer_address: customerDetails.address || null,
+                customer_reference: customerDetails.reference || null, // AÑADIDO
                 customer_phone: customerDetails.phone || null,
-                status: 'pendiente' // MODIFICADO: Asegurar que el estado inicial sea 'pendiente'
+                status: 'pendiente' 
             };
             const { error } = await _supabase.from('orders').insert([orderData]);
             return { error };
@@ -749,16 +759,24 @@
             codBtnText.textContent = isLoading ? 'Confirmando...' : 'Confirmar Pedido';
         }
         
+        // #############################################
+        // ## AQUÍ ESTÁ EL CAMBIO 3:                    ##
+        // ## Listener del form COD actualizado         ##
+        // #############################################
         codForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             setCodFormLoading(true);
+            
             const total = cart.reduce((acc, item) => acc + item.price, 0);
             const customerDetails = {
                 name: document.getElementById('cod-name').value,
                 address: document.getElementById('cod-address').value,
+                reference: document.getElementById('cod-reference').value, // AÑADIDO
                 phone: document.getElementById('cod-phone').value
             };
+            
             const { error } = await saveOrder('cod', total, cart, customerDetails);
+            
             if (error) {
                 codStatus.textContent = `Error al procesar el pedido: ${error.message}`;
                 codStatus.className = 'status-message error';
@@ -884,7 +902,10 @@
         const ordersListDiv = document.getElementById('orders-list');
         const loadingOrdersMsg = document.getElementById('loading-orders-message');
         
-        // Cargar Pedidos
+        // #############################################
+        // ## AQUÍ ESTÁ EL CAMBIO 4:                    ##
+        // ## Función `loadOrders` actualizada          ##
+        // #############################################
         async function loadOrders() {
             loadingOrdersMsg.textContent = 'Cargando pedidos...';
             loadingOrdersMsg.style.display = 'block';
@@ -902,12 +923,21 @@
                     orderCard.className = 'order-card';
                     const orderDate = new Date(order.created_at).toLocaleString('es-ES');
                     const itemsHtml = order.items.map(item => `<li><span>${item.name}</span><span>$${item.price.toFixed(2)}</span></li>`).join('');
+                    
                     let customerHtml = '';
                     if (order.customer_name) {
-                        customerHtml = `<hr style="margin: 1rem 0;"><p><strong>Cliente:</strong> ${order.customer_name}</p><p><strong>Dirección:</strong> ${order.customer_address}</p><p><strong>Teléfono:</strong> ${order.customer_phone}</p>`;
+                        customerHtml = `
+                            <hr style="margin: 1rem 0;">
+                            <p><strong>Cliente:</strong> ${order.customer_name}</p>
+                            <p><strong>Dirección:</strong> ${order.customer_address}</p>
+                        `;
+                        // AÑADIDO: Mostrar referencia si existe
+                        if (order.customer_reference) {
+                            customerHtml += `<p><strong>Referencia:</strong> ${order.customer_reference}</p>`;
+                        }
+                        customerHtml += `<p><strong>Teléfono:</strong> ${order.customer_phone}</p>`;
                     }
                     
-                    // AÑADIDO: Botones de estado y acciones
                     const isEnviado = order.status === 'enviado';
                     
                     orderCard.innerHTML = `
@@ -937,7 +967,6 @@
             }
         }
         
-        // AÑADIDO: Actualizar estado del pedido
         async function updateOrderStatus(id, newStatus) {
             try {
                 const { error } = await _supabase
@@ -945,14 +974,13 @@
                     .update({ status: newStatus })
                     .eq('id', id);
                 if (error) throw error;
-                loadOrders(); // Recargar la lista de pedidos
+                loadOrders(); 
             } catch (error) {
                 console.error('Error al actualizar estado del pedido:', error.message);
                 alert(`Error: ${error.message}`);
             }
         }
 
-        // AÑADIDO: Eliminar pedido
         async function deleteOrder(id) {
             if (!confirm('¿Estás seguro de que quieres eliminar este pedido? Esta acción es permanente.')) {
                 return;
@@ -963,7 +991,7 @@
                     .delete()
                     .eq('id', id);
                 if (error) throw error;
-                loadOrders(); // Recargar la lista de pedidos
+                loadOrders(); 
             } catch (error) {
                 console.error('Error al eliminar pedido:', error.message);
                 alert(`Error: ${error.message}`);
@@ -984,7 +1012,6 @@
         const editFileInput = document.getElementById('edit-product-image');
         const editFileNameDiv = document.getElementById('edit-file-name');
 
-        // Cargar productos en el Admin
         async function loadAdminProducts() {
             loadingAdminProductsMsg.textContent = 'Cargando productos...';
             loadingAdminProductsMsg.style.display = 'block';
@@ -1021,9 +1048,8 @@
             }
         }
         
-        // Abrir/Cerrar modal de edición
         function openEditModal(id, name, price, imageUrl) {
-            decoder.innerHTML = name; // Decodificar el nombre
+            decoder.innerHTML = name;
             document.getElementById('edit-product-id').value = id;
             document.getElementById('edit-product-name').value = decoder.value;
             document.getElementById('edit-product-price').value = price;
@@ -1045,7 +1071,6 @@
             editFileNameDiv.textContent = editFileInput.files.length > 0 ? editFileInput.files[0].name : 'Ningún archivo nuevo';
         });
 
-        // Actualizar (Edit) producto
         function setEditFormLoading(isLoading) {
             editSubmitBtn.disabled = isLoading;
             editLoader.classList.toggle('hidden', !isLoading);
@@ -1097,7 +1122,6 @@
             }
         });
         
-        // Eliminar producto
         async function deleteProduct(id, imageUrl) {
             if (!confirm('¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.')) {
                 return;
@@ -1128,36 +1152,27 @@
         
         // --- LISTENER DE CLIC GLOBAL (MODIFICADO) ---
         document.addEventListener('click', (e) => {
-            // Añadir al carrito
             const cartButton = e.target.closest('.cart-btn');
             if (cartButton && cartButton.id !== 'checkout-btn') {
                 addToCart(cartButton.dataset.id, cartButton.dataset.name, cartButton.dataset.price);
                 return; 
             }
-            
-            // Botón de Editar Producto
             const editButton = e.target.closest('.btn-edit');
             if (editButton) {
                 const ds = editButton.dataset;
                 openEditModal(ds.id, ds.name, ds.price, ds.imageUrl);
                 return;
             }
-            
-            // Botón de Eliminar Producto
             const deleteButton = e.target.closest('.btn-delete');
             if (deleteButton) {
                 deleteProduct(deleteButton.dataset.id, deleteButton.dataset.imageUrl);
                 return;
             }
-            
-            // AÑADIDO: Botón de Marcar Pedido como Enviado
             const markSentButton = e.target.closest('.btn-mark-sent');
             if (markSentButton) {
                 updateOrderStatus(markSentButton.dataset.id, 'enviado');
                 return;
             }
-
-            // AÑADIDO: Botón de Eliminar Pedido
             const deleteOrderButton = e.target.closest('.btn-delete-order');
             if (deleteOrderButton) {
                 deleteOrder(deleteOrderButton.dataset.id);
