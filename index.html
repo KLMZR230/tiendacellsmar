@@ -105,36 +105,40 @@
             transform: translateY(-5px);
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6), 0 0 10px var(--color-accent-bright);
         }
-        .product-image-container { 
-            width: 100%; 
-            aspect-ratio: 1 / 1; 
+        .product-image-container {
+            width: 100%;
+            aspect-ratio: 1 / 1;
             overflow: hidden; /* Asegurar recorte */
+            cursor: pointer; /* Indica que se puede hacer clic */
         }
-        .product-image { 
-            width: 100%; 
-            height: 100%; 
+        .product-image {
+            width: 100%;
+            height: 100%;
             object-fit: cover; /* Escalar y recortar */
+            transition: transform 0.3s ease; /* Efecto suave al hacer hover */
         }
-        .product-info { 
-            padding: 1.25rem; 
-            flex-grow: 1; 
-            display: flex; 
-            flex-direction: column; 
+        .product-image-container:hover .product-image {
+             transform: scale(1.05); /* Ligero zoom al pasar el mouse */
+        }
+        .product-info {
+            padding: 1.25rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
             overflow: hidden; /* Evitar que el texto se salga */
         }
-        .product-name { 
-            font-size: 1.25rem; 
-            font-weight: 600; 
-            margin-bottom: 0.5rem; 
+        .product-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
             color: var(--color-text);
-            /* --- AJUSTE: Limitar a 2 líneas y añadir ellipsis --- */
             display: -webkit-box;
             -webkit-line-clamp: 2; /* Máximo 2 líneas */
-            -webkit-box-orient: vertical;  
+            -webkit-box-orient: vertical;
             overflow: hidden;
             text-overflow: ellipsis;
             min-height: 2.5em; /* Ajusta si es necesario basado en line-height */
-            word-break: break-word; 
+            word-break: break-word;
         }
         .product-price { font-size: 1.15rem; color: var(--color-primary); font-weight: 700; margin-bottom: 1rem; }
         .cart-btn {
@@ -227,11 +231,13 @@
         footer { text-align: center; padding: 2rem; margin-top: 2rem; color: var(--color-text-muted); }
 
         /* --- ESTILOS DE TODOS LOS MODALES --- */
-        #cart-overlay, #cod-overlay, #edit-product-overlay {
+        /* MODIFICADO: Añadido #image-modal-overlay */
+        #cart-overlay, #cod-overlay, #edit-product-overlay, #image-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0, 0, 0, 0.8); /* Fondo más oscuro */ display: none;
         }
-        #cart-modal, #cod-modal, #edit-product-modal {
+        /* MODIFICADO: Añadido #image-modal */
+        #cart-modal, #cod-modal, #edit-product-modal, #image-modal {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             background-color: var(--color-card-bg); /* Fondo de modal oscuro */ padding: 2.5rem;
@@ -250,11 +256,50 @@
         #edit-product-overlay { z-index: 104; }
         #edit-product-modal { z-index: 105; max-width: 500px; }
 
+        /* AÑADIDO: Estilos para el modal de imagen */
+        #image-modal-overlay { z-index: 110; }
+        #image-modal {
+            z-index: 111;
+            max-width: 90vw; /* Máximo ancho */
+            max-height: 90vh; /* Máximo alto */
+            padding: 1rem; /* Menos padding para la imagen */
+            display: flex; /* Centrar imagen */
+            justify-content: center;
+            align-items: center;
+            background-color: transparent; /* Fondo transparente */
+            box-shadow: none; /* Sin sombra */
+            border: none; /* Sin borde */
+        }
+        #modal-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* Mostrar imagen completa */
+            border-radius: var(--border-radius);
+            border: 2px solid var(--color-border);
+        }
+        #close-image-modal-btn { /* Reutilizar clase close-btn */
+            position: fixed; /* Posición fija relativa a la pantalla */
+            top: 20px;
+            right: 20px;
+            z-index: 112; /* Encima de la imagen */
+            color: #ccc;
+            font-size: 3rem;
+            text-shadow: 0 0 5px rgba(0,0,0,0.7);
+        }
+         #close-image-modal-btn:hover {
+             color: #fff;
+         }
+
+        /* MODIFICADO: Añadido #image-modal-overlay, #image-modal */
         #cart-overlay.visible, #cart-modal.visible,
         #cod-overlay.visible, #cod-modal.visible,
-        #edit-product-overlay.visible, #edit-product-modal.visible {
+        #edit-product-overlay.visible, #edit-product-modal.visible,
+        #image-modal-overlay.visible, #image-modal.visible { /* Mantener #image-modal.visible aunque el modal en sí no tenga fondo */
             display: block;
         }
+         /* Caso especial para image-modal centrado */
+        #image-modal.visible { display: flex; }
+
 
         #cart-items-list { max-height: 300px; overflow-y: auto; margin-bottom: 1rem; }
         .cart-item {
@@ -391,7 +436,6 @@
             font-size: 1.1rem;
             margin-bottom: 0.5rem;
             color: var(--color-text);
-            /* --- AJUSTE: Limitar a 2 líneas y añadir ellipsis --- */
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
@@ -623,6 +667,12 @@
         <div id="edit-product-status" class="status-message hidden"></div>
     </div>
 
+    <div id="image-modal-overlay" class="hidden"></div>
+    <div id="image-modal" class="hidden">
+        <button id="close-image-modal-btn" class="close-btn">&times;</button>
+        <img src="" alt="Imagen Ampliada" id="modal-image">
+    </div>
+
     <footer><p>&copy; 2025 Cell Smar. Todos los derechos reservados.</p></footer>
 
     <script>
@@ -712,8 +762,14 @@
                         const safeName = escapeHTML(product.name);
                         const card = document.createElement('div');
                         card.className = 'product-card';
+                        // #############################################
+                        // ## AQUÍ ESTÁ EL CAMBIO 2 (JS):             ##
+                        // ## Añadir clase `.product-image-clickable` ##
+                        // #############################################
                         card.innerHTML = `
-                            <div class="product-image-container"><img src="${product.image_url}" alt="${safeName}" class="product-image"></div>
+                            <div class="product-image-container">
+                                <img src="${product.image_url}" alt="${safeName}" class="product-image product-image-clickable"> 
+                            </div>
                             <div class="product-info">
                                 <h2 class="product-name">${product.name}</h2>
                                 <p class="product-price">$${formattedPrice}</p>
@@ -927,6 +983,39 @@
             await _supabase.auth.signOut();
             window.location.hash = '#shop';
         });
+        
+        // #############################################
+        // ## AQUÍ ESTÁ EL CAMBIO 3 (JS):             ##
+        // ## Lógica para el modal de imagen ampliada ##
+        // #############################################
+        
+        // --- LÓGICA DEL MODAL DE IMAGEN ---
+        const imageModalOverlay = document.getElementById('image-modal-overlay');
+        const imageModal = document.getElementById('image-modal');
+        const modalImage = document.getElementById('modal-image');
+        const closeImageModalBtn = document.getElementById('close-image-modal-btn');
+        
+        function openImageModal(imageUrl, altText) {
+            modalImage.src = imageUrl;
+            modalImage.alt = altText;
+            imageModalOverlay.classList.remove('hidden');
+            imageModal.classList.remove('hidden'); // Aunque no tenga fondo, necesitamos quitarle el display:none
+            imageModalOverlay.classList.add('visible');
+            imageModal.classList.add('visible'); // Usa flex para centrar
+        }
+        
+        function closeImageModal() {
+            imageModalOverlay.classList.remove('visible');
+            imageModal.classList.remove('visible');
+            imageModalOverlay.classList.add('hidden');
+            imageModal.classList.add('hidden');
+            modalImage.src = ""; // Limpiar src para evitar flashes
+            modalImage.alt = "";
+        }
+        
+        closeImageModalBtn.addEventListener('click', closeImageModal);
+        imageModalOverlay.addEventListener('click', closeImageModal); // Cerrar al hacer clic fuera
+        
 
         // --- LÓGICA DEL PANEL DE ADMIN ---
 
@@ -1251,7 +1340,19 @@
         }
 
         // --- LISTENER DE CLIC GLOBAL ---
+        // #############################################
+        // ## AQUÍ ESTÁ EL CAMBIO 4 (JS):             ##
+        // ## Añadir detección de clic en imágenes     ##
+        // #############################################
         document.addEventListener('click', (e) => {
+            // Clic en imagen de producto en la tienda
+            const productImage = e.target.closest('.product-image-clickable');
+            if (productImage) {
+                openImageModal(productImage.src, productImage.alt);
+                return; // Importante detener aquí
+            }
+            
+            // Resto de los listeners...
             const cartButton = e.target.closest('.cart-btn');
             if (cartButton && cartButton.id !== 'checkout-btn') {
                 addToCart(cartButton.dataset.id, cartButton.dataset.name, cartButton.dataset.price, cartButton.dataset.imageUrl);
