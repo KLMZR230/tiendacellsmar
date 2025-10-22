@@ -333,6 +333,9 @@
         const loginSection = document.getElementById('login-section');
         const adminSection = document.getElementById('admin-section');
         const sections = [shopSection, loginSection, adminSection];
+        
+        // --- Elemento de decodificación (para nombres con comillas) ---
+        const decoder = document.createElement('textarea');
 
         // --- ENRUTADOR (Router) ---
         // Esta función decide qué sección mostrar
@@ -367,6 +370,12 @@
         const loadingMessage = document.getElementById('loading-message');
         let productsLoaded = false; // Evitar recargar productos innecesariamente
 
+        // --- CORREGIDO: Función para escapar HTML para atributos ---
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/&/g, '&amp;');
+        }
+
         async function loadProducts() {
             if (productsLoaded) return; // Si ya están cargados, no hacer nada
 
@@ -392,9 +401,8 @@
                 data.forEach(product => {
                     const formattedPrice = parseFloat(product.price).toFixed(2);
                     
-                    // --- ARREGLO DE ESTABILIDAD ---
-                    // Escapar comillas en el nombre para evitar romper el HTML
-                    const safeName = product.name.replace(/"/g, '&quot;');
+                    // --- CORREGIDO: Escapar nombre para data-name y alt ---
+                    const safeName = escapeHTML(product.name);
                     
                     const card = document.createElement('div');
                     card.className = 'product-card';
@@ -427,7 +435,10 @@
         const paymentOptions = document.querySelector('.payment-options');
 
         function openModal(name, id) {
-            modalProductName.textContent = name; // Pone el nombre del producto
+            // --- CORREGIDO: Decodificar el nombre para mostrarlo ---
+            decoder.innerHTML = name;
+            modalProductName.textContent = decoder.value;
+            
             paymentModal.dataset.productId = id; // Guarda el ID en el modal
             paymentOverlay.classList.add('visible');
             paymentModal.classList.add('visible');
@@ -460,16 +471,20 @@
             closeModal();
         });
         
-        // --- CORRECCIÓN: Listener del botón "Añadir al Carrito" ---
-        // Se añade el listener a la sección de la tienda (shopSection)
-        // Esto funciona aunque los productos se carguen después.
-        shopSection.addEventListener('click', (e) => {
-            const cartButton = e.target.closest('.cart-btn'); // Busca el botón
-            if (cartButton) {
-                const name = cartButton.dataset.name;
-                const id = cartButton.dataset.id;
-                openModal(name, id); // Abre el modal con los datos
+        // --- CORRECCIÓN FINAL: Listener de clic en 'document' ---
+        // Esto es más robusto y siempre encontrará el botón.
+        document.addEventListener('click', (e) => {
+            const cartButton = e.target.closest('.cart-btn');
+            
+            // Salir si el clic no fue en un botón de carrito O si el botón no está dentro de la tienda
+            if (!cartButton || !shopSection.contains(cartButton)) {
+                return;
             }
+            
+            // Si llegamos aquí, fue un clic válido
+            const name = cartButton.dataset.name;
+            const id = cartButton.dataset.id;
+            openModal(name, id); // Abre el modal con los datos
         });
         // --- FIN DE LA CORRECCIÓN ---
         
