@@ -3,25 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administrador</title>
+    <title>Mi Tienda</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* Variables de color para un tema coherente */
         :root {
             --color-primary: #007bff;
-            --color-primary-dark: #0056b3;
-            --color-success: #28a745;
-            --color-danger: #dc3545;
             --color-light: #f8f9fa;
             --color-dark: #343a40;
-            --color-grey: #6c757d;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             --border-radius: 8px;
         }
 
-        /* Reseteo básico y fuente */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -33,93 +27,92 @@
             line-height: 1.6;
             background-color: var(--color-light);
             color: var(--color-dark);
-            display: grid;
-            place-items: center;
-            min-height: 100vh;
         }
 
-        /* Contenedor principal estilo "Card" */
-        main {
-            width: 100%;
-            max-width: 500px;
-            margin: 20px;
-            padding: 2.5rem;
+        /* Encabezado */
+        header {
             background-color: #fff;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            border-top: 4px solid var(--color-primary);
-        }
-
-        h1 {
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             text-align: center;
-            color: var(--color-dark);
             margin-bottom: 2rem;
         }
 
-        /* Estilos del formulario */
-        form {
-            display: grid;
-            gap: 1.25rem;
+        header h1 {
+            color: var(--color-primary);
         }
 
-        .form-group {
+        /* Contenedor principal */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        #loading-message {
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* Cuadrícula de Productos */
+        #product-grid {
+            display: grid;
+            /* Columnas responsivas: se ajustan solas */
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Tarjeta de Producto */
+        .product-card {
+            background-color: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden; /* Para que la imagen respete el borde redondeado */
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .product-image-container {
+            width: 100%;
+            /* Mantiene la proporción 1:1 (cuadrada) */
+            aspect-ratio: 1 / 1;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Asegura que la imagen llene el contenedor sin distorsionarse */
+        }
+
+        .product-info {
+            padding: 1.25rem;
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
         }
 
-        label {
+        .product-name {
+            font-size: 1.25rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
         }
 
-        /* Estilos de Inputs */
-        input[type="text"],
-        input[type="number"] {
-            width: 100%;
+        .product-price {
+            font-size: 1.15rem;
+            color: var(--color-primary);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .cart-btn {
             padding: 0.75rem;
-            border: 1px solid #ccc;
-            border-radius: var(--border-radius);
-            font-size: 1rem;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-
-        input[type="text"]:focus,
-        input[type="number"]:focus {
-            outline: none;
-            border-color: var(--color-primary);
-            box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
-        }
-
-        /* Estilo profesional para el input de archivo */
-        input[type="file"] {
-            display: none; /* Ocultamos el input feo */
-        }
-
-        .file-label {
-            display: inline-block;
-            padding: 0.75rem 1rem;
-            background-color: #fff;
-            border: 1px solid var(--color-grey);
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: background-color 0.2s;
-            text-align: center;
-        }
-
-        .file-label:hover {
-            background-color: #f1f1f1;
-        }
-
-        #file-name {
-            font-style: italic;
-            color: var(--color-grey);
-            margin-top: 0.5rem;
-            text-align: center;
-        }
-
-        /* Botón de envío */
-        button[type="submit"] {
-            padding: 0.85rem;
             background-color: var(--color-primary);
             color: white;
             border: none;
@@ -127,102 +120,47 @@
             cursor: pointer;
             font-size: 1rem;
             font-weight: 600;
-            transition: background-color 0.2s, box-shadow 0.2s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        button[type="submit"]:hover {
-            background-color: var(--color-primary-dark);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        button[type="submit"]:disabled {
-            background-color: var(--color-grey);
-            cursor: not-allowed;
-        }
-
-        /* Indicador de Carga (Spinner) */
-        .loader {
-            width: 18px;
-            height: 18px;
-            border: 2px solid #FFF;
-            border-bottom-color: transparent;
-            border-radius: 50%;
-            display: inline-block;
-            animation: rotation 1s linear infinite;
-        }
-        
-        .hidden {
-            display: none;
-        }
-
-        @keyframes rotation {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Mensajes de estado */
-        #status {
             text-align: center;
-            font-weight: 600;
-            margin-top: 1.5rem;
-            padding: 0.75rem;
-            border-radius: var(--border-radius);
+            transition: background-color 0.2s;
+            margin-top: auto; /* Empuja el botón al fondo */
         }
-        .success { 
-            background-color: #e6f7ec;
-            color: var(--color-success);
-            border: 1px solid var(--color-success);
+
+        .cart-btn:hover {
+            background-color: #0056b3;
         }
-        .error { 
-            background-color: #fdecea;
-            color: var(--color-danger);
-            border: 1px solid var(--color-danger);
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+            color: #777;
         }
+
     </style>
 </head>
 <body>
 
+    <header>
+        <h1>Mi Tienda Profesional</h1>
+    </header>
+
     <main>
-        <h1>Cargar Nuevo Producto</h1>
+        <div id="product-grid">
+            </div>
         
-        <form id="product-form">
-            <div class="form-group">
-                <label for="product-name">Nombre del Producto:</label>
-                <input type="text" id="product-name" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="product-price">Precio (ej: 29.99):</label>
-                <input type="number" id="product-price" step="0.01" min="0" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="product-image" class="file-label">
-                    Haz clic para subir una imagen
-                </label>
-                <input type="file" id="product-image" accept="image/*" required>
-                <div id="file-name">Ningún archivo seleccionado</div>
-            </div>
-            
-            <button type="submit" id="submit-btn">
-                <span id="loader" class="loader hidden"></span>
-                <span id="btn-text">Guardar Producto</span>
-            </button>
-        </form>
-        
-        <div id="status"></div>
+        <p id="loading-message">Cargando productos...</p>
     </main>
+    
+    <footer>
+        <p>&copy; 2025 Cell Smar. Todos los derechos reservados.</p>
+    </footer>
 
     <script>
         // -----------------------------------------------------------------
-        // PASO 1: CONFIGURA TUS DATOS DE SUPABASE
+        // PASO 1: PEGA TU URL Y TU *NUEVA* CLAVE API AQUÍ
         // -----------------------------------------------------------------
-        const SUPABASE_URL = 'https://TU_ID_DE_PROYECTO.supabase.co';
-        const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY';
+        const SUPABASE_URL = 'https://kbvheywmgxkpigoldhuw.supabase.co'; // Esta URL está bien
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtidmhleXdtZ3hrcGlnb2xkaHV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEwODYzOTQsImV4cCI6MjA3NjY2MjM5NH0.KNK1dmVI5iAvKcIdLAjjyhzrLun3ZgwQe1LIuBhgZU0';
         // -----------------------------------------------------------------
 
         // Inicializar el cliente de Supabase
@@ -230,101 +168,68 @@
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Seleccionar elementos del DOM
-        const form = document.getElementById('product-form');
-        const statusDiv = document.getElementById('status');
-        const submitBtn = document.getElementById('submit-btn');
-        const btnText = document.getElementById('btn-text');
-        const loader = document.getElementById('loader');
-        const fileInput = document.getElementById('product-image');
-        const fileNameDiv = document.getElementById('file-name');
+        const grid = document.getElementById('product-grid');
+        const loadingMessage = document.getElementById('loading-message');
 
-        // Mostrar el nombre del archivo seleccionado
-        fileInput.addEventListener('change', () => {
-            if (fileInput.files.length > 0) {
-                fileNameDiv.textContent = fileInput.files[0].name;
-            } else {
-                fileNameDiv.textContent = 'Ningún archivo seleccionado';
-            }
+        // Función para cargar los productos cuando la página esté lista
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProducts();
         });
 
-        // Escuchar el evento "submit" del formulario
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault(); // Evitar recarga
-
-            // Iniciar estado de carga
-            setLoading(true);
-
+        // Función async para pedir los productos a Supabase
+        async function loadProducts() {
             try {
-                // 1. Obtener los valores del formulario
-                const name = document.getElementById('product-name').value;
-                const price = parseFloat(document.getElementById('product-price').value);
-                const imageFile = fileInput.files[0];
+                // 1. Pedir todos los productos de la tabla 'products'
+                //    Ordenados por fecha de creación, los más nuevos primero.
+                const { data, error } = await _supabase
+                    .from('products')
+                    .select('*') // Selecciona todas las columnas
+                    .order('created_at', { ascending: false }); // Los más nuevos primero
 
-                if (!name || !price || !imageFile) {
-                    throw new Error('Por favor, completa todos los campos.');
+                if (error) {
+                    throw error; // Si hay un error, detenerse
                 }
 
-                // 2. Crear un nombre único para el archivo
-                const fileName = `${Date.now()}-${imageFile.name}`;
-
-                // 3. Subir la imagen a Supabase Storage
-                const { data: uploadData, error: uploadError } = await _supabase.storage
-                    .from('product-images') // Bucket
-                    .upload(fileName, imageFile);
-
-                if (uploadError) {
-                    throw new Error(`Error al subir imagen: ${uploadError.message}`);
+                // Si no hay productos
+                if (data.length === 0) {
+                    loadingMessage.textContent = 'Aún no hay productos en la tienda. ¡Añade algunos desde el panel de admin!';
+                    return;
                 }
 
-                // 4. Obtener la URL pública
-                const { data: urlData } = _supabase.storage
-                    .from('product-images')
-                    .getPublicUrl(fileName);
+                // 2. Si todo sale bien, ocultar el mensaje de carga
+                loadingMessage.style.display = 'none';
+
+                // 3. Crear el HTML para cada producto
+                data.forEach(product => {
+                    // Formatear el precio a 2 decimales
+                    const formattedPrice = parseFloat(product.price).toFixed(2);
                 
-                const imageUrl = urlData.publicUrl;
-
-                // 5. Guardar los datos en la base de datos
-                const { data: insertData, error: insertError } = await _supabase
-                    .from('products') // Tabla
-                    .insert([
-                        { name: name, price: price, image_url: imageUrl }
-                    ]);
-
-                if (insertError) {
-                    throw new Error(`Error al guardar en BD: ${insertError.message}`);
-                }
-
-                // 6. Éxito
-                showStatus('¡Producto guardado con éxito!', 'success');
-                form.reset(); // Limpiar el formulario
-                fileNameDiv.textContent = 'Ningún archivo seleccionado';
+                    // Crear la tarjeta de producto
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.innerHTML = `
+                        <div class="product-image-container">
+                            <img src="${product.image_url}" alt="${product.name}" class="product-image">
+                        </div>
+                        <div class="product-info">
+                            <h2 class="product-name">${product.name}</h2>
+                            <p class="product-price">$${formattedPrice}</p>
+                            
+                            <button class="cart-btn" data-id="${product.id}">
+                                Añadir al Carrito
+                            </button>
+                        </div>
+                    `;
+                    
+                    // 4. Añadir la tarjeta a la cuadrícula
+                    grid.appendChild(card);
+                });
 
             } catch (error) {
-                // 7. Manejo de errores
-                console.error('Error:', error.message);
-                showStatus(error.message, 'error');
-            } finally {
-                // 8. Detener estado de carga
-                setLoading(false);
+                console.error('Error cargando productos:', error.message);
+                loadingMessage.textContent = `Error al cargar la tienda: ${error.message}`;
+                loadingMessage.style.color = 'red';
             }
-        });
-
-        // Función para controlar el estado de carga del botón
-        function setLoading(isLoading) {
-            submitBtn.disabled = isLoading;
-            if (isLoading) {
-                loader.classList.remove('hidden');
-                btnText.textContent = 'Guardando...';
-            } else {
-                loader.classList.add('hidden');
-                btnText.textContent = 'Guardar Producto';
-            }
-        }
-
-        // Función para mostrar mensajes de estado
-        function showStatus(message, type) {
-            statusDiv.textContent = message;
-            statusDiv.className = type; // 'success' o 'error'
         }
     </script>
 
