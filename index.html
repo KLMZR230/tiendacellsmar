@@ -391,16 +391,21 @@
 
                 data.forEach(product => {
                     const formattedPrice = parseFloat(product.price).toFixed(2);
+                    
+                    // --- ARREGLO DE ESTABILIDAD ---
+                    // Escapar comillas en el nombre para evitar romper el HTML
+                    const safeName = product.name.replace(/"/g, '&quot;');
+                    
                     const card = document.createElement('div');
                     card.className = 'product-card';
                     card.innerHTML = `
                         <div class="product-image-container">
-                            <img src="${product.image_url}" alt="${product.name}" class="product-image">
+                            <img src="${product.image_url}" alt="${safeName}" class="product-image">
                         </div>
                         <div class="product-info">
                             <h2 class="product-name">${product.name}</h2>
                             <p class="product-price">$${formattedPrice}</p>
-                            <button class="cart-btn" data-id="${product.id}" data-name="${product.name}">Añadir al Carrito</button>
+                            <button class="cart-btn" data-id="${product.id}" data-name="${safeName}">Añadir al Carrito</button>
                         </div>
                     `;
                     grid.appendChild(card);
@@ -414,7 +419,7 @@
             }
         }
         
-        // --- AÑADIDO: LÓGICA DEL MODAL DE PAGO ---
+        // --- LÓGICA DEL MODAL DE PAGO ---
         const paymentOverlay = document.getElementById('payment-overlay');
         const paymentModal = document.getElementById('payment-modal');
         const closeModalBtn = document.getElementById('close-modal-btn');
