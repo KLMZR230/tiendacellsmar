@@ -124,7 +124,9 @@
             cursor: pointer; transition: background-color 0.2s; text-align: center;
         }
         .file-label:hover { background-color: #f1f1f1; }
-        #file-name { font-style: italic; color: var(--color-grey); margin-top: 0.5rem; text-align: center; }
+        #file-name, #edit-file-name { 
+            font-style: italic; color: var(--color-grey); margin-top: 0.5rem; text-align: center; 
+        }
         
         button[type="submit"] {
             padding: 0.85rem; background-color: var(--color-primary); color: white;
@@ -135,7 +137,6 @@
         button[type="submit"]:hover { background-color: var(--color-primary-dark); }
         button[type="submit"]:disabled { background-color: var(--color-grey); cursor: not-allowed; }
         
-        /* AÑADIDO: Estilos para alternar Login/Registro */
         .form-toggle-links {
             text-align: center;
             margin-top: 1.5rem;
@@ -171,11 +172,11 @@
         footer { text-align: center; padding: 2rem; margin-top: 2rem; color: #777; }
 
         /* --- ESTILOS DE TODOS LOS MODALES --- */
-        #cart-overlay, #payment-overlay, #cod-overlay {
+        #cart-overlay, #payment-overlay, #cod-overlay, #edit-product-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0, 0, 0, 0.6); display: none;
         }
-        #cart-modal, #payment-modal, #cod-modal {
+        #cart-modal, #payment-modal, #cod-modal, #edit-product-modal {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             background-color: #fff; padding: 2.5rem;
@@ -193,9 +194,14 @@
         #cod-overlay { z-index: 102; }
         #cod-modal { z-index: 103; max-width: 500px; }
         
+        /* AÑADIDO: Estilos para el modal de Edición */
+        #edit-product-overlay { z-index: 104; }
+        #edit-product-modal { z-index: 105; max-width: 500px; }
+        
         #cart-overlay.visible, #cart-modal.visible,
         #payment-overlay.visible, #payment-modal.visible,
-        #cod-overlay.visible, #cod-modal.visible {
+        #cod-overlay.visible, #cod-modal.visible,
+        #edit-product-overlay.visible, #edit-product-modal.visible {
             display: block;
         }
         
@@ -205,8 +211,8 @@
         .cart-item-name { font-weight: 600; }
         .cart-item-price { color: var(--color-grey); }
 
-        #payment-modal h2, #payment-modal p, #cod-modal h2 { text-align: center; }
-        #payment-modal h2, #cod-modal h2 { margin-bottom: 1rem; }
+        #payment-modal h2, #payment-modal p, #cod-modal h2, #edit-product-modal h2 { text-align: center; }
+        #payment-modal h2, #cod-modal h2, #edit-product-modal h2 { margin-bottom: 1rem; }
         #payment-modal p { margin-bottom: 2rem; font-size: 1.1rem; }
         
         .close-btn { position: absolute; top: 10px; right: 15px; font-size: 2.5rem; color: #aaa; background: none; border: none; cursor: pointer; line-height: 1; }
@@ -217,7 +223,7 @@
         .payment-btn .emoji { font-size: 1.5rem; }
 
         /* Estilos para la lista de pedidos del Admin */
-        #orders-container {
+        #orders-container, #admin-products-container {
             max-width: 900px;
             margin: 3rem auto;
             padding: 2.5rem;
@@ -245,6 +251,53 @@
         .order-total { font-size: 1.2rem; font-weight: bold; color: var(--color-primary); }
         .order-items-list { list-style-type: none; padding-left: 0; }
         .order-items-list li { display: flex; justify-content: space-between; padding: 0.5rem 0; }
+        
+        /* AÑADIDO: Estilos para la lista de productos del Admin */
+        #admin-products-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        .admin-product-card {
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+        .admin-product-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        .admin-product-info {
+            padding: 1rem;
+            flex-grow: 1;
+        }
+        .admin-product-info h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        .admin-product-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-top: 1px solid #eee;
+        }
+        .admin-product-actions button {
+            padding: 0.75rem;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-edit {
+            color: var(--color-primary);
+            border-right: 1px solid #eee;
+        }
+        .btn-edit:hover { background-color: #f0f8ff; }
+        .btn-delete { color: var(--color-danger); }
+        .btn-delete:hover { background-color: #fdecea; }
     </style>
 </head>
 <body>
@@ -253,10 +306,8 @@
         <h1><a href="#shop" style="text-decoration:none; color:inherit;">Tienda Cell Smar</a></h1>
         <div>
             <a href="#shop">Tienda</a>
-            
             <a href="#login" id="login-nav-link">👤 Iniciar Sesión</a>
             <a href="#admin" id="admin-nav-link" class="hidden">⚙️ Admin</a>
-            
             <a href="#" id="cart-toggle" title="Ver Carrito">
                 🛒 Carrito (<span id="cart-count">0</span>)
             </a>
@@ -285,7 +336,6 @@
                     <button type="submit" id="login-btn">
                         <span id="login-btn-text">Iniciar Sesión</span>
                     </button>
-                    
                     <div class="form-toggle-links">
                         ¿No tienes cuenta? <a id="show-register">Regístrate</a>
                     </div>
@@ -304,7 +354,6 @@
                     <button type="submit" id="register-btn">
                         <span id="register-btn-text">Crear Cuenta</span>
                     </button>
-                    
                     <div class="form-toggle-links">
                         ¿Ya tienes cuenta? <a id="show-login">Inicia Sesión</a>
                     </div>
@@ -346,6 +395,13 @@
                 <h2 style="text-align: center; margin-bottom: 2rem;">Pedidos Recibidos</h2>
                 <div id="orders-list"></div>
                 <p id="loading-orders-message">Cargando pedidos...</p>
+            </div>
+            
+            <div id="admin-products-container">
+                <h2 style="text-align: center; margin-bottom: 2rem;">Gestionar Productos</h2>
+                <div id="admin-products-list"></div>
+                <p id="loading-admin-products-message">Cargando productos...</p>
+                <div id="admin-products-status" class="status-message hidden"></div>
             </div>
         </section>
 
@@ -399,6 +455,37 @@
         <div id="cod-status" class="status-message hidden"></div>
     </div>
     
+    <div id="edit-product-overlay" class="hidden"></div>
+    <div id="edit-product-modal" class="hidden">
+        <button id="close-edit-modal-btn" class="close-btn">&times;</button>
+        <h2>Editar Producto</h2>
+        <form id="edit-product-form">
+            <input type="hidden" id="edit-product-id">
+            <input type="hidden" id="edit-old-image-url">
+            
+            <div class="form-group">
+                <label for="edit-product-name">Nombre del Producto:</label>
+                <input type="text" id="edit-product-name" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-product-price">Precio:</label>
+                <input type="number" id="edit-product-price" step="0.01" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-product-image" class="file-label">
+                    Cambiar imagen (Opcional)
+                </label>
+                <input type="file" id="edit-product-image" accept="image/*" class="hidden">
+                <div id="edit-file-name">Ningún archivo nuevo</div>
+            </div>
+            <button type="submit" id="edit-submit-btn">
+                <span id="edit-loader" class="loader hidden"></span>
+                <span id="edit-btn-text">Guardar Cambios</span>
+            </button>
+        </form>
+        <div id="edit-product-status" class="status-message hidden"></div>
+    </div>
+    
     <footer><p>&copy; 2025 Cell Smar. Todos los derechos reservados.</p></footer>
 
     <script>
@@ -433,6 +520,7 @@
                 if (session) {
                     adminSection.classList.remove('hidden');
                     loadOrders();
+                    loadAdminProducts(); // AÑADIDO: Cargar productos en el admin
                 } else {
                     window.location.hash = '#login';
                 }
@@ -499,15 +587,11 @@
             cart.push({ id, name: decoder.value, price: parseFloat(price) });
             updateCartCount();
         }
-        
-        function updateCartCount() {
-            cartCount.textContent = cart.length;
-        }
+        function updateCartCount() { cartCount.textContent = cart.length; }
         
         function renderCartItems() {
             cartItemsList.innerHTML = '';
             let total = 0;
-            
             if (cart.length === 0) {
                 cartItemsList.innerHTML = '<p>Tu carrito está vacío.</p>';
                 checkoutBtn.disabled = true;
@@ -526,17 +610,12 @@
 
         function openCartModal() {
             renderCartItems();
-            cartOverlay.classList.remove('hidden');
-            cartModal.classList.remove('hidden');
-            cartOverlay.classList.add('visible');
-            cartModal.classList.add('visible');
+            cartOverlay.classList.remove('hidden'); cartModal.classList.remove('hidden');
+            cartOverlay.classList.add('visible'); cartModal.classList.add('visible');
         }
-        
         function closeCartModal() {
-            cartOverlay.classList.remove('visible');
-            cartModal.classList.remove('visible');
-            cartOverlay.classList.add('hidden');
-            cartModal.classList.add('hidden');
+            cartOverlay.classList.remove('visible'); cartModal.classList.remove('visible');
+            cartOverlay.classList.add('hidden'); cartModal.classList.add('hidden');
         }
         
         cartToggle.addEventListener('click', (e) => { e.preventDefault(); openCartModal(); });
@@ -557,8 +636,6 @@
         const modalProductName = document.getElementById('modal-product-name');
         const paymentOptions = document.querySelector('.payment-options');
         const paymentStatus = document.getElementById('payment-status');
-
-        // Elementos del Modal COD
         const codOverlay = document.getElementById('cod-overlay');
         const codModal = document.getElementById('cod-modal');
         const closeCodBtn = document.getElementById('close-cod-btn');
@@ -568,39 +645,24 @@
         const codBtnText = document.getElementById('cod-btn-text');
         const codStatus = document.getElementById('cod-status');
 
-
         function openModal(name) {
             modalProductName.textContent = name;
-            paymentStatus.textContent = '';
-            paymentStatus.classList.add('hidden');
-            paymentOverlay.classList.remove('hidden');
-            paymentModal.classList.remove('hidden');
-            paymentOverlay.classList.add('visible');
-            paymentModal.classList.add('visible');
+            paymentStatus.textContent = ''; paymentStatus.classList.add('hidden');
+            paymentOverlay.classList.remove('hidden'); paymentModal.classList.remove('hidden');
+            paymentOverlay.classList.add('visible'); paymentModal.classList.add('visible');
         }
-
         function closeModal() {
-            paymentOverlay.classList.remove('visible');
-            paymentModal.classList.remove('visible');
-            paymentOverlay.classList.add('hidden');
-            paymentModal.classList.add('hidden');
+            paymentOverlay.classList.remove('visible'); paymentModal.classList.remove('visible');
+            paymentOverlay.classList.add('hidden'); paymentModal.classList.add('hidden');
         }
-        
-        // Funciones para el modal COD
         function openCodModal() {
-            codStatus.textContent = '';
-            codStatus.classList.add('hidden');
-            codOverlay.classList.remove('hidden');
-            codModal.classList.remove('hidden');
-            codOverlay.classList.add('visible');
-            codModal.classList.add('visible');
+            codStatus.textContent = ''; codStatus.classList.add('hidden');
+            codOverlay.classList.remove('hidden'); codModal.classList.remove('hidden');
+            codOverlay.classList.add('visible'); codModal.classList.add('visible');
         }
-        
         function closeCodModal() {
-            codOverlay.classList.remove('visible');
-            codModal.classList.remove('visible');
-            codOverlay.classList.add('hidden');
-            codModal.classList.add('hidden');
+            codOverlay.classList.remove('visible'); codModal.classList.remove('visible');
+            codOverlay.classList.add('hidden'); codModal.classList.add('hidden');
             codForm.reset();
         }
 
@@ -609,7 +671,6 @@
         closeCodBtn.addEventListener('click', closeCodModal);
         codOverlay.addEventListener('click', closeCodModal); 
         
-        // Función reutilizable para guardar el pedido
         async function saveOrder(method, total, items, customerDetails = {}) {
             const orderData = {
                 payment_method: method,
@@ -619,44 +680,35 @@
                 customer_address: customerDetails.address || null,
                 customer_phone: customerDetails.phone || null
             };
-            
             const { error } = await _supabase.from('orders').insert([orderData]);
             return { error };
         }
 
-        // Listener de Opciones de Pago
         paymentOptions.addEventListener('click', async (e) => {
             const button = e.target.closest('.payment-btn');
             if (!button) return; 
-
             const method = button.dataset.method;
             const total = cart.reduce((acc, item) => acc + item.price, 0);
 
             if (method === 'cod') {
-                closeModal();
-                openCodModal();
+                closeModal(); openCodModal();
             } else {
                 paymentStatus.textContent = 'Procesando pedido...';
                 paymentStatus.className = 'status-message';
                 paymentStatus.classList.remove('hidden');
-
                 const { error } = await saveOrder(method, total, cart);
-
                 if (error) {
-                    console.error('Error al guardar el pedido:', error.message);
                     paymentStatus.textContent = `Error al procesar el pedido: ${error.message}`;
                     paymentStatus.className = 'status-message error';
                 } else {
                     paymentStatus.textContent = '¡Pedido realizado con éxito! Gracias por tu compra.';
                     paymentStatus.className = 'status-message success';
-                    cart = [];
-                    updateCartCount();
+                    cart = []; updateCartCount();
                     setTimeout(closeModal, 3000);
                 }
             }
         });
         
-        // Listener para el formulario de Contra Entrega
         function setCodFormLoading(isLoading) {
             codSubmitBtn.disabled = isLoading;
             codLoader.classList.toggle('hidden', !isLoading);
@@ -666,18 +718,14 @@
         codForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             setCodFormLoading(true);
-            
             const total = cart.reduce((acc, item) => acc + item.price, 0);
             const customerDetails = {
                 name: document.getElementById('cod-name').value,
                 address: document.getElementById('cod-address').value,
                 phone: document.getElementById('cod-phone').value
             };
-            
             const { error } = await saveOrder('cod', total, cart, customerDetails);
-            
             if (error) {
-                console.error('Error al guardar el pedido COD:', error.message);
                 codStatus.textContent = `Error al procesar el pedido: ${error.message}`;
                 codStatus.className = 'status-message error';
                 codStatus.classList.remove('hidden');
@@ -686,18 +734,9 @@
                 codStatus.textContent = '¡Pedido realizado con éxito! Gracias por tu compra.';
                 codStatus.className = 'status-message success';
                 codStatus.classList.remove('hidden');
-                cart = [];
-                updateCartCount();
+                cart = []; updateCartCount();
                 setCodFormLoading(false);
                 setTimeout(closeCodModal, 3000);
-            }
-        });
-        
-        // --- LISTENER DE CLIC GLOBAL ---
-        document.addEventListener('click', (e) => {
-            const cartButton = e.target.closest('.cart-btn');
-            if (cartButton && cartButton.id !== 'checkout-btn') {
-                addToCart(cartButton.dataset.id, cartButton.dataset.name, cartButton.dataset.price);
             }
         });
         
@@ -708,33 +747,23 @@
         const showRegister = document.getElementById('show-register');
         const loginStatus = document.getElementById('login-status');
 
-        // Alternar formularios
         showRegister.addEventListener('click', (e) => {
             e.preventDefault();
-            loginForm.classList.add('hidden');
-            registerForm.classList.remove('hidden');
-            loginStatus.textContent = '';
-            loginStatus.classList.add('hidden');
+            loginForm.classList.add('hidden'); registerForm.classList.remove('hidden');
+            loginStatus.textContent = ''; loginStatus.classList.add('hidden');
         });
-        
         showLogin.addEventListener('click', (e) => {
             e.preventDefault();
-            loginForm.classList.remove('hidden');
-            registerForm.classList.add('hidden');
-            loginStatus.textContent = '';
-            loginStatus.classList.add('hidden');
+            loginForm.classList.remove('hidden'); registerForm.classList.add('hidden');
+            loginStatus.textContent = ''; loginStatus.classList.add('hidden');
         });
 
-        // Submit de Login
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            loginStatus.textContent = '';
-            loginStatus.classList.add('hidden');
+            loginStatus.textContent = ''; loginStatus.classList.add('hidden');
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            
             const { error } = await _supabase.auth.signInWithPassword({ email, password });
-            
             if (error) {
                 loginStatus.textContent = 'Error: Email o contraseña incorrectos.';
                 loginStatus.className = 'status-message error';
@@ -744,18 +773,14 @@
             }
         });
         
-        // AÑADIDO: Submit de Registro
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             loginStatus.textContent = 'Registrando...';
             loginStatus.className = 'status-message';
             loginStatus.classList.remove('hidden');
-            
             const email = document.getElementById('register-email').value;
             const password = document.getElementById('register-password').value;
-
             const { data, error } = await _supabase.auth.signUp({ email, password });
-
             if (error) {
                 loginStatus.textContent = `Error: ${error.message}`;
                 loginStatus.className = 'status-message error';
@@ -766,13 +791,14 @@
             }
         });
 
-        // Submit de Logout
         document.getElementById('logout-btn').addEventListener('click', async () => {
             await _supabase.auth.signOut();
-            window.location.hash = '#shop'; // Ir a la tienda al cerrar sesión
+            window.location.hash = '#shop';
         });
 
         // --- LÓGICA DEL PANEL DE ADMIN ---
+        
+        // Cargar Nuevo Producto
         const productForm = document.getElementById('product-form');
         productForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -795,6 +821,7 @@
                 productForm.reset();
                 document.getElementById('file-name').textContent = 'Ningún archivo seleccionado';
                 productsLoaded = false;
+                loadAdminProducts(); // AÑADIDO: Refrescar la lista de productos
             } catch (error) {
                 console.error('Error:', error.message);
                 showStatus(error.message, 'error');
@@ -813,96 +840,282 @@
             document.getElementById('loader').classList.toggle('hidden', !isLoading);
             document.getElementById('btn-text').textContent = isLoading ? 'Guardando...' : 'Guardar Producto';
         }
-
         function showStatus(message, type) {
             const adminStatus = document.getElementById('admin-status');
             adminStatus.textContent = message;
             adminStatus.className = `status-message ${type}`;
         }
         
-        // --- Función para cargar y mostrar pedidos al Admin ---
+        // Cargar Pedidos
         const ordersListDiv = document.getElementById('orders-list');
         const loadingOrdersMsg = document.getElementById('loading-orders-message');
-
         async function loadOrders() {
             loadingOrdersMsg.textContent = 'Cargando pedidos...';
             loadingOrdersMsg.style.display = 'block';
             ordersListDiv.innerHTML = '';
-            
             try {
-                const { data, error } = await _supabase
-                    .from('orders')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
+                const { data, error } = await _supabase.from('orders').select('*').order('created_at', { ascending: false });
                 if (error) throw error;
-                
                 if (data.length === 0) {
-                    loadingOrdersMsg.textContent = 'No se han recibido pedidos todavía.';
-                    return;
+                    loadingOrdersMsg.textContent = 'No se han recibido pedidos todavía.'; return;
                 }
-                
                 loadingOrdersMsg.style.display = 'none';
-                
                 data.forEach(order => {
                     const orderCard = document.createElement('div');
                     orderCard.className = 'order-card';
-                    
                     const orderDate = new Date(order.created_at).toLocaleString('es-ES');
-                    const itemsHtml = order.items.map(item => 
-                        `<li><span>${item.name}</span><span>$${item.price.toFixed(2)}</span></li>`
-                    ).join('');
-                    
+                    const itemsHtml = order.items.map(item => `<li><span>${item.name}</span><span>$${item.price.toFixed(2)}</span></li>`).join('');
                     let customerHtml = '';
                     if (order.customer_name) {
-                        customerHtml = `
-                            <hr style="margin: 1rem 0;">
-                            <p><strong>Cliente:</strong> ${order.customer_name}</p>
-                            <p><strong>Dirección:</strong> ${order.customer_address}</p>
-                            <p><strong>Teléfono:</strong> ${order.customer_phone}</p>
-                        `;
+                        customerHtml = `<hr style="margin: 1rem 0;"><p><strong>Cliente:</strong> ${order.customer_name}</p><p><strong>Dirección:</strong> ${order.customer_address}</p><p><strong>Teléfono:</strong> ${order.customer_phone}</p>`;
                     }
-
-                    orderCard.innerHTML = `
-                        <div class="order-header">
-                            <p><strong>Fecha:</strong> ${orderDate}</p>
-                            <p><strong>Método de Pago:</strong> ${order.payment_method.toUpperCase()}</p>
-                            <p class="order-total">Total: $${parseFloat(order.total_amount).toFixed(2)}</p>
-                        </div>
-                        <h4>Productos:</h4>
-                        <ul class="order-items-list">${itemsHtml}</ul>
-                        ${customerHtml} 
-                    `;
+                    orderCard.innerHTML = `<div class="order-header"><p><strong>Fecha:</strong> ${orderDate}</p><p><strong>Método de Pago:</strong> ${order.payment_method.toUpperCase()}</p><p class="order-total">Total: $${parseFloat(order.total_amount).toFixed(2)}</p></div><h4>Productos:</h4><ul class="order-items-list">${itemsHtml}</ul>${customerHtml} `;
                     ordersListDiv.appendChild(orderCard);
                 });
-
             } catch (error) {
                 console.error('Error al cargar pedidos:', error.message);
                 loadingOrdersMsg.textContent = `Error al cargar pedidos: ${error.message}`;
             }
         }
+        
+        // 
+        // #############################################
+        // ## AQUÍ ESTÁ EL CAMBIO 3:                    ##
+        // ## Toda la lógica nueva para GESTIONAR       ##
+        // ## productos (Leer, Actualizar, Eliminar)    ##
+        // #############################################
+        //
+        
+        // Selectores para la gestión de productos
+        const adminProductsList = document.getElementById('admin-products-list');
+        const loadingAdminProductsMsg = document.getElementById('loading-admin-products-message');
+        const adminProductsStatus = document.getElementById('admin-products-status');
+        
+        // Selectores del Modal de Edición
+        const editModal = document.getElementById('edit-product-modal');
+        const editOverlay = document.getElementById('edit-product-overlay');
+        const closeEditModalBtn = document.getElementById('close-edit-modal-btn');
+        const editForm = document.getElementById('edit-product-form');
+        const editSubmitBtn = document.getElementById('edit-submit-btn');
+        const editLoader = document.getElementById('edit-loader');
+        const editBtnText = document.getElementById('edit-btn-text');
+        const editFileInput = document.getElementById('edit-product-image');
+        const editFileNameDiv = document.getElementById('edit-file-name');
 
+        // 1. Función para LEER y mostrar productos en el Admin
+        async function loadAdminProducts() {
+            loadingAdminProductsMsg.textContent = 'Cargando productos...';
+            loadingAdminProductsMsg.style.display = 'block';
+            adminProductsStatus.classList.add('hidden');
+            adminProductsList.innerHTML = '';
+            
+            try {
+                const { data, error } = await _supabase.from('products').select('*').order('created_at', { ascending: false });
+                if (error) throw error;
+                if (data.length === 0) {
+                    loadingAdminProductsMsg.textContent = 'No has subido ningún producto.'; return;
+                }
+                loadingAdminProductsMsg.style.display = 'none';
+                
+                data.forEach(product => {
+                    const card = document.createElement('div');
+                    card.className = 'admin-product-card';
+                    card.innerHTML = `
+                        <img src="${product.image_url}" alt="${product.name}">
+                        <div class="admin-product-info">
+                            <h4>${product.name}</h4>
+                            <p>$${parseFloat(product.price).toFixed(2)}</p>
+                        </div>
+                        <div class="admin-product-actions">
+                            <button class="btn-edit" 
+                                data-id="${product.id}" 
+                                data-name="${product.name}" 
+                                data-price="${product.price}" 
+                                data-image-url="${product.image_url}">Editar</button>
+                            <button class="btn-delete" 
+                                data-id="${product.id}" 
+                                data-image-url="${product.image_url}">Eliminar</button>
+                        </div>
+                    `;
+                    adminProductsList.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error al cargar productos (admin):', error.message);
+                loadingAdminProductsMsg.textContent = `Error al cargar productos: ${error.message}`;
+            }
+        }
+        
+        // 2. Funciones para ABRIR/CERRAR el modal de edición
+        function openEditModal(id, name, price, imageUrl) {
+            // Rellenar el formulario con los datos existentes
+            document.getElementById('edit-product-id').value = id;
+            document.getElementById('edit-product-name').value = name;
+            document.getElementById('edit-product-price').value = price;
+            document.getElementById('edit-old-image-url').value = imageUrl;
+            
+            // Limpiar el input de archivo
+            editFileInput.value = '';
+            editFileNameDiv.textContent = 'Ningún archivo nuevo';
+            
+            // Mostrar el modal
+            editOverlay.classList.remove('hidden'); editModal.classList.remove('hidden');
+            editOverlay.classList.add('visible'); editModal.classList.add('visible');
+        }
+        function closeEditModal() {
+            editOverlay.classList.remove('visible'); editModal.classList.remove('visible');
+            editOverlay.classList.add('hidden'); editModal.classList.add('hidden');
+        }
+        
+        closeEditModalBtn.addEventListener('click', closeEditModal);
+        editOverlay.addEventListener('click', closeEditModal);
+        
+        // Listener para el nombre de archivo en el modal de edición
+        editFileInput.addEventListener('change', () => {
+            editFileNameDiv.textContent = editFileInput.files.length > 0 ? editFileInput.files[0].name : 'Ningún archivo nuevo';
+        });
+
+        // 3. Función para ACTUALIZAR (Edit) el producto
+        function setEditFormLoading(isLoading) {
+            editSubmitBtn.disabled = isLoading;
+            editLoader.classList.toggle('hidden', !isLoading);
+            editBtnText.textContent = isLoading ? 'Guardando...' : 'Guardar Cambios';
+        }
+        
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            setEditFormLoading(true);
+            
+            const id = document.getElementById('edit-product-id').value;
+            const oldImageUrl = document.getElementById('edit-old-image-url').value;
+            const newImageFile = editFileInput.files[0];
+            
+            const updateData = {
+                name: document.getElementById('edit-product-name').value,
+                price: parseFloat(document.getElementById('edit-product-price').value)
+            };
+            
+            try {
+                if (newImageFile) {
+                    // 1. Si hay imagen nueva, subirla
+                    const newFileName = `${Date.now()}-${newImageFile.name}`;
+                    const { error: uploadError } = await _supabase.storage
+                        .from('product-images')
+                        .upload(newFileName, newImageFile);
+                    if (uploadError) throw uploadError;
+                    
+                    // 2. Obtener la URL pública de la nueva imagen
+                    const { data: urlData } = _supabase.storage
+                        .from('product-images')
+                        .getPublicUrl(newFileName);
+                    updateData.image_url = urlData.publicUrl;
+                }
+                
+                // 3. Actualizar la base de datos
+                const { error: updateError } = await _supabase
+                    .from('products')
+                    .update(updateData)
+                    .eq('id', id);
+                if (updateError) throw updateError;
+                
+                if (newImageFile) {
+                    // 4. Si la actualización fue exitosa y hubo imagen nueva,
+                    // borrar la imagen antigua del storage
+                    const oldFileName = oldImageUrl.split('product-images/')[1];
+                    if (oldFileName) {
+                        await _supabase.storage.from('product-images').remove([oldFileName]);
+                    }
+                }
+                
+                // 5. Éxito
+                productsLoaded = false; // Forzar recarga en la tienda
+                loadAdminProducts(); // Recargar lista de admin
+                closeEditModal();
+                
+            } catch (error) {
+                console.error('Error al actualizar producto:', error.message);
+                document.getElementById('edit-product-status').textContent = `Error: ${error.message}`;
+                document.getElementById('edit-product-status').className = 'status-message error';
+            } finally {
+                setEditFormLoading(false);
+            }
+        });
+        
+        // 4. Función para ELIMINAR producto
+        async function deleteProduct(id, imageUrl) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.')) {
+                return;
+            }
+            
+            try {
+                // 1. Eliminar de la base de datos
+                const { error: dbError } = await _supabase
+                    .from('products')
+                    .delete()
+                    .eq('id', id);
+                if (dbError) throw dbError;
+                
+                // 2. Eliminar imagen del Storage
+                const fileName = imageUrl.split('product-images/')[1];
+                if (fileName) {
+                    await _supabase.storage.from('product-images').remove([fileName]);
+                }
+                
+                // 3. Éxito
+                adminProductsStatus.textContent = 'Producto eliminado con éxito.';
+                adminProductsStatus.className = 'status-message success';
+                adminProductsStatus.classList.remove('hidden');
+                
+                productsLoaded = false; // Forzar recarga en la tienda
+                loadAdminProducts(); // Recargar lista de admin
+
+            } catch (error) {
+                console.error('Error al eliminar producto:', error.message);
+                adminProductsStatus.textContent = `Error: ${error.message}`;
+                adminProductsStatus.className = 'status-message error';
+                adminProductsStatus.classList.remove('hidden');
+            }
+        }
+        
+        // --- LISTENER DE CLIC GLOBAL (MODIFICADO) ---
+        document.addEventListener('click', (e) => {
+            // Añadir al carrito
+            const cartButton = e.target.closest('.cart-btn');
+            if (cartButton && cartButton.id !== 'checkout-btn') {
+                addToCart(cartButton.dataset.id, cartButton.dataset.name, cartButton.dataset.price);
+                return; // Importante para no seguir
+            }
+            
+            // Botón de Editar Producto
+            const editButton = e.target.closest('.btn-edit');
+            if (editButton) {
+                const ds = editButton.dataset;
+                openEditModal(ds.id, ds.name, ds.price, ds.imageUrl);
+                return;
+            }
+            
+            // Botón de Eliminar Producto
+            const deleteButton = e.target.closest('.btn-delete');
+            if (deleteButton) {
+                deleteProduct(deleteButton.dataset.id, deleteButton.dataset.imageUrl);
+                return;
+            }
+        });
+        
         // --- INICIALIZACIÓN ---
         window.addEventListener('hashchange', handleRouting);
         
         document.addEventListener('DOMContentLoaded', () => {
             handleRouting(); // Cargar la ruta inicial
 
-            // #############################################
-            // ## AQUÍ ESTÁ EL CAMBIO 3:                  ##
-            // ## Listener de autenticación para los      ##
-            // ## enlaces de la barra de navegación       ##
-            // #############################################
             const loginLink = document.getElementById('login-nav-link');
             const adminLink = document.getElementById('admin-nav-link');
             
+            // Controlar visibilidad de enlaces de Login/Admin
             _supabase.auth.onAuthStateChange((event, session) => {
                 if (session) {
-                    // Usuario logueado
                     loginLink.classList.add('hidden');
                     adminLink.classList.remove('hidden');
                 } else {
-                    // Usuario no logueado
                     loginLink.classList.remove('hidden');
                     adminLink.classList.add('hidden');
                 }
