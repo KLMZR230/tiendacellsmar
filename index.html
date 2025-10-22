@@ -370,7 +370,7 @@
         const loadingMessage = document.getElementById('loading-message');
         let productsLoaded = false; // Evitar recargar productos innecesariamente
 
-        // --- CORREGIDO: Función para escapar HTML para atributos ---
+        // Función para escapar HTML para atributos
         function escapeHTML(str) {
             if (!str) return '';
             return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/&/g, '&amp;');
@@ -401,7 +401,7 @@
                 data.forEach(product => {
                     const formattedPrice = parseFloat(product.price).toFixed(2);
                     
-                    // --- CORREGIDO: Escapar nombre para data-name y alt ---
+                    // Escapar nombre para data-name y alt
                     const safeName = escapeHTML(product.name);
                     
                     const card = document.createElement('div');
@@ -435,7 +435,7 @@
         const paymentOptions = document.querySelector('.payment-options');
 
         function openModal(name, id) {
-            // --- CORREGIDO: Decodificar el nombre para mostrarlo ---
+            // Decodificar el nombre para mostrarlo
             decoder.innerHTML = name;
             modalProductName.textContent = decoder.value;
             
@@ -471,20 +471,25 @@
             closeModal();
         });
         
-        // --- CORRECCIÓN FINAL: Listener de clic en 'document' ---
-        // Esto es más robusto y siempre encontrará el botón.
+        // --- CORRECCIÓN FINAL V2: Listener de clic en 'document' ---
+        // Esto es infalible. Escucha en TODA la página.
         document.addEventListener('click', (e) => {
+            // 1. Busca si el clic fue en un botón de carrito
             const cartButton = e.target.closest('.cart-btn');
-            
-            // Salir si el clic no fue en un botón de carrito O si el botón no está dentro de la tienda
-            if (!cartButton || !shopSection.contains(cartButton)) {
-                return;
+
+            // 2. Si no fue en un botón de carrito, no hagas nada.
+            if (!cartButton) {
+                return; 
             }
             
-            // Si llegamos aquí, fue un clic válido
-            const name = cartButton.dataset.name;
-            const id = cartButton.dataset.id;
-            openModal(name, id); // Abre el modal con los datos
+            // 3. Si SÍ fue en un botón, obten los datos y abre el modal
+            try {
+                const name = cartButton.dataset.name;
+                const id = cartButton.dataset.id;
+                openModal(name, id); // Abre el modal con los datos
+            } catch (error) {
+                console.error("Error al procesar clic de carrito:", error);
+            }
         });
         // --- FIN DE LA CORRECCIÓN ---
         
@@ -578,7 +583,7 @@
         }
         function showStatus(message, type) {
             adminStatus.textContent = message;
-            adminStatus.className = `status-message ${type}`;
+            statusDiv.className = `status-message ${type}`;
         }
 
         // --- INICIALIZACIÓN ---
