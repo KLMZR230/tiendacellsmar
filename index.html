@@ -31,7 +31,7 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             line-height: 1.6;
-            background-color: var(--color-bg); 
+            background-color: var(--color-bg);
             color: var(--color-text);
         }
         .hidden { display: none !important; }
@@ -57,7 +57,7 @@
             transition: background-color 0.2s;
         }
         nav a:hover { background-color: #3a3a3a; } /* Hover más oscuro */
-        
+
         #cart-count {
             background-color: var(--color-danger);
             color: #fff; /* Texto blanco para contraste */
@@ -75,8 +75,7 @@
 
         /* --- 1. Estilos de la TIENDA --- */
         #loading-message { font-size: 1.2rem; text-align: center; padding: 2rem; color: var(--color-text-muted); }
-        
-        /* AÑADIDO: Estilo para títulos de categoría */
+
         .category-title {
             font-size: 1.8rem;
             color: var(--color-accent-bright);
@@ -84,15 +83,14 @@
             padding-bottom: 0.5rem;
             border-bottom: 2px solid var(--color-border);
         }
-        
-        /* MODIFICADO: Ahora es una clase para múltiples grids */
-        .product-grid { 
+
+        .product-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 1.5rem;
             margin-bottom: 3rem; /* Espacio entre categorías */
         }
-        
+
         .product-card {
             background-color: var(--color-card-bg);
             border-radius: var(--border-radius);
@@ -103,9 +101,9 @@
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             border: 1px solid var(--color-accent-bright); /* Borde encendido */
         }
-        .product-card:hover { 
-            transform: translateY(-5px); 
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6), 0 0 10px var(--color-accent-bright); 
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6), 0 0 10px var(--color-accent-bright);
         }
         .product-image-container { width: 100%; aspect-ratio: 1 / 1; }
         .product-image { width: 100%; height: 100%; object-fit: cover; }
@@ -134,7 +132,6 @@
         form { display: grid; gap: 1.25rem; }
         .form-group { display: flex; flex-direction: column; }
         .form-group label { font-weight: 600; margin-bottom: 0.5rem; color: var(--color-text); }
-        /* Estilo para <select> igual que <input> */
         .form-group input[type="text"],
         .form-group input[type="number"],
         .form-group input[type="email"],
@@ -152,10 +149,10 @@
             color: var(--color-text);
         }
         .file-label:hover { background-color: #555; }
-        #file-name, #edit-file-name { 
-            font-style: italic; color: var(--color-text-muted); margin-top: 0.5rem; text-align: center; 
+        #file-name, #edit-file-name {
+            font-style: italic; color: var(--color-text-muted); margin-top: 0.5rem; text-align: center;
         }
-        
+
         button[type="submit"] {
             padding: 0.85rem; background-color: var(--color-primary); color: #fff; /* Texto blanco */
             border: none; border-radius: var(--border-radius); cursor: pointer;
@@ -164,7 +161,7 @@
         }
         button[type="submit"]:hover { background-color: var(--color-primary-dark); }
         button[type="submit"]:disabled { background-color: #555; cursor: not-allowed; color: #999; }
-        
+
         .form-toggle-links {
             text-align: center;
             margin-top: 1.5rem;
@@ -177,7 +174,7 @@
             text-decoration: underline;
             cursor: pointer;
         }
-        
+
         #logout-btn {
             width: 100%; padding: 0.75rem; background-color: var(--color-danger); color: #fff; /* Texto blanco */
             border: none; border-radius: var(--border-radius); cursor: pointer;
@@ -199,7 +196,7 @@
         }
         .success { background-color: rgba(51, 204, 102, 0.1); color: var(--color-success); border-color: var(--color-success); }
         .error { background-color: rgba(255, 77, 77, 0.1); color: var(--color-danger); border-color: var(--color-danger); }
-        
+
         footer { text-align: center; padding: 2rem; margin-top: 2rem; color: var(--color-text-muted); }
 
         /* --- ESTILOS DE TODOS LOS MODALES --- */
@@ -216,32 +213,32 @@
             width: 90%; display: none;
             color: var(--color-text); /* Texto claro en modales */
         }
-        
+
         #cart-overlay { z-index: 90; }
         #cart-modal { z-index: 91; max-width: 550px; }
-        
+
         #cod-overlay { z-index: 102; }
         #cod-modal { z-index: 103; max-width: 500px; }
-        
+
         #edit-product-overlay { z-index: 104; }
         #edit-product-modal { z-index: 105; max-width: 500px; }
-        
+
         #cart-overlay.visible, #cart-modal.visible,
         #cod-overlay.visible, #cod-modal.visible,
         #edit-product-overlay.visible, #edit-product-modal.visible {
             display: block;
         }
-        
+
         #cart-items-list { max-height: 300px; overflow-y: auto; margin-bottom: 1rem; }
-        .cart-item { 
-            display: flex; 
-            align-items: center; 
-            padding: 0.75rem 0; 
-            border-bottom: 1px solid var(--color-border); 
-            gap: 1rem; 
+        .cart-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--color-border);
+            gap: 1rem;
         }
         .cart-item:last-child { border-bottom: none; }
-        
+
         .cart-item-image {
             width: 50px;
             height: 50px;
@@ -249,21 +246,21 @@
             border-radius: 4px;
             border: 1px solid var(--color-border);
         }
-        
-        .cart-item-name { 
-            font-weight: 600; 
-            color: var(--color-text); 
-            flex-grow: 1; 
-            margin-right: 1rem; 
+
+        .cart-item-name {
+            font-weight: 600;
+            color: var(--color-text);
+            flex-grow: 1;
+            margin-right: 1rem;
         }
-        .cart-item-price { 
-            color: var(--color-text-muted); 
-            white-space: nowrap; 
+        .cart-item-price {
+            color: var(--color-text-muted);
+            white-space: nowrap;
         }
 
         #cod-modal h2, #edit-product-modal h2 { text-align: center; }
         #cod-modal h2, #edit-product-modal h2 { margin-bottom: 1rem; }
-        
+
         .close-btn { position: absolute; top: 10px; right: 15px; font-size: 2.5rem; color: #aaa; background: none; border: none; cursor: pointer; line-height: 1; }
         .close-btn:hover { color: #fff; }
 
@@ -302,7 +299,7 @@
         .order-total { font-size: 1.2rem; font-weight: bold; color: var(--color-primary); }
         .order-items-list { list-style-type: none; padding-left: 0; }
         .order-items-list li { display: flex; align-items: center; /* Alinea imagen y texto */ justify-content: space-between; padding: 0.5rem 0; color: var(--color-text); }
-        
+
         .order-status {
             font-weight: bold;
             padding: 3px 8px;
@@ -312,7 +309,7 @@
         }
         .order-status.pendiente { background-color: var(--color-danger); }
         .order-status.enviado { background-color: var(--color-success); }
-        
+
         .order-actions {
             display: flex;
             gap: 1rem;
@@ -338,7 +335,7 @@
         }
         .btn-delete-order { background-color: var(--color-danger); }
         .btn-delete-order:hover { background-color: #cc3d3d; }
-        
+
         /* Estilos para la lista de productos del Admin */
         #admin-products-list {
             display: grid;
@@ -369,15 +366,14 @@
             color: var(--color-text);
         }
         .admin-product-info p { color: var(--color-text-muted); }
-        
-        /* AÑADIDO: Mostrar categoría en admin */
+
         .admin-product-category {
             font-size: 0.85rem;
             color: var(--color-accent-bright);
             font-style: italic;
             margin-top: 0.5rem;
         }
-        
+
         .admin-product-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -471,7 +467,6 @@
                         <label for="product-price">Precio:</label>
                         <input type="number" id="product-price" step="0.01" min="0" required>
                     </div>
-                    
                     <div class="form-group">
                         <label for="product-category">Categoría:</label>
                         <select id="product-category" required>
@@ -479,10 +474,10 @@
                             <option value="Pantallas">Pantallas</option>
                             <option value="Llinas Originales Adidas">Llinas Originales Adidas</option>
                             <option value="Cargadores Samsung">Cargadores Samsung</option>
-                            <option value="Otros">Otros</option> 
+                            <option value="Cargadores de Iphone">Cargadores de Iphone</option>
+                            <option value="Otros">Otros</option>
                         </select>
                     </div>
-
                     <div class="form-group">
                         <label for="product-image" class="file-label">
                             Haz clic para subir una imagen
@@ -512,7 +507,7 @@
         </section>
 
     </main>
-    
+
     <div id="cart-overlay" class="hidden"></div>
     <div id="cart-modal" class="hidden">
         <button id="close-cart-btn" class="close-btn">&times;</button>
@@ -522,7 +517,7 @@
         <h3 style="text-align: right; margin-bottom: 1.5rem;">Total: <span id="cart-total">$0.00</span></h3>
         <button type="submit" id="checkout-btn" style="width:100%;" class="cart-btn">Proceder al Pago</button>
     </div>
-        
+
     <div id="cod-overlay" class="hidden"></div>
     <div id="cod-modal" class="hidden">
         <button id="close-cod-btn" class="close-btn">&times;</button>
@@ -551,7 +546,7 @@
         </form>
         <div id="cod-status" class="status-message hidden"></div>
     </div>
-    
+
     <div id="edit-product-overlay" class="hidden"></div>
     <div id="edit-product-modal" class="hidden">
         <button id="close-edit-modal-btn" class="close-btn">&times;</button>
@@ -567,7 +562,6 @@
                 <label for="edit-product-price">Precio:</label>
                 <input type="number" id="edit-product-price" step="0.01" min="0" required>
             </div>
-            
              <div class="form-group">
                 <label for="edit-product-category">Categoría:</label>
                 <select id="edit-product-category" required>
@@ -575,10 +569,10 @@
                     <option value="Pantallas">Pantallas</option>
                     <option value="Llinas Originales Adidas">Llinas Originales Adidas</option>
                     <option value="Cargadores Samsung">Cargadores Samsung</option>
-                    <option value="Otros">Otros</option> 
+                    <option value="Cargadores de Iphone">Cargadores de Iphone</option>
+                    <option value="Otros">Otros</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label for="edit-product-image" class="file-label">
                     Cambiar imagen (Opcional)
@@ -593,20 +587,20 @@
         </form>
         <div id="edit-product-status" class="status-message hidden"></div>
     </div>
-    
+
     <footer><p>&copy; 2025 Cell Smar. Todos los derechos reservados.</p></footer>
 
     <script>
         // --- CONFIGURACIÓN E INICIALIZACIÓN ---
         const SUPABASE_URL = 'https://kbvheywmgxkpigoldhuw.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtidmhleXdtZ3hrcGlnb2xkaHV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEwODYzOTQsImV4cCI6MjA3NjY2MjM5NH0.KNK1dmVI5iAvKcIdLAjjyhzrLun3ZgwQe1LIuBhgZU0'; 
-        
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtidmhleXdtZ3hrcGlnb2xkaHV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEwODYzOTQsImV4cCI6MjA3NjY2MjM5NH0.KNK1dmVI5iAvKcIdLAjjyhzrLun3ZgwQe1LIuBhgZU0';
+
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
+
         let cart = [];
         let productsLoaded = false;
-        
+
         const shopSection = document.getElementById('shop-section');
         const loginSection = document.getElementById('login-section');
         const adminSection = document.getElementById('admin-section');
@@ -615,12 +609,12 @@
 
         // --- ENRUTADOR (Router) ---
         async function handleRouting() {
-            const hash = window.location.hash || '#shop'; 
+            const hash = window.location.hash || '#shop';
             sections.forEach(s => s.classList.add('hidden'));
 
             if (hash === '#shop') {
                 shopSection.classList.remove('hidden');
-                loadProducts(); 
+                loadProducts();
             } else if (hash === '#login') {
                 loginSection.classList.remove('hidden');
             } else if (hash === '#admin') {
@@ -628,7 +622,7 @@
                 if (session) {
                     adminSection.classList.remove('hidden');
                     loadOrders();
-                    loadAdminProducts(); 
+                    loadAdminProducts();
                 } else {
                     window.location.hash = '#login';
                 }
@@ -636,8 +630,7 @@
         }
 
         // --- LÓGICA DE LA TIENDA ---
-        // MODIFICADO: Contenedor principal de la tienda
-        const shopCategoriesContainer = document.getElementById('shop-categories-container'); 
+        const shopCategoriesContainer = document.getElementById('shop-categories-container');
         const loadingMessage = document.getElementById('loading-message');
 
         function escapeHTML(str) {
@@ -645,18 +638,14 @@
             return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/&/g, '&amp;');
         }
 
-        // #############################################
-        // ## AQUÍ ESTÁ EL CAMBIO 3:                    ##
-        // ## `loadProducts` ahora agrupa por categoría ##
-        // #############################################
         async function loadProducts() {
-            if (productsLoaded) return; 
+            if (productsLoaded) return;
             loadingMessage.textContent = 'Cargando productos...';
             loadingMessage.style.display = 'block';
-            shopCategoriesContainer.innerHTML = ''; // Limpiar contenedor principal
+            shopCategoriesContainer.innerHTML = '';
 
             try {
-                const { data, error } = await _supabase.from('products').select('*').order('category').order('created_at', { ascending: false }); // Ordenar por categoría también
+                const { data, error } = await _supabase.from('products').select('*').order('category').order('created_at', { ascending: false });
                 if (error) throw error;
                 if (data.length === 0) {
                     loadingMessage.textContent = 'Aún no hay productos en la tienda.';
@@ -664,32 +653,25 @@
                 }
                 loadingMessage.style.display = 'none';
 
-                // 1. Agrupar productos por categoría
                 const groupedProducts = {};
                 data.forEach(product => {
-                    const category = product.category || 'Otros'; // Usar 'Otros' si la categoría es nula/vacía
+                    const category = product.category || 'Otros';
                     if (!groupedProducts[category]) {
                         groupedProducts[category] = [];
                     }
                     groupedProducts[category].push(product);
                 });
 
-                // 2. Renderizar cada categoría y sus productos
                 for (const category in groupedProducts) {
-                    // Crear contenedor para la categoría
                     const categorySection = document.createElement('div');
-                    
-                    // Crear título de la categoría
                     const categoryTitle = document.createElement('h2');
                     categoryTitle.className = 'category-title';
                     categoryTitle.textContent = category;
                     categorySection.appendChild(categoryTitle);
 
-                    // Crear grid para los productos de esta categoría
                     const categoryGrid = document.createElement('div');
-                    categoryGrid.className = 'product-grid'; 
-                    
-                    // Añadir productos al grid de la categoría
+                    categoryGrid.className = 'product-grid';
+
                     groupedProducts[category].forEach(product => {
                         const formattedPrice = parseFloat(product.price).toFixed(2);
                         const safeName = escapeHTML(product.name);
@@ -700,26 +682,26 @@
                             <div class="product-info">
                                 <h2 class="product-name">${product.name}</h2>
                                 <p class="product-price">$${formattedPrice}</p>
-                                <button class="cart-btn" 
-                                    data-id="${product.id}" 
-                                    data-name="${safeName}" 
+                                <button class="cart-btn"
+                                    data-id="${product.id}"
+                                    data-name="${safeName}"
                                     data-price="${formattedPrice}"
-                                    data-image-url="${product.image_url}">Añadir al Carrito</button> 
+                                    data-image-url="${product.image_url}">Añadir al Carrito</button>
                             </div>`;
                         categoryGrid.appendChild(card);
                     });
-                    
-                    categorySection.appendChild(categoryGrid); // Añadir grid a la sección
-                    shopCategoriesContainer.appendChild(categorySection); // Añadir sección al contenedor principal
+
+                    categorySection.appendChild(categoryGrid);
+                    shopCategoriesContainer.appendChild(categorySection);
                 }
 
-                productsLoaded = true; 
+                productsLoaded = true;
             } catch (error) {
                 console.error('Error cargando productos:', error.message);
                 loadingMessage.textContent = `Error al cargar la tienda: ${error.message}`;
             }
         }
-        
+
         // --- LÓGICA DEL CARRITO ---
         const cartToggle = document.getElementById('cart-toggle');
         const cartCount = document.getElementById('cart-count');
@@ -729,14 +711,14 @@
         const cartItemsList = document.getElementById('cart-items-list');
         const cartTotal = document.getElementById('cart-total');
         const checkoutBtn = document.getElementById('checkout-btn');
-        
+
         function addToCart(id, name, price, imageUrl) {
             decoder.innerHTML = name;
             cart.push({ id, name: decoder.value, price: parseFloat(price), imageUrl: imageUrl });
             updateCartCount();
         }
         function updateCartCount() { cartCount.textContent = cart.length; }
-        
+
         function renderCartItems() {
             cartItemsList.innerHTML = '';
             let total = 0;
@@ -769,16 +751,16 @@
             cartOverlay.classList.remove('visible'); cartModal.classList.remove('visible');
             cartOverlay.classList.add('hidden'); cartModal.classList.add('hidden');
         }
-        
+
         cartToggle.addEventListener('click', (e) => { e.preventDefault(); openCartModal(); });
         closeCartBtn.addEventListener('click', closeCartModal);
         cartOverlay.addEventListener('click', closeCartModal);
-        
+
         checkoutBtn.addEventListener('click', () => {
             const total = cart.reduce((acc, item) => acc + item.price, 0);
             if (total <= 0) return;
             closeCartModal();
-            openCodModal(); 
+            openCodModal();
         });
 
         // --- LÓGICA DEL MODAL DE CONTRA ENTREGA ---
@@ -803,33 +785,33 @@
         }
 
         closeCodBtn.addEventListener('click', closeCodModal);
-        codOverlay.addEventListener('click', closeCodModal); 
-        
+        codOverlay.addEventListener('click', closeCodModal);
+
         async function saveOrder(method, total, items, customerDetails = {}) {
             const orderData = {
                 payment_method: method,
                 total_amount: total,
-                items: items, 
+                items: items,
                 customer_name: customerDetails.name || null,
                 customer_address: customerDetails.address || null,
                 customer_reference: customerDetails.reference || null,
                 customer_phone: customerDetails.phone || null,
-                status: 'pendiente' 
+                status: 'pendiente'
             };
             const { error } = await _supabase.from('orders').insert([orderData]);
             return { error };
         }
-        
+
         function setCodFormLoading(isLoading) {
             codSubmitBtn.disabled = isLoading;
             codLoader.classList.toggle('hidden', !isLoading);
             codBtnText.textContent = isLoading ? 'Confirmando...' : 'Confirmar Pedido';
         }
-        
+
         codForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             setCodFormLoading(true);
-            
+
             const total = cart.reduce((acc, item) => acc + item.price, 0);
             const customerDetails = {
                 name: document.getElementById('cod-name').value,
@@ -837,9 +819,9 @@
                 reference: document.getElementById('cod-reference').value,
                 phone: document.getElementById('cod-phone').value
             };
-            
+
             const { error } = await saveOrder('cod', total, cart, customerDetails);
-            
+
             if (error) {
                 codStatus.textContent = `Error al procesar el pedido: ${error.message}`;
                 codStatus.className = 'status-message error';
@@ -854,7 +836,7 @@
                 setTimeout(closeCodModal, 3000);
             }
         });
-        
+
         // --- LÓGICA DE AUTENTICACIÓN (Login/Logout/Register) ---
         const loginForm = document.getElementById('login-form');
         const registerForm = document.getElementById('register-form');
@@ -887,7 +869,7 @@
                 window.location.hash = '#admin';
             }
         });
-        
+
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             loginStatus.textContent = 'Registrando...';
@@ -912,24 +894,18 @@
         });
 
         // --- LÓGICA DEL PANEL DE ADMIN ---
-        
+
         // Cargar Nuevo Producto
         const productForm = document.getElementById('product-form');
-        
-        // #############################################
-        // ## AQUÍ ESTÁ EL CAMBIO 4:                    ##
-        // ## `submit` de carga ahora incluye categoría ##
-        // #############################################
         productForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             setLoading(true);
             try {
                 const name = document.getElementById('product-name').value;
                 const price = parseFloat(document.getElementById('product-price').value);
-                const category = document.getElementById('product-category').value; // OBTENER CATEGORÍA
+                const category = document.getElementById('product-category').value;
                 const imageFile = document.getElementById('product-image').files[0];
-                
-                // VALIDAR CATEGORÍA
+
                 if (!name || !price || !category || !imageFile) throw new Error('Completa todos los campos, incluida la categoría.');
 
                 const fileName = `${Date.now()}-${imageFile.name}`;
@@ -937,16 +913,15 @@
                 if (uploadError) throw uploadError;
 
                 const { data: urlData } = _supabase.storage.from('product-images').getPublicUrl(fileName);
-                
-                // INCLUIR CATEGORÍA EN INSERT
-                const { error: insertError } = await _supabase.from('products').insert([{ name, price, image_url: urlData.publicUrl, category }]); 
+
+                const { error: insertError } = await _supabase.from('products').insert([{ name, price, image_url: urlData.publicUrl, category }]);
                 if (insertError) throw insertError;
 
                 showStatus('¡Producto guardado con éxito!', 'success');
                 productForm.reset();
                 document.getElementById('file-name').textContent = 'Ningún archivo seleccionado';
                 productsLoaded = false;
-                loadAdminProducts(); 
+                loadAdminProducts();
             } catch (error) {
                 console.error('Error:', error.message);
                 showStatus(error.message, 'error');
@@ -954,7 +929,7 @@
                 setLoading(false);
             }
         });
-        
+
         document.getElementById('product-image').addEventListener('change', () => {
             const fileInput = document.getElementById('product-image');
             document.getElementById('file-name').textContent = fileInput.files.length > 0 ? fileInput.files[0].name : 'Ningún archivo seleccionado';
@@ -970,11 +945,11 @@
             adminStatus.textContent = message;
             adminStatus.className = `status-message ${type}`;
         }
-        
+
         // --- GESTIÓN DE PEDIDOS (Admin) ---
         const ordersListDiv = document.getElementById('orders-list');
         const loadingOrdersMsg = document.getElementById('loading-orders-message');
-        
+
         async function loadOrders() {
             loadingOrdersMsg.textContent = 'Cargando pedidos...';
             loadingOrdersMsg.style.display = 'block';
@@ -986,20 +961,19 @@
                     loadingOrdersMsg.textContent = 'No se han recibido pedidos todavía.'; return;
                 }
                 loadingOrdersMsg.style.display = 'none';
-                
+
                 data.forEach(order => {
                     const orderCard = document.createElement('div');
                     orderCard.className = 'order-card';
                     const orderDate = new Date(order.created_at).toLocaleString('es-ES');
-                    // Mostrar imagen en la lista de items del pedido
-                    const itemsHtml = order.items.map(item => 
+                    const itemsHtml = order.items.map(item =>
                         `<li>
-                           ${item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.name}" style="width: 30px; height: 30px; object-fit: cover; margin-right: 10px; border-radius: 4px;">` : ''} 
+                           ${item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.name}" style="width: 30px; height: 30px; object-fit: cover; margin-right: 10px; border-radius: 4px;">` : ''}
                            <span>${item.name}</span>
                            <span>$${item.price.toFixed(2)}</span>
                          </li>`
                     ).join('');
-                    
+
                     let customerHtml = '';
                     if (order.customer_name) {
                         customerHtml = `
@@ -1012,9 +986,9 @@
                         }
                         customerHtml += `<p><strong>Teléfono:</strong> ${order.customer_phone}</p>`;
                     }
-                    
+
                     const isEnviado = order.status === 'enviado';
-                    
+
                     orderCard.innerHTML = `
                         <div class="order-header">
                             <p><strong>Fecha:</strong> ${orderDate}</p>
@@ -1041,7 +1015,7 @@
                 loadingOrdersMsg.textContent = `Error al cargar pedidos: ${error.message}`;
             }
         }
-        
+
         async function updateOrderStatus(id, newStatus) {
             try {
                 const { error } = await _supabase
@@ -1049,7 +1023,7 @@
                     .update({ status: newStatus })
                     .eq('id', id);
                 if (error) throw error;
-                loadOrders(); 
+                loadOrders();
             } catch (error) {
                 console.error('Error al actualizar estado del pedido:', error.message);
                 alert(`Error: ${error.message}`);
@@ -1066,13 +1040,13 @@
                     .delete()
                     .eq('id', id);
                 if (error) throw error;
-                loadOrders(); 
+                loadOrders();
             } catch (error) {
                 console.error('Error al eliminar pedido:', error.message);
                 alert(`Error: ${error.message}`);
             }
         }
-        
+
         // --- GESTIÓN DE PRODUCTOS (Admin) ---
         const adminProductsList = document.getElementById('admin-products-list');
         const loadingAdminProductsMsg = document.getElementById('loading-admin-products-message');
@@ -1087,16 +1061,12 @@
         const editFileInput = document.getElementById('edit-product-image');
         const editFileNameDiv = document.getElementById('edit-file-name');
 
-        // #############################################
-        // ## AQUÍ ESTÁ EL CAMBIO 5:                    ##
-        // ## `loadAdminProducts` ahora muestra cat.    ##
-        // #############################################
         async function loadAdminProducts() {
             loadingAdminProductsMsg.textContent = 'Cargando productos...';
             loadingAdminProductsMsg.style.display = 'block';
             adminProductsStatus.classList.add('hidden');
             adminProductsList.innerHTML = '';
-            
+
             try {
                 const { data, error } = await _supabase.from('products').select('*').order('created_at', { ascending: false });
                 if (error) throw error;
@@ -1104,24 +1074,23 @@
                     loadingAdminProductsMsg.textContent = 'No has subido ningún producto.'; return;
                 }
                 loadingAdminProductsMsg.style.display = 'none';
-                
+
                 data.forEach(product => {
                     const card = document.createElement('div');
                     card.className = 'admin-product-card';
-                    // Añadido data-category al botón editar
                     card.innerHTML = `
                         <img src="${product.image_url}" alt="${product.name}">
                         <div class="admin-product-info">
                             <h4>${product.name}</h4>
                             <p>$${parseFloat(product.price).toFixed(2)}</p>
-                            <p class="admin-product-category">${product.category || 'Sin categoría'}</p> 
+                            <p class="admin-product-category">${product.category || 'Sin categoría'}</p>
                         </div>
                         <div class="admin-product-actions">
-                            <button class="btn-edit" 
-                                data-id="${product.id}" 
-                                data-name="${escapeHTML(product.name)}" 
-                                data-price="${product.price}" 
-                                data-image-url="${product.image_url}" 
+                            <button class="btn-edit"
+                                data-id="${product.id}"
+                                data-name="${escapeHTML(product.name)}"
+                                data-price="${product.price}"
+                                data-image-url="${product.image_url}"
                                 data-category="${product.category}">Editar</button>
                             <button class="btn-delete" data-id="${product.id}" data-image-url="${product.image_url}">Eliminar</button>
                         </div>
@@ -1133,19 +1102,15 @@
                 loadingAdminProductsMsg.textContent = `Error al cargar productos: ${error.message}`;
             }
         }
-        
-        // #############################################
-        // ## AQUÍ ESTÁ EL CAMBIO 6:                    ##
-        // ## `openEditModal` ahora recibe y usa cat.   ##
-        // #############################################
+
         function openEditModal(id, name, price, imageUrl, category) {
             decoder.innerHTML = name;
             document.getElementById('edit-product-id').value = id;
             document.getElementById('edit-product-name').value = decoder.value;
             document.getElementById('edit-product-price').value = price;
             document.getElementById('edit-old-image-url').value = imageUrl;
-            document.getElementById('edit-product-category').value = category || ''; // Seleccionar categoría actual
-            
+            document.getElementById('edit-product-category').value = category || '';
+
             editFileInput.value = '';
             editFileNameDiv.textContent = 'Ningún archivo nuevo';
             editOverlay.classList.remove('hidden'); editModal.classList.remove('hidden');
@@ -1155,10 +1120,10 @@
             editOverlay.classList.remove('visible'); editModal.classList.remove('visible');
             editOverlay.classList.add('hidden'); editModal.classList.add('hidden');
         }
-        
+
         closeEditModalBtn.addEventListener('click', closeEditModal);
         editOverlay.addEventListener('click', closeEditModal);
-        
+
         editFileInput.addEventListener('change', () => {
             editFileNameDiv.textContent = editFileInput.files.length > 0 ? editFileInput.files[0].name : 'Ningún archivo nuevo';
         });
@@ -1168,59 +1133,51 @@
             editLoader.classList.toggle('hidden', !isLoading);
             editBtnText.textContent = isLoading ? 'Guardando...' : 'Guardar Cambios';
         }
-        
-        // #############################################
-        // ## AQUÍ ESTÁ EL CAMBIO 7:                    ##
-        // ## `submit` de edición incluye categoría     ##
-        // #############################################
+
         editForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             setEditFormLoading(true);
-            
+
             const id = document.getElementById('edit-product-id').value;
             const oldImageUrl = document.getElementById('edit-old-image-url').value;
             const newImageFile = editFileInput.files[0];
-            
-            // Añadida categoría a los datos de actualización
             const updateData = {
                 name: document.getElementById('edit-product-name').value,
                 price: parseFloat(document.getElementById('edit-product-price').value),
                 category: document.getElementById('edit-product-category').value
             };
 
-            // Validar que la categoría no esté vacía
             if (!updateData.category) {
                  document.getElementById('edit-product-status').textContent = `Error: Debes seleccionar una categoría.`;
                 document.getElementById('edit-product-status').className = 'status-message error';
                 setEditFormLoading(false);
-                return; 
+                return;
             }
-            
+
             try {
                 if (newImageFile) {
                     const newFileName = `${Date.now()}-${newImageFile.name}`;
                     const { error: uploadError } = await _supabase.storage.from('product-images').upload(newFileName, newImageFile);
                     if (uploadError) throw uploadError;
-                    
+
                     const { data: urlData } = _supabase.storage.from('product-images').getPublicUrl(newFileName);
                     updateData.image_url = urlData.publicUrl;
                 }
-                
+
                 const { error: updateError } = await _supabase.from('products').update(updateData).eq('id', id);
                 if (updateError) throw updateError;
-                
-                if (newImageFile && updateData.image_url !== oldImageUrl) { // Solo borrar si la URL cambió
+
+                if (newImageFile && updateData.image_url !== oldImageUrl) {
                     const oldFileName = oldImageUrl.split('product-images/')[1];
                     if (oldFileName) {
-                        // Intentar borrar, pero no fallar si no se encuentra (puede haber sido borrada antes)
-                        await _supabase.storage.from('product-images').remove([oldFileName]); 
+                       await _supabase.storage.from('product-images').remove([oldFileName]);
                     }
                 }
-                
-                productsLoaded = false; 
-                loadAdminProducts(); 
+
+                productsLoaded = false;
+                loadAdminProducts();
                 closeEditModal();
-                
+
             } catch (error) {
                 console.error('Error al actualizar producto:', error.message);
                 document.getElementById('edit-product-status').textContent = `Error: ${error.message}`;
@@ -1229,7 +1186,7 @@
                 setEditFormLoading(false);
             }
         });
-        
+
         async function deleteProduct(id, imageUrl) {
             if (!confirm('¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.')) {
                 return;
@@ -1237,18 +1194,18 @@
             try {
                 const { error: dbError } = await _supabase.from('products').delete().eq('id', id);
                 if (dbError) throw dbError;
-                
+
                 const fileName = imageUrl.split('product-images/')[1];
                 if (fileName) {
                    await _supabase.storage.from('product-images').remove([fileName]);
                 }
-                
+
                 adminProductsStatus.textContent = 'Producto eliminado con éxito.';
                 adminProductsStatus.className = 'status-message success';
                 adminProductsStatus.classList.remove('hidden');
-                
-                productsLoaded = false; 
-                loadAdminProducts(); 
+
+                productsLoaded = false;
+                loadAdminProducts();
 
             } catch (error) {
                 console.error('Error al eliminar producto:', error.message);
@@ -1257,19 +1214,18 @@
                 adminProductsStatus.classList.remove('hidden');
             }
         }
-        
+
         // --- LISTENER DE CLIC GLOBAL ---
         document.addEventListener('click', (e) => {
             const cartButton = e.target.closest('.cart-btn');
             if (cartButton && cartButton.id !== 'checkout-btn') {
-                addToCart(cartButton.dataset.id, cartButton.dataset.name, cartButton.dataset.price, cartButton.dataset.imageUrl); 
-                return; 
+                addToCart(cartButton.dataset.id, cartButton.dataset.name, cartButton.dataset.price, cartButton.dataset.imageUrl);
+                return;
             }
             const editButton = e.target.closest('.btn-edit');
             if (editButton) {
                 const ds = editButton.dataset;
-                // Pasar categoría al abrir modal
-                openEditModal(ds.id, ds.name, ds.price, ds.imageUrl, ds.category); 
+                openEditModal(ds.id, ds.name, ds.price, ds.imageUrl, ds.category);
                 return;
             }
             const deleteButton = e.target.closest('.btn-delete');
@@ -1288,16 +1244,16 @@
                 return;
             }
         });
-        
+
         // --- INICIALIZACIÓN ---
         window.addEventListener('hashchange', handleRouting);
-        
+
         document.addEventListener('DOMContentLoaded', () => {
             handleRouting(); // Cargar la ruta inicial
 
             const loginLink = document.getElementById('login-nav-link');
             const adminLink = document.getElementById('admin-nav-link');
-            
+
             // Controlar visibilidad de enlaces de Login/Admin
             _supabase.auth.onAuthStateChange((event, session) => {
                 if (session) {
