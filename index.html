@@ -365,13 +365,7 @@
             margin: 0;
             line-height: 1.5;
         }
-        /* ###################################################### */
-        /* ## ESTE BLOQUE FUE ELIMINADO PARA IGUALAR ESTILOS   ## */
-        /* ###################################################### */
-        /* #footer-contact, #footer-address {
-            font-style: italic; 
-            color: var(--color-text);
-        } */
+        /* Este bloque se eliminó para que el estilo sea igual al de los derechos */
 
 
         /* --- ESTILOS DE TODOS LOS MODALES --- */
@@ -944,9 +938,13 @@
         const shopCategoriesContainer = document.getElementById('shop-categories-container');
         const loadingMessage = document.getElementById('loading-message');
 
+        // ######################################################
+        // ## AQUÍ ESTÁ LA CORRECCIÓN                          ##
+        // ######################################################
         function escapeHTML(str) {
             if (!str) return '';
-            return str.replace(/"/g, '"').replace(/'/g, ''').replace(/&/g, '&');
+            // Esta es la versión correcta con las entidades HTML
+            return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/&/g, '&amp;');
         }
 
         async function loadProducts() {
