@@ -251,6 +251,15 @@
             box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3);
         }
 
+        /* Texto de ayuda para el formulario */
+        .form-group-help-text {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+            margin-top: -0.75rem; /* Acercarlo al input */
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
         .file-label {
             display: inline-block; padding: 0.75rem 1rem; 
             background-color: var(--color-border); /* Botón de archivo */
@@ -321,12 +330,31 @@
         .success { background-color: rgba(34, 197, 94, 0.1); color: var(--color-success); border-color: var(--color-success); }
         .error { background-color: rgba(244, 63, 94, 0.1); color: var(--color-danger); border-color: var(--color-danger); }
 
-        /* --- MODIFICADO: Estilos del Footer --- */
+        /* Estilos para el contenedor del Mapa */
+        #map-container {
+            max-width: 1200px; /* Igual al 'main' */
+            margin: 3rem auto; /* Espacio arriba y abajo */
+            overflow: hidden; 
+            border-radius: var(--border-radius);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow);
+            background-color: var(--color-card-bg);
+            min-height: 100px; /* Altura mínima mientras carga */
+        }
+        /* Estilos para el iframe del mapa */
+        #map-container iframe {
+            width: 100% !important; /* Forzar ancho responsivo */
+            height: 400px; /* Altura del mapa */
+            border: 0;
+            display: block; /* Eliminar espacio inferior */
+        }
+
+        /* Estilos del Footer */
         footer { 
             text-align: center; 
             padding: 2.5rem 1rem; /* Más padding */
             margin-top: 2rem; 
-            color: var(--color-text-muted);
+            color: var(--color-text-muted); /* Color grisáceo para TODO el texto */
             border-top: 1px solid var(--color-border); /* Borde superior */
             display: flex;
             flex-direction: column; /* Apilar elementos */
@@ -337,10 +365,13 @@
             margin: 0;
             line-height: 1.5;
         }
-        #footer-contact, #footer-address {
-            font-style: italic; /* Opcional: Estilo para la info */
-            color: var(--color-text); /* Ligeramente más brillante */
-        }
+        /* ###################################################### */
+        /* ## ESTE BLOQUE FUE ELIMINADO PARA IGUALAR ESTILOS   ## */
+        /* ###################################################### */
+        /* #footer-contact, #footer-address {
+            font-style: italic; 
+            color: var(--color-text);
+        } */
 
 
         /* --- ESTILOS DE TODOS LOS MODALES --- */
@@ -372,7 +403,7 @@
         #edit-product-overlay { z-index: 104; }
         #edit-product-modal { z-index: 105; max-width: 500px; }
 
-        /* AÑADIDO: Estilos para el modal de imagen */
+        /* Estilos para el modal de imagen */
         #image-modal-overlay { z-index: 110; }
         #image-modal {
             z-index: 111;
@@ -727,7 +758,7 @@
             </div>
             
             <div class="form-container" id="info-form-container">
-                <h2>Información Pública (Footer)</h2>
+                <h2>Información Pública (Footer y Mapa)</h2>
                 <form id="info-form">
                     <div class="form-group">
                         <label for="admin-contact-info">Información de Contacto:</label>
@@ -737,6 +768,15 @@
                         <label for="admin-address-info">Dirección:</label>
                         <input type="text" id="admin-address-info" placeholder="Ej: Calle Falsa 123, Ciudad, País">
                     </div>
+
+                    <div class="form-group">
+                        <label for="admin-map-src">URL de Google Maps (Embed):</label>
+                        <input type="text" id="admin-map-src" placeholder="Pega aquí solo la URL 'src'">
+                    </div>
+                    <p class="form-group-help-text">
+                        Ve a Google Maps > Compartir > Insertar un mapa > Copia solo la URL de `src="..."`
+                    </p>
+
                     <button type="submit" id="info-submit-btn">
                         <span id="info-loader" class="loader hidden"></span>
                         <span id="info-btn-text">Guardar Información</span>
@@ -763,7 +803,7 @@
 
     <div id="cart-overlay" class="hidden"></div>
     <div id="cart-modal" class="hidden">
-        <button id="close-cart-btn" class="close-btn">&times;</button>
+        <button id="close-cart-btn" class="close-btn">×</button>
         <h2>Tu Carrito</h2>
         <div id="cart-items-list"><p>Tu carrito está vacío.</p></div>
         <hr style="margin: 1.5rem 0; border-color: var(--color-border);">
@@ -773,7 +813,7 @@
 
     <div id="cod-overlay" class="hidden"></div>
     <div id="cod-modal" class="hidden">
-        <button id="close-cod-btn" class="close-btn">&times;</button>
+        <button id="close-cod-btn" class="close-btn">×</button>
         <h2>Datos para Contra Entrega</h2>
         <form id="cod-form">
             <div class="form-group">
@@ -802,7 +842,7 @@
 
     <div id="edit-product-overlay" class="hidden"></div>
     <div id="edit-product-modal" class="hidden">
-        <button id="close-edit-modal-btn" class="close-btn">&times;</button>
+        <button id="close-edit-modal-btn" class="close-btn">×</button>
         <h2>Editar Producto</h2>
         <form id="edit-product-form">
             <input type="hidden" id="edit-product-id">
@@ -847,14 +887,17 @@
 
     <div id="image-modal-overlay" class="hidden"></div>
     <div id="image-modal" class="hidden">
-        <button id="close-image-modal-btn" class="close-btn">&times;</button>
+        <button id="close-image-modal-btn" class="close-btn">×</button>
         <img src="" alt="Imagen Ampliada" id="modal-image">
     </div>
+
+    <div id="map-container">
+        </div>
 
     <footer>
         <p id="footer-contact">Cargando contacto...</p>
         <p id="footer-address">Cargando dirección...</p>
-        <p id="footer-copyright">&copy; 2025 Cell Smar. Todos los derechos reservados.</p>
+        <p id="footer-copyright">© 2025 Cell Smar. Todos los derechos reservados.</p>
     </footer>
 
     <script>
@@ -903,7 +946,7 @@
 
         function escapeHTML(str) {
             if (!str) return '';
-            return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/&/g, '&amp;');
+            return str.replace(/"/g, '"').replace(/'/g, ''').replace(/&/g, '&');
         }
 
         async function loadProducts() {
@@ -1330,9 +1373,7 @@
         });
 
         
-        // #######################################################
-        // ## NUEVO: LÓGICA DE INFO DE CONTACTO Y DIRECCIÓN     ##
-        // #######################################################
+        // --- LÓGICA DE INFO DE CONTACTO Y DIRECCIÓN ---
         const infoForm = document.getElementById('info-form');
         const infoSubmitBtn = document.getElementById('info-submit-btn');
         const infoLoader = document.getElementById('info-loader');
@@ -1340,6 +1381,7 @@
         const infoStatus = document.getElementById('info-status');
         const adminContactInput = document.getElementById('admin-contact-info');
         const adminAddressInput = document.getElementById('admin-address-info');
+        const adminMapInput = document.getElementById('admin-map-src'); 
         
         function setInfoLoading(isLoading) {
             infoSubmitBtn.disabled = isLoading;
@@ -1354,12 +1396,14 @@
             
             const contactValue = adminContactInput.value;
             const addressValue = adminAddressInput.value;
+            const mapValue = adminMapInput.value; 
 
             try {
-                // Usar 'upsert' para actualizar o crear las filas
+                // MODIFICADO: Añadir 'map_embed_src' al upsert
                 const { error } = await _supabase.from('store_settings').upsert([
                     { setting_name: 'contact_info', value: contactValue },
-                    { setting_name: 'address_info', value: addressValue }
+                    { setting_name: 'address_info', value: addressValue },
+                    { setting_name: 'map_embed_src', value: mapValue } 
                 ]);
 
                 if (error) throw error;
@@ -1368,9 +1412,10 @@
                 infoStatus.className = 'status-message success';
                 infoStatus.classList.remove('hidden');
                 
-                // Actualizar el footer en vivo
+                // Actualizar el footer y mapa en vivo
                 document.getElementById('footer-contact').textContent = contactValue || 'Añade info de contacto';
                 document.getElementById('footer-address').textContent = addressValue || 'Añade una dirección';
+                displayMap(mapValue); 
 
             } catch (error) {
                 console.error('Error al guardar información:', error.message);
@@ -1689,10 +1734,28 @@
                 return;
             }
         });
+        
+        // --- Función para mostrar el mapa ---
+        function displayMap(srcUrl) {
+            const mapContainer = document.getElementById('map-container');
+            if (!mapContainer) return;
 
-        // #######################################################
-        // ## MODIFICADO: Cargar toda la info de la tienda    ##
-        // #######################################################
+            mapContainer.innerHTML = ''; // Limpiar mapa anterior
+            if (srcUrl) {
+                const iframe = document.createElement('iframe');
+                iframe.src = srcUrl;
+                iframe.width = "100%";
+                iframe.height = "400";
+                iframe.style.border = 0;
+                iframe.allowFullscreen = true;
+                iframe.loading = "lazy";
+                iframe.referrerPolicy = "no-referrer-when-downgrade";
+                mapContainer.appendChild(iframe);
+            }
+        }
+
+
+        // --- MODIFICADO: Cargar toda la info de la tienda ---
         async function loadStoreInfo() {
             // Elementos del footer
             const logoImg = document.getElementById('store-logo-img');
@@ -1702,6 +1765,7 @@
             // Elementos del formulario Admin (pueden no existir si no está logueado)
             const adminContact = document.getElementById('admin-contact-info');
             const adminAddress = document.getElementById('admin-address-info');
+            const adminMap = document.getElementById('admin-map-src'); 
 
             try {
                 // Pedir todas las filas de la tabla de configuración
@@ -1716,6 +1780,7 @@
                 let logoUrl = null;
                 let contactInfo = 'Añade info de contacto';
                 let addressInfo = 'Añade una dirección';
+                let mapSrc = null; 
 
                 // Buscar cada valor en los resultados
                 data.forEach(setting => {
@@ -1728,6 +1793,9 @@
                     if (setting.setting_name === 'address_info' && setting.value) {
                         addressInfo = setting.value;
                     }
+                    if (setting.setting_name === 'map_embed_src' && setting.value) { 
+                        mapSrc = setting.value;
+                    }
                 });
 
                 // --- Aplicar a elementos PÚBLICOS (Footer y Nav) ---
@@ -1737,6 +1805,7 @@
                 }
                 footerContact.textContent = contactInfo;
                 footerAddress.textContent = addressInfo;
+                displayMap(mapSrc); // Cargar el mapa
 
                 // --- Aplicar a elementos de ADMIN (Inputs del formulario) ---
                 // Comprobar si existen antes de asignar (por si no está en #admin)
@@ -1745,6 +1814,9 @@
                 }
                 if (adminAddress) {
                     adminAddress.value = (addressInfo === 'Añade una dirección') ? '' : addressInfo;
+                }
+                if (adminMap) { 
+                    adminMap.value = mapSrc || '';
                 }
 
             } catch (error) {
@@ -1760,7 +1832,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             handleRouting(); // Cargar la ruta inicial
-            loadStoreInfo(); // <-- MODIFICADO: Carga Logo, Contacto y Dirección
+            loadStoreInfo(); // MODIFICADO: Carga Logo, Contacto, Dirección y Mapa
 
             const loginLink = document.getElementById('login-nav-link');
             const adminLink = document.getElementById('admin-nav-link');
