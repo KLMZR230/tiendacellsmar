@@ -60,15 +60,15 @@
             margin-bottom: 2rem;
         }
 
-        /* NUEVO: Contenedor para logo y título */
+        /* Contenedor para logo y título */
         .nav-branding {
             display: flex;
             align-items: center;
             gap: 1rem; /* Espacio entre logo y título */
         }
-        /* NUEVO: Estilos para el logo en la NAV */
+        /* Estilos para el logo en la NAV */
         #store-logo-img {
-            height: 55px; /* <- MODIFICADO (antes 40px) */
+            height: 55px; /* <- Logo más grande */
             width: auto;
             display: none; /* Oculto por defecto, JS lo muestra si existe */
             border-radius: 4px; /* Opcional: bordes redondeados */
@@ -262,7 +262,6 @@
         #file-name, #edit-file-name {
             font-style: italic; color: var(--color-text-muted); margin-top: 0.5rem; text-align: center;
         }
-        /* NUEVO: Estilo para el nombre de archivo del logo */
         #logo-file-name {
             font-style: italic; color: var(--color-text-muted); margin-top: 0.5rem; text-align: center;
         }
@@ -322,7 +321,27 @@
         .success { background-color: rgba(34, 197, 94, 0.1); color: var(--color-success); border-color: var(--color-success); }
         .error { background-color: rgba(244, 63, 94, 0.1); color: var(--color-danger); border-color: var(--color-danger); }
 
-        footer { text-align: center; padding: 2rem; margin-top: 2rem; color: var(--color-text-muted); }
+        /* --- MODIFICADO: Estilos del Footer --- */
+        footer { 
+            text-align: center; 
+            padding: 2.5rem 1rem; /* Más padding */
+            margin-top: 2rem; 
+            color: var(--color-text-muted);
+            border-top: 1px solid var(--color-border); /* Borde superior */
+            display: flex;
+            flex-direction: column; /* Apilar elementos */
+            align-items: center;
+            gap: 0.75rem; /* Espacio entre líneas */
+        }
+        footer p {
+            margin: 0;
+            line-height: 1.5;
+        }
+        #footer-contact, #footer-address {
+            font-style: italic; /* Opcional: Estilo para la info */
+            color: var(--color-text); /* Ligeramente más brillante */
+        }
+
 
         /* --- ESTILOS DE TODOS LOS MODALES --- */
         #cart-overlay, #cod-overlay, #edit-product-overlay, #image-modal-overlay {
@@ -434,15 +453,14 @@
             max-width: 900px;
             margin: 3rem auto;
         }
-        /* MODIFICADO: Aumento el max-width para que quepan los 3 contenedores del admin */
         #admin-products-container {
              max-width: 900px;
         }
         .form-container {
-            max-width: 900px; /* MODIFICADO: Aumento el max-width para el form de productos */
+            max-width: 900px; /* Ancho para el form de productos */
         }
-        /* NUEVO: Hago el form de logo más pequeño */
-        #logo-upload-form-container {
+        /* Contenedores de admin más pequeños */
+        #logo-upload-form-container, #info-form-container {
             max-width: 500px;
         }
 
@@ -608,7 +626,8 @@
         </section>
 
         <section id="login-section" class="hidden">
-            <div class="form-container" id="login-form-container"> <form id="login-form">
+            <div class="form-container" id="login-form-container">
+                <form id="login-form">
                     <h2>Admin Login</h2>
                     <div class="form-group">
                         <label for="email">Email:</label>
@@ -705,6 +724,25 @@
                     </button>
                 </form>
                 <div id="logo-status" class="status-message hidden"></div>
+            </div>
+            
+            <div class="form-container" id="info-form-container">
+                <h2>Información Pública (Footer)</h2>
+                <form id="info-form">
+                    <div class="form-group">
+                        <label for="admin-contact-info">Información de Contacto:</label>
+                        <input type="text" id="admin-contact-info" placeholder="Ej: Tel: 555-1234, Email: info@tienda.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-address-info">Dirección:</label>
+                        <input type="text" id="admin-address-info" placeholder="Ej: Calle Falsa 123, Ciudad, País">
+                    </div>
+                    <button type="submit" id="info-submit-btn">
+                        <span id="info-loader" class="loader hidden"></span>
+                        <span id="info-btn-text">Guardar Información</span>
+                    </button>
+                </form>
+                <div id="info-status" class="status-message hidden"></div>
             </div>
 
 
@@ -813,7 +851,11 @@
         <img src="" alt="Imagen Ampliada" id="modal-image">
     </div>
 
-    <footer><p>&copy; 2025 Cell Smar. Todos los derechos reservados.</p></footer>
+    <footer>
+        <p id="footer-contact">Cargando contacto...</p>
+        <p id="footer-address">Cargando dirección...</p>
+        <p id="footer-copyright">&copy; 2025 Cell Smar. Todos los derechos reservados.</p>
+    </footer>
 
     <script>
         // --- CONFIGURACIÓN E INICIALIZACIÓN ---
@@ -848,6 +890,7 @@
                     adminSection.classList.remove('hidden');
                     loadOrders();
                     loadAdminProducts();
+                    // La info de admin se carga al inicio en loadStoreInfo()
                 } else {
                     window.location.hash = '#login';
                 }
@@ -1131,9 +1174,9 @@
             modalImage.src = imageUrl;
             modalImage.alt = altText;
             imageModalOverlay.classList.remove('hidden');
-            imageModal.classList.remove('hidden'); // Aunque no tenga fondo, necesitamos quitarle el display:none
+            imageModal.classList.remove('hidden'); 
             imageModalOverlay.classList.add('visible');
-            imageModal.classList.add('visible'); // Usa flex para centrar
+            imageModal.classList.add('visible'); 
         }
         
         function closeImageModal() {
@@ -1141,12 +1184,12 @@
             imageModal.classList.remove('visible');
             imageModalOverlay.classList.add('hidden');
             imageModal.classList.add('hidden');
-            modalImage.src = ""; // Limpiar src para evitar flashes
+            modalImage.src = ""; 
             modalImage.alt = "";
         }
         
         closeImageModalBtn.addEventListener('click', closeImageModal);
-        imageModalOverlay.addEventListener('click', closeImageModal); // Cerrar al hacer clic fuera
+        imageModalOverlay.addEventListener('click', closeImageModal); 
         
 
         // --- LÓGICA DEL PANEL DE ADMIN ---
@@ -1202,7 +1245,7 @@
             adminStatus.className = `status-message ${type}`;
         }
         
-        // --- NUEVO: LÓGICA DE UPLOAD DE LOGO ---
+        // --- LÓGICA DE UPLOAD DE LOGO ---
         const logoForm = document.getElementById('logo-upload-form');
         const logoFileInput = document.getElementById('logo-image');
         const logoFileName = document.getElementById('logo-file-name');
@@ -1234,24 +1277,20 @@
             logoStatus.classList.add('hidden');
 
             try {
-                // 1. Subir el nuevo logo. Usamos un nombre de archivo único.
-                // Reutilizamos el bucket 'product-images'. Puedes crear uno nuevo 'store-assets' si prefieres.
                 const fileName = `logo/store-logo-${Date.now()}`;
                 const { error: uploadError } = await _supabase.storage
                     .from('product-images')
                     .upload(fileName, imageFile, {
                          cacheControl: '3600',
-                         upsert: false // No queremos sobreescribir, siempre creamos uno nuevo
+                         upsert: false 
                     });
                 if (uploadError) throw uploadError;
 
-                // 2. Obtener la URL pública
                 const { data: urlData } = _supabase.storage
                     .from('product-images')
                     .getPublicUrl(fileName);
                 const newLogoUrl = urlData.publicUrl;
 
-                // 3. (Opcional pero recomendado) Eliminar el logo anterior de Storage
                 const { data: oldData, error: fetchError } = await _supabase
                     .from('store_settings')
                     .select('value')
@@ -1259,15 +1298,12 @@
                     .single();
                 
                 if (oldData && oldData.value) {
-                    // Extrae el nombre del archivo de la URL vieja
                     const oldFileName = oldData.value.split('product-images/')[1];
                     if (oldFileName) {
                         await _supabase.storage.from('product-images').remove([oldFileName]);
                     }
                 }
 
-                // 4. Guardar la nueva URL en la tabla 'store_settings'
-                // Usamos 'upsert' para crear la fila 'logo_url' si no existe, o actualizarla si ya existe.
                 const { error: upsertError } = await _supabase
                     .from('store_settings')
                     .upsert({ setting_name: 'logo_url', value: newLogoUrl });
@@ -1280,7 +1316,6 @@
                 logoForm.reset();
                 logoFileName.textContent = 'Ningún archivo seleccionado';
 
-                // 5. Actualizar el logo en la NAV en vivo
                 document.getElementById('store-logo-img').src = newLogoUrl;
                 document.getElementById('store-logo-img').style.display = 'block';
 
@@ -1293,7 +1328,59 @@
                 setLogoLoading(false);
             }
         });
-        // --- FIN DE LÓGICA DE LOGO ---
+
+        
+        // #######################################################
+        // ## NUEVO: LÓGICA DE INFO DE CONTACTO Y DIRECCIÓN     ##
+        // #######################################################
+        const infoForm = document.getElementById('info-form');
+        const infoSubmitBtn = document.getElementById('info-submit-btn');
+        const infoLoader = document.getElementById('info-loader');
+        const infoBtnText = document.getElementById('info-btn-text');
+        const infoStatus = document.getElementById('info-status');
+        const adminContactInput = document.getElementById('admin-contact-info');
+        const adminAddressInput = document.getElementById('admin-address-info');
+        
+        function setInfoLoading(isLoading) {
+            infoSubmitBtn.disabled = isLoading;
+            infoLoader.classList.toggle('hidden', !isLoading);
+            infoBtnText.textContent = isLoading ? 'Guardando...' : 'Guardar Información';
+        }
+        
+        infoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            setInfoLoading(true);
+            infoStatus.classList.add('hidden');
+            
+            const contactValue = adminContactInput.value;
+            const addressValue = adminAddressInput.value;
+
+            try {
+                // Usar 'upsert' para actualizar o crear las filas
+                const { error } = await _supabase.from('store_settings').upsert([
+                    { setting_name: 'contact_info', value: contactValue },
+                    { setting_name: 'address_info', value: addressValue }
+                ]);
+
+                if (error) throw error;
+                
+                infoStatus.textContent = '¡Información guardada con éxito!';
+                infoStatus.className = 'status-message success';
+                infoStatus.classList.remove('hidden');
+                
+                // Actualizar el footer en vivo
+                document.getElementById('footer-contact').textContent = contactValue || 'Añade info de contacto';
+                document.getElementById('footer-address').textContent = addressValue || 'Añade una dirección';
+
+            } catch (error) {
+                console.error('Error al guardar información:', error.message);
+                infoStatus.textContent = `Error: ${error.message}`;
+                infoStatus.className = 'status-message error';
+                infoStatus.classList.remove('hidden');
+            } finally {
+                setInfoLoading(false);
+            }
+        });
 
 
         // --- GESTIÓN DE PEDIDOS (Admin) ---
@@ -1571,7 +1658,7 @@
             const productImage = e.target.closest('.product-image-clickable');
             if (productImage) {
                 openImageModal(productImage.src, productImage.alt);
-                return; // Importante detener aquí
+                return; 
             }
             
             // Resto de los listeners...
@@ -1603,28 +1690,67 @@
             }
         });
 
-        // --- NUEVO: FUNCIÓN PARA CARGAR LOGO ---
-        async function loadStoreLogo() {
+        // #######################################################
+        // ## MODIFICADO: Cargar toda la info de la tienda    ##
+        // #######################################################
+        async function loadStoreInfo() {
+            // Elementos del footer
+            const logoImg = document.getElementById('store-logo-img');
+            const footerContact = document.getElementById('footer-contact');
+            const footerAddress = document.getElementById('footer-address');
+            
+            // Elementos del formulario Admin (pueden no existir si no está logueado)
+            const adminContact = document.getElementById('admin-contact-info');
+            const adminAddress = document.getElementById('admin-address-info');
+
             try {
+                // Pedir todas las filas de la tabla de configuración
                 const { data, error } = await _supabase
                     .from('store_settings')
-                    .select('value')
-                    .eq('setting_name', 'logo_url') // Busca la fila específica del logo
-                    .single();
+                    .select('*'); 
                 
-                // Si hay un error (ej. la fila no existe) o no hay valor, simplemente no muestra nada.
-                if (error || !data || !data.value) {
-                    console.warn('No se encontró un logo_url en la tabla store_settings.');
-                    return;
+                if (error) throw error;
+                if (!data) return;
+
+                // Valores por defecto
+                let logoUrl = null;
+                let contactInfo = 'Añade info de contacto';
+                let addressInfo = 'Añade una dirección';
+
+                // Buscar cada valor en los resultados
+                data.forEach(setting => {
+                    if (setting.setting_name === 'logo_url' && setting.value) {
+                        logoUrl = setting.value;
+                    }
+                    if (setting.setting_name === 'contact_info' && setting.value) {
+                        contactInfo = setting.value;
+                    }
+                    if (setting.setting_name === 'address_info' && setting.value) {
+                        addressInfo = setting.value;
+                    }
+                });
+
+                // --- Aplicar a elementos PÚBLICOS (Footer y Nav) ---
+                if (logoUrl) {
+                    logoImg.src = logoUrl;
+                    logoImg.style.display = 'block'; 
+                }
+                footerContact.textContent = contactInfo;
+                footerAddress.textContent = addressInfo;
+
+                // --- Aplicar a elementos de ADMIN (Inputs del formulario) ---
+                // Comprobar si existen antes de asignar (por si no está en #admin)
+                if (adminContact) {
+                    adminContact.value = (contactInfo === 'Añade info de contacto') ? '' : contactInfo;
+                }
+                if (adminAddress) {
+                    adminAddress.value = (addressInfo === 'Añade una dirección') ? '' : addressInfo;
                 }
 
-                // Si se encuentra, lo aplica al <img> de la NAV
-                const logoImg = document.getElementById('store-logo-img');
-                logoImg.src = data.value;
-                logoImg.style.display = 'block'; // Lo hace visible
-
             } catch (error) {
-                console.error('Error al cargar logo:', error.message);
+                console.error('Error al cargar la información de la tienda:', error.message);
+                footerContact.textContent = 'Error al cargar info.';
+                footerAddress.textContent = 'Error al cargar info.';
             }
         }
 
@@ -1634,7 +1760,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             handleRouting(); // Cargar la ruta inicial
-            loadStoreLogo(); // <-- NUEVO: Carga el logo de la tienda al iniciar
+            loadStoreInfo(); // <-- MODIFICADO: Carga Logo, Contacto y Dirección
 
             const loginLink = document.getElementById('login-nav-link');
             const adminLink = document.getElementById('admin-nav-link');
