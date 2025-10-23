@@ -68,7 +68,7 @@
         }
         /* NUEVO: Estilos para el logo en la NAV */
         #store-logo-img {
-            height: 40px; /* Ajusta la altura del logo */
+            height: 55px; /* <- MODIFICADO (antes 40px) */
             width: auto;
             display: none; /* Oculto por defecto, JS lo muestra si existe */
             border-radius: 4px; /* Opcional: bordes redondeados */
@@ -662,10 +662,14 @@
                         <label for="product-category">Categoría:</label>
                         <select id="product-category" required>
                             <option value="">-- Selecciona Categoría --</option>
-                            <option value="Pantallas">Pantallas</option>
-                            <option value="Chanclas Adidas Originales">Chanclas Adidas Originales</option>
+                            <option value="Cambios de Pantalla">Cambios de Pantalla</option>
+                            <option value="Cables de Carga">Cables de Carga</option>
                             <option value="Cargadores Samsung">Cargadores Samsung</option>
                             <option value="Cargadores de Iphone">Cargadores de Iphone</option>
+                            <option value="Bandejas de SIM">Bandejas de SIM</option>
+                            <option value="Protectores Fisicos de Iphone">Protectores Fisicos de Iphone</option>
+                            <option value="Protectores Fisicos Samsung">Protectores Fisicos Samsung</option>
+                            <option value="Chanclas Adidas Originales">Chanclas Adidas Originales</option>
                             <option value="Otros">Otros</option>
                         </select>
                     </div>
@@ -777,10 +781,14 @@
                 <label for="edit-product-category">Categoría:</label>
                 <select id="edit-product-category" required>
                     <option value="">-- Selecciona Categoría --</option>
-                    <option value="Pantallas">Pantallas</option>
-                    <option value="Chanclas Adidas Originales">Chanclas Adidas Originales</option>
+                    <option value="Cambios de Pantalla">Cambios de Pantalla</option>
+                    <option value="Cables de Carga">Cables de Carga</option>
                     <option value="Cargadores Samsung">Cargadores Samsung</option>
                     <option value="Cargadores de Iphone">Cargadores de Iphone</option>
+                    <option value="Bandejas de SIM">Bandejas de SIM</option>
+                    <option value="Protectores Fisicos de Iphone">Protectores Fisicos de Iphone</option>
+                    <option value="Protectores Fisicos Samsung">Protectores Fisicos Samsung</option>
+                    <option value="Chanclas Adidas Originales">Chanclas Adidas Originales</option>
                     <option value="Otros">Otros</option>
                 </select>
             </div>
@@ -894,10 +902,6 @@
                         const safeName = escapeHTML(product.name);
                         const card = document.createElement('div');
                         card.className = 'product-card';
-                        // #############################################
-                        // ## AQUÍ ESTÁ EL CAMBIO 2 (JS):             ##
-                        // ## Añadir clase `.product-image-clickable` ##
-                        // #############################################
                         card.innerHTML = `
                             <div class="product-image-container">
                                 <img src="${product.image_url}" alt="${safeName}" class="product-image product-image-clickable"> 
@@ -1116,10 +1120,6 @@
             window.location.hash = '#shop';
         });
         
-        // #############################################
-        // ## AQUÍ ESTÁ EL CAMBIO 3 (JS):             ##
-        // ## Lógica para el modal de imagen ampliada ##
-        // #############################################
         
         // --- LÓGICA DEL MODAL DE IMAGEN ---
         const imageModalOverlay = document.getElementById('image-modal-overlay');
@@ -1566,10 +1566,6 @@
         }
 
         // --- LISTENER DE CLIC GLOBAL ---
-        // #############################################
-        // ## AQUÍ ESTÁ EL CAMBIO 4 (JS):             ##
-        // ## Añadir detección de clic en imágenes     ##
-        // #############################################
         document.addEventListener('click', (e) => {
             // Clic en imagen de producto en la tienda
             const productImage = e.target.closest('.product-image-clickable');
