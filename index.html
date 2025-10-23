@@ -59,6 +59,21 @@
             align-items: center;
             margin-bottom: 2rem;
         }
+
+        /* NUEVO: Contenedor para logo y título */
+        .nav-branding {
+            display: flex;
+            align-items: center;
+            gap: 1rem; /* Espacio entre logo y título */
+        }
+        /* NUEVO: Estilos para el logo en la NAV */
+        #store-logo-img {
+            height: 40px; /* Ajusta la altura del logo */
+            width: auto;
+            display: none; /* Oculto por defecto, JS lo muestra si existe */
+            border-radius: 4px; /* Opcional: bordes redondeados */
+        }
+
         nav h1 {
             margin: 0;
             font-size: 1.75rem; /* Un poco más grande */
@@ -247,6 +262,10 @@
         #file-name, #edit-file-name {
             font-style: italic; color: var(--color-text-muted); margin-top: 0.5rem; text-align: center;
         }
+        /* NUEVO: Estilo para el nombre de archivo del logo */
+        #logo-file-name {
+            font-style: italic; color: var(--color-text-muted); margin-top: 0.5rem; text-align: center;
+        }
 
         /* Botón de submit ya está estilizado arriba */
         button[type="submit"] {
@@ -415,6 +434,19 @@
             max-width: 900px;
             margin: 3rem auto;
         }
+        /* MODIFICADO: Aumento el max-width para que quepan los 3 contenedores del admin */
+        #admin-products-container {
+             max-width: 900px;
+        }
+        .form-container {
+            max-width: 900px; /* MODIFICADO: Aumento el max-width para el form de productos */
+        }
+        /* NUEVO: Hago el form de logo más pequeño */
+        #logo-upload-form-container {
+            max-width: 500px;
+        }
+
+
         #orders-container h2, #admin-products-container h2 {
              color: var(--color-text);
              text-align: center; 
@@ -555,7 +587,10 @@
 <body>
 
     <nav>
-        <h1><a href="#shop" style="text-decoration:none; color:inherit;">Tienda Cell Smar</a></h1>
+        <div class="nav-branding">
+            <img src="" id="store-logo-img" alt="Logo">
+            <h1><a href="#shop" style="text-decoration:none; color:inherit;">Tienda Cell Smar</a></h1>
+        </div>
         <div>
             <a href="#shop">Tienda</a>
             <a href="#login" id="login-nav-link">👤 Iniciar Sesión</a>
@@ -573,8 +608,7 @@
         </section>
 
         <section id="login-section" class="hidden">
-            <div class="form-container">
-                <form id="login-form">
+            <div class="form-container" id="login-form-container"> <form id="login-form">
                     <h2>Admin Login</h2>
                     <div class="form-group">
                         <label for="email">Email:</label>
@@ -650,6 +684,26 @@
                 <div id="admin-status" class="status-message"></div>
                 <button id="logout-btn">Cerrar Sesión</button>
             </div>
+
+            <div class="form-container" id="logo-upload-form-container">
+                <h2>Configuración de la Tienda</h2>
+                <form id="logo-upload-form">
+                    <div class="form-group">
+                        <label for="logo-image" class="file-label">
+                            Subir/Actualizar Logo de la Tienda
+                        </label>
+                        <input type="file" id="logo-image" accept="image/*" class="hidden">
+                        <div id="logo-file-name">Ningún archivo seleccionado</div>
+                    </div>
+                    <button type="submit" id="logo-submit-btn">
+                        <span id="logo-loader" class="loader hidden"></span>
+                        <span id="logo-btn-text">Guardar Logo</span>
+                    </button>
+                </form>
+                <div id="logo-status" class="status-message hidden"></div>
+            </div>
+
+
             <div id="orders-container">
                 <h2>Pedidos Recibidos</h2>
                 <div id="orders-list"></div>
@@ -1147,6 +1201,100 @@
             adminStatus.textContent = message;
             adminStatus.className = `status-message ${type}`;
         }
+        
+        // --- NUEVO: LÓGICA DE UPLOAD DE LOGO ---
+        const logoForm = document.getElementById('logo-upload-form');
+        const logoFileInput = document.getElementById('logo-image');
+        const logoFileName = document.getElementById('logo-file-name');
+        const logoSubmitBtn = document.getElementById('logo-submit-btn');
+        const logoLoader = document.getElementById('logo-loader');
+        const logoBtnText = document.getElementById('logo-btn-text');
+        const logoStatus = document.getElementById('logo-status');
+
+        logoFileInput.addEventListener('change', () => {
+            logoFileName.textContent = logoFileInput.files.length > 0 ? logoFileInput.files[0].name : 'Ningún archivo seleccionado';
+        });
+
+        function setLogoLoading(isLoading) {
+            logoSubmitBtn.disabled = isLoading;
+            logoLoader.classList.toggle('hidden', !isLoading);
+            logoBtnText.textContent = isLoading ? 'Guardando...' : 'Guardar Logo';
+        }
+
+        logoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const imageFile = logoFileInput.files[0];
+            if (!imageFile) {
+                logoStatus.textContent = 'Por favor, selecciona un archivo.';
+                logoStatus.className = 'status-message error';
+                logoStatus.classList.remove('hidden');
+                return;
+            }
+            setLogoLoading(true);
+            logoStatus.classList.add('hidden');
+
+            try {
+                // 1. Subir el nuevo logo. Usamos un nombre de archivo único.
+                // Reutilizamos el bucket 'product-images'. Puedes crear uno nuevo 'store-assets' si prefieres.
+                const fileName = `logo/store-logo-${Date.now()}`;
+                const { error: uploadError } = await _supabase.storage
+                    .from('product-images')
+                    .upload(fileName, imageFile, {
+                         cacheControl: '3600',
+                         upsert: false // No queremos sobreescribir, siempre creamos uno nuevo
+                    });
+                if (uploadError) throw uploadError;
+
+                // 2. Obtener la URL pública
+                const { data: urlData } = _supabase.storage
+                    .from('product-images')
+                    .getPublicUrl(fileName);
+                const newLogoUrl = urlData.publicUrl;
+
+                // 3. (Opcional pero recomendado) Eliminar el logo anterior de Storage
+                const { data: oldData, error: fetchError } = await _supabase
+                    .from('store_settings')
+                    .select('value')
+                    .eq('setting_name', 'logo_url')
+                    .single();
+                
+                if (oldData && oldData.value) {
+                    // Extrae el nombre del archivo de la URL vieja
+                    const oldFileName = oldData.value.split('product-images/')[1];
+                    if (oldFileName) {
+                        await _supabase.storage.from('product-images').remove([oldFileName]);
+                    }
+                }
+
+                // 4. Guardar la nueva URL en la tabla 'store_settings'
+                // Usamos 'upsert' para crear la fila 'logo_url' si no existe, o actualizarla si ya existe.
+                const { error: upsertError } = await _supabase
+                    .from('store_settings')
+                    .upsert({ setting_name: 'logo_url', value: newLogoUrl });
+                
+                if (upsertError) throw upsertError;
+
+                logoStatus.textContent = '¡Logo actualizado con éxito!';
+                logoStatus.className = 'status-message success';
+                logoStatus.classList.remove('hidden');
+                logoForm.reset();
+                logoFileName.textContent = 'Ningún archivo seleccionado';
+
+                // 5. Actualizar el logo en la NAV en vivo
+                document.getElementById('store-logo-img').src = newLogoUrl;
+                document.getElementById('store-logo-img').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error al subir logo:', error.message);
+                logoStatus.textContent = `Error: ${error.message}`;
+                logoStatus.className = 'status-message error';
+                logoStatus.classList.remove('hidden');
+            } finally {
+                setLogoLoading(false);
+            }
+        });
+        // --- FIN DE LÓGICA DE LOGO ---
+
 
         // --- GESTIÓN DE PEDIDOS (Admin) ---
         const ordersListDiv = document.getElementById('orders-list');
@@ -1459,11 +1607,38 @@
             }
         });
 
+        // --- NUEVO: FUNCIÓN PARA CARGAR LOGO ---
+        async function loadStoreLogo() {
+            try {
+                const { data, error } = await _supabase
+                    .from('store_settings')
+                    .select('value')
+                    .eq('setting_name', 'logo_url') // Busca la fila específica del logo
+                    .single();
+                
+                // Si hay un error (ej. la fila no existe) o no hay valor, simplemente no muestra nada.
+                if (error || !data || !data.value) {
+                    console.warn('No se encontró un logo_url en la tabla store_settings.');
+                    return;
+                }
+
+                // Si se encuentra, lo aplica al <img> de la NAV
+                const logoImg = document.getElementById('store-logo-img');
+                logoImg.src = data.value;
+                logoImg.style.display = 'block'; // Lo hace visible
+
+            } catch (error) {
+                console.error('Error al cargar logo:', error.message);
+            }
+        }
+
+
         // --- INICIALIZACIÓN ---
         window.addEventListener('hashchange', handleRouting);
 
         document.addEventListener('DOMContentLoaded', () => {
             handleRouting(); // Cargar la ruta inicial
+            loadStoreLogo(); // <-- NUEVO: Carga el logo de la tienda al iniciar
 
             const loginLink = document.getElementById('login-nav-link');
             const adminLink = document.getElementById('admin-nav-link');
