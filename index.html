@@ -68,7 +68,7 @@
         }
         /* Estilos para el logo en la NAV */
         #store-logo-img {
-            height: 55px; /* <- Logo más grande */
+            height: 70px; /* <- MODIFICADO (antes 55px) */
             width: auto;
             display: none; /* Oculto por defecto, JS lo muestra si existe */
             border-radius: 4px; /* Opcional: bordes redondeados */
@@ -365,7 +365,7 @@
             margin: 0;
             line-height: 1.5;
         }
-        /* Este bloque se eliminó para que el estilo sea igual al de los derechos */
+        /* Estilo específico para contacto/dirección eliminado */
 
 
         /* --- ESTILOS DE TODOS LOS MODALES --- */
@@ -938,12 +938,9 @@
         const shopCategoriesContainer = document.getElementById('shop-categories-container');
         const loadingMessage = document.getElementById('loading-message');
 
-        // ######################################################
-        // ## AQUÍ ESTÁ LA CORRECCIÓN                          ##
-        // ######################################################
+        // Función corregida
         function escapeHTML(str) {
             if (!str) return '';
-            // Esta es la versión correcta con las entidades HTML
             return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/&/g, '&amp;');
         }
 
@@ -1753,7 +1750,7 @@
         }
 
 
-        // --- MODIFICADO: Cargar toda la info de la tienda ---
+        // --- Cargar toda la info de la tienda ---
         async function loadStoreInfo() {
             // Elementos del footer
             const logoImg = document.getElementById('store-logo-img');
@@ -1830,7 +1827,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             handleRouting(); // Cargar la ruta inicial
-            loadStoreInfo(); // MODIFICADO: Carga Logo, Contacto, Dirección y Mapa
+            loadStoreInfo(); // Carga Logo, Contacto, Dirección y Mapa
 
             const loginLink = document.getElementById('login-nav-link');
             const adminLink = document.getElementById('admin-nav-link');
