@@ -625,6 +625,27 @@
         .btn-edit:hover { background-color: rgba(56, 189, 248, 0.1); }
         .btn-delete { color: var(--color-danger); }
         .btn-delete:hover { background-color: rgba(244, 63, 94, 0.1); }
+
+
+        /* --- INICIO: Estilos Botón WhatsApp --- */
+        .whatsapp-flotante {
+            position: fixed;
+            bottom: 24px; /* 1.5rem */
+            right: 24px; /* 1.5rem */
+            z-index: 100; /* Asegurar que esté encima de otros elementos */
+        }
+        .whatsapp-flotante img {
+            width: 56px;  /* Equivalente a w-14 de Tailwind */
+            height: 56px; /* Equivalente a h-14 de Tailwind */
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); /* Sombra similar a la del sitio */
+            transition: transform 0.2s ease;
+        }
+        .whatsapp-flotante:hover img {
+            transform: scale(1.10); /* Animación de hover */
+        }
+        /* --- FIN: Estilos Botón WhatsApp --- */
+
     </style>
     </head>
 <body>
@@ -856,7 +877,7 @@
                     <option value="Cambios de Pantalla">Cambios de Pantalla</option>
                     <option value="Cables de Carga">Cables de Carga</option>
                     <option value="Cargadores Samsung">Cargadores Samsung</option>
-                    <option value="Cargadores de Iphone">Cargadores de Iphone</option>
+                    <option valueD="Cargadores de Iphone">Cargadores de Iphone</option>
                     <option value="Bandejas de SIM">Bandejas de SIM</option>
                     <option value="Protectores Fisicos de Iphone">Protectores Fisicos de Iphone</option>
                     <option value="Protectores Fisicos Samsung">Protectores Fisicos Samsung</option>
@@ -1844,5 +1865,16 @@
             });
         });
     </script>
-</body>
+
+    <a href="https://wa.me/50377191068" 
+       target="_blank" 
+       rel="noopener noreferrer" 
+       class="whatsapp-flotante"
+       title="Escríbenos por WhatsApp">
+        
+        <img src="https://pub-0c024c9a5a7a439aa0319b5140a52857.r2.dev/6c784972cbf5806215d46fbda8b0c46a.jpg" 
+             alt="WhatsApp">
+        
+    </a>
+    </body>
 </html>
