@@ -129,7 +129,7 @@
 
         .product-grid {
             display: grid;
-            /* ===== CAMBIO AQUÍ: de 200px a 140px ===== */
+            /* CAMBIO: Reducido de 200px a 140px para que quepan 2 columnas en móviles */
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             gap: 1.5rem;
             margin-bottom: 3rem;
@@ -446,6 +446,7 @@
             padding: 0.75rem 0;
             border-bottom: 1px solid var(--color-border);
             gap: 1rem;
+            /* NOTA: No se usa space-between para que el flex-grow del nombre funcione */
         }
         .cart-item:last-child { border-bottom: none; }
 
@@ -467,6 +468,26 @@
             color: var(--color-text-muted);
             white-space: nowrap;
         }
+
+        /* ===== INICIO: NUEVO ESTILO ===== */
+        .cart-item-remove-btn {
+            background: none;
+            border: none;
+            color: var(--color-danger); /* Usar color de peligro del tema */
+            font-size: 1.5rem; /* Más grande para que sea fácil de tocar */
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 0.5rem;
+            padding: 0 0.5rem;
+            line-height: 1;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+        .cart-item-remove-btn:hover {
+            transform: scale(1.1);
+            color: #F87171; /* Un rojo más brillante al pasar el mouse */
+        }
+        /* ===== FIN: NUEVO ESTILO ===== */
+
 
         #cod-modal h2, #edit-product-modal h2 { text-align: center; }
         #cod-modal h2, #edit-product-modal h2 { margin-bottom: 1rem; }
@@ -1047,6 +1068,15 @@
             cart.push({ id, name: decoder.value, price: parseFloat(price), imageUrl: imageUrl });
             updateCartCount();
         }
+
+        // ===== INICIO: NUEVA FUNCIÓN =====
+        function removeFromCart(index) {
+            cart.splice(index, 1); // Elimina 1 elemento en la posición 'index'
+            updateCartCount();
+            renderCartItems(); // Vuelve a dibujar el carrito
+        }
+        // ===== FIN: NUEVA FUNCIÓN =====
+
         function updateCartCount() { cartCount.textContent = cart.length; }
 
         function renderCartItems() {
@@ -1056,13 +1086,17 @@
                 cartItemsList.innerHTML = '<p>Tu carrito está vacío.</p>';
                 checkoutBtn.disabled = true;
             } else {
-                cart.forEach(item => {
+                // ===== CAMBIO: Se añadió 'index' al forEach =====
+                cart.forEach((item, index) => {
                     const itemEl = document.createElement('div');
                     itemEl.className = 'cart-item';
+                    
+                    // ===== CAMBIO: Se añadió el botón de eliminar con 'data-index' =====
                     itemEl.innerHTML = `
                         <img src="${item.imageUrl}" alt="${item.name}" class="cart-item-image">
                         <span class="cart-item-name">${item.name}</span>
                         <span class="cart-item-price">$${item.price.toFixed(2)}</span>
+                        <button class="cart-item-remove-btn" data-index="${index}" title="Eliminar">&times;</button>
                     `;
                     cartItemsList.appendChild(itemEl);
                     total += item.price;
@@ -1624,7 +1658,7 @@
         editOverlay.addEventListener('click', closeEditModal);
 
         editFileInput.addEventListener('change', () => {
-            editFileNameDiv.textContent = editFileInput.files.length > 0 ? editFileInput.files[0].name : 'Ningún archivo seleccionado';
+            editFileNameDiv.textContent = editFileInput.files.length > 0 ? editFileInput.files[0].name : 'Ningún archivo nuevo';
         });
 
         function setEditFormLoading(isLoading) {
@@ -1723,6 +1757,18 @@
                 return; 
             }
             
+            // ===== INICIO: NUEVO BLOQUE =====
+            // Clic en el botón de eliminar del carrito
+            const removeButton = e.target.closest('.cart-item-remove-btn');
+            if (removeButton) {
+                const index = parseInt(removeButton.dataset.index, 10);
+                if (!isNaN(index)) {
+                    removeFromCart(index);
+                }
+                return;
+            }
+            // ===== FIN: NUEVO BLOQUE =====
+
             // Resto de los listeners...
             const cartButton = e.target.closest('.cart-btn');
             if (cartButton && cartButton.id !== 'checkout-btn') {
@@ -1873,7 +1919,7 @@
        class="whatsapp-flotante"
        title="Escríbenos por WhatsApp">
         
-        <img src="https://pub-0c024c9a5a7a439aa0319b5140a52857.r2.dev/6c784972cbf5806215d46fbda8b0c46a.jpg" 
+        <img src="https://pub-0c024c9a5a7a439aa0319b5140a52857.dev/6c784972cbf5806215d46fbda8b0c46a.jpg" 
              alt="WhatsApp">
         
     </a>
