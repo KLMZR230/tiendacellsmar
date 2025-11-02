@@ -129,7 +129,8 @@
 
         .product-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            /* ===== CAMBIO AQUÍ: de 200px a 140px ===== */
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             gap: 1.5rem;
             margin-bottom: 3rem;
         }
@@ -877,7 +878,7 @@
                     <option value="Cambios de Pantalla">Cambios de Pantalla</option>
                     <option value="Cables de Carga">Cables de Carga</option>
                     <option value="Cargadores Samsung">Cargadores Samsung</option>
-                    <option valueD="Cargadores de Iphone">Cargadores de Iphone</option>
+                    <option value="Cargadores de Iphone">Cargadores de Iphone</option>
                     <option value="Bandejas de SIM">Bandejas de SIM</option>
                     <option value="Protectores Fisicos de Iphone">Protectores Fisicos de Iphone</option>
                     <option value="Protectores Fisicos Samsung">Protectores Fisicos Samsung</option>
@@ -1623,7 +1624,7 @@
         editOverlay.addEventListener('click', closeEditModal);
 
         editFileInput.addEventListener('change', () => {
-            editFileNameDiv.textContent = editFileInput.files.length > 0 ? editFileInput.files[0].name : 'Ningún archivo nuevo';
+            editFileNameDiv.textContent = editFileInput.files.length > 0 ? editFileInput.files[0].name : 'Ningún archivo seleccionado';
         });
 
         function setEditFormLoading(isLoading) {
