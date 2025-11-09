@@ -127,11 +127,14 @@
             color: transparent;
         }
 
+        /* === INICIO DE CORRECCIÓN DE CUADROS Y RESPONSIVIDAD === */
+
         .product-grid {
             display: grid;
-            /* CAMBIO: Reducido de 200px a 140px para que quepan 2 columnas en móviles */
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 1.5rem;
+            /* CAMBIO CLAVE: Usa un mínimo de 150px para mostrar 2 columnas en móviles (320px - 450px)
+               y que el número de columnas aumente en pantallas más grandes automáticamente. */
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+            gap: 1.25rem; /* Espacio entre tarjetas */
             margin-bottom: 3rem;
         }
 
@@ -142,41 +145,48 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            border: 1px solid var(--color-border); /* Borde sutil */
+            border: 1px solid var(--color-border);
             transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         }
+
         .product-card:hover {
             transform: translateY(-8px); /* Elevar más */
             border-color: var(--color-primary-start); /* Borde de resplandor */
             /* Sombra de resplandor "Llamativa" */
             box-shadow: 0 8px 20px rgba(0,0,0,0.5), 0 0 15px rgba(56, 189, 248, 0.3);
         }
+
         .product-image-container {
             width: 100%;
-            aspect-ratio: 1 / 1;
+            /* SOLUCIÓN CLAVE: Aspect-ratio 1 / 1 (cuadrado perfecto) */
+            aspect-ratio: 1 / 1; 
             overflow: hidden;
             cursor: pointer;
         }
+
         .product-image {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: cover; /* Asegura que la imagen llene el contenedor cuadrado */
             transition: transform 0.3s ease;
         }
+
         .product-image-container:hover .product-image {
-             transform: scale(1.05);
+            transform: scale(1.05);
         }
+
         .product-info {
-            padding: 1.25rem;
+            padding: 1rem; /* Ajuste de padding para móviles */
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
+
         .product-name {
-            font-size: 1.25rem;
+            font-size: 1rem; /* Ajustado para móviles */
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem; 
             color: var(--color-text);
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -186,12 +196,15 @@
             min-height: 2.5em;
             word-break: break-word;
         }
+
         .product-price { 
-            font-size: 1.15rem; 
+            font-size: 1rem; /* Ajustado para móviles */
             color: var(--color-primary-start); /* Color de acento */
             font-weight: 700; 
-            margin-bottom: 1rem; 
+            margin-bottom: 0.75rem; /* Espacio más pequeño */
         }
+        
+        /* === FIN DE CORRECCIÓN DE CUADROS Y RESPONSIVIDAD === */
         
         /* Botones con Gradiente */
         .cart-btn, button[type="submit"] {
@@ -310,10 +323,10 @@
             font-size: 1rem; font-weight: 600; margin-top: 1rem;
             transition: background-color 0.2s, transform 0.2s;
         }
-         #logout-btn:hover {
-             background-color: #c2334e;
-             transform: scale(1.03);
-         }
+          #logout-btn:hover {
+              background-color: #c2334e;
+              transform: scale(1.03);
+          }
 
         .loader {
             width: 18px; height: 18px; border: 2px solid #fff;
@@ -428,7 +441,7 @@
             font-size: 3rem;
             text-shadow: 0 0 5px rgba(0,0,0,0.7);
         }
-         #close-image-modal-btn:hover { color: #fff; }
+          #close-image-modal-btn:hover { color: #fff; }
 
         #cart-overlay.visible, #cart-modal.visible,
         #cod-overlay.visible, #cod-modal.visible,
@@ -469,7 +482,7 @@
             white-space: nowrap;
         }
 
-        /* ===== INICIO: NUEVO ESTILO ===== */
+        /* ===== ESTILO PARA ELIMINAR DEL CARRITO (Optimizado) ===== */
         .cart-item-remove-btn {
             background: none;
             border: none;
@@ -486,7 +499,7 @@
             transform: scale(1.1);
             color: #F87171; /* Un rojo más brillante al pasar el mouse */
         }
-        /* ===== FIN: NUEVO ESTILO ===== */
+        /* ======================================================= */
 
 
         #cod-modal h2, #edit-product-modal h2 { text-align: center; }
@@ -501,7 +514,7 @@
             margin: 3rem auto;
         }
         #admin-products-container {
-             max-width: 900px;
+              max-width: 900px;
         }
         .form-container {
             max-width: 900px; /* Ancho para el form de productos */
@@ -513,9 +526,9 @@
 
 
         #orders-container h2, #admin-products-container h2 {
-             color: var(--color-text);
-             text-align: center; 
-             margin-bottom: 2rem;
+              color: var(--color-text);
+              text-align: center; 
+              margin-bottom: 2rem;
         }
         .order-card {
             border: 1px solid var(--color-border);
@@ -1069,13 +1082,12 @@
             updateCartCount();
         }
 
-        // ===== INICIO: NUEVA FUNCIÓN =====
+        // Función añadida para eliminar un producto del carrito
         function removeFromCart(index) {
             cart.splice(index, 1); // Elimina 1 elemento en la posición 'index'
             updateCartCount();
             renderCartItems(); // Vuelve a dibujar el carrito
         }
-        // ===== FIN: NUEVA FUNCIÓN =====
 
         function updateCartCount() { cartCount.textContent = cart.length; }
 
@@ -1086,12 +1098,12 @@
                 cartItemsList.innerHTML = '<p>Tu carrito está vacío.</p>';
                 checkoutBtn.disabled = true;
             } else {
-                // ===== CAMBIO: Se añadió 'index' al forEach =====
+                // Se utiliza 'index' para identificar el elemento a eliminar
                 cart.forEach((item, index) => {
                     const itemEl = document.createElement('div');
                     itemEl.className = 'cart-item';
                     
-                    // ===== CAMBIO: Se añadió el botón de eliminar con 'data-index' =====
+                    // Se añade el botón de eliminar con 'data-index'
                     itemEl.innerHTML = `
                         <img src="${item.imageUrl}" alt="${item.name}" class="cart-item-image">
                         <span class="cart-item-name">${item.name}</span>
@@ -1375,8 +1387,8 @@
                 const { error: uploadError } = await _supabase.storage
                     .from('product-images')
                     .upload(fileName, imageFile, {
-                         cacheControl: '3600',
-                         upsert: false 
+                        cacheControl: '3600',
+                        upsert: false  
                     });
                 if (uploadError) throw uploadError;
 
@@ -1501,10 +1513,10 @@
                     const orderDate = new Date(order.created_at).toLocaleString('es-ES');
                     const itemsHtml = order.items.map(item =>
                         `<li>
-                           ${item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.name}" style="width: 30px; height: 30px; object-fit: cover; margin-right: 10px; border-radius: 4px;">` : ''}
-                           <span>${item.name}</span>
-                           <span>$${item.price.toFixed(2)}</span>
-                         </li>`
+                            ${item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.name}" style="width: 30px; height: 30px; object-fit: cover; margin-right: 10px; border-radius: 4px;">` : ''}
+                            <span>${item.name}</span>
+                            <span>$${item.price.toFixed(2)}</span>
+                          </li>`
                     ).join('');
 
                     let customerHtml = '';
@@ -1757,8 +1769,7 @@
                 return; 
             }
             
-            // ===== INICIO: NUEVO BLOQUE =====
-            // Clic en el botón de eliminar del carrito
+            // Clic en el botón de eliminar del carrito (CORREGIDO)
             const removeButton = e.target.closest('.cart-item-remove-btn');
             if (removeButton) {
                 const index = parseInt(removeButton.dataset.index, 10);
@@ -1767,7 +1778,6 @@
                 }
                 return;
             }
-            // ===== FIN: NUEVO BLOQUE =====
 
             // Resto de los listeners...
             const cartButton = e.target.closest('.cart-btn');
@@ -1914,10 +1924,10 @@
     </script>
 
     <a href="https://wa.me/50375460299" 
-       target="_blank" 
-       rel="noopener noreferrer" 
-       class="whatsapp-flotante"
-       title="Escríbenos por WhatsApp">
+        target="_blank" 
+        rel="noopener noreferrer" 
+        class="whatsapp-flotante"
+        title="Escríbenos por WhatsApp">
         
         <img src="https://pub-0c024c9a5a7a439aa0319b5140a52857.r2.dev/6c784972cbf5806215d46fbda8b0c46a.jpg" 
              alt="WhatsApp">
