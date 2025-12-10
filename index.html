@@ -44,7 +44,7 @@
         /* --- Navegación --- */
         nav {
             background-color: var(--color-card-bg);
-            padding: 1rem 1.5rem; /* Un poco más de espacio */
+            padding: 1rem 1.5rem; 
             box-shadow: var(--shadow);
             border-bottom: 3px solid;
             border-image: var(--gradient-primary) 1;
@@ -60,22 +60,20 @@
         .nav-branding {
             display: flex;
             align-items: center;
-            /* gap: 0.5rem; Eliminado gap innecesario sin logo */
         }
-        /* Eliminado #store-logo-img CSS */
 
         nav h1 {
             margin: 0;
-            font-size: 2.8rem; /* AUMENTADO: Mucho más grande para PC */
-            font-weight: 800; /* Extra negrita para más impacto */
-            letter-spacing: 1px; /* Espaciado elegante */
+            font-size: 2.8rem; /* Grande para PC */
+            font-weight: 800; 
+            letter-spacing: 1px; 
             background: var(--gradient-primary);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             color: transparent;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Sombra sutil para profundidad */
-            line-height: 1.1; /* Ajuste para que no ocupe demasiado alto si se rompe */
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+            line-height: 1.1; 
         }
         
         .nav-links {
@@ -97,7 +95,7 @@
 
         @media (max-width: 400px) {
             #login-nav-link span, #admin-nav-link span { display: none; }
-            nav h1 { font-size: 1.6rem; } /* Ajuste para pantallas muy pequeñas */
+            nav h1 { font-size: 1.6rem; } 
             nav { padding: 0.8rem 1rem; }
         }
 
@@ -223,8 +221,7 @@
             .product-price { font-size: 1rem; }
             .buy-btn { font-size: 0.75rem; padding: 0.35rem; }
             nav { padding: 0.8rem 1rem; }
-            /* Eliminado #store-logo-img CSS para móvil */
-            nav h1 { font-size: 2rem; } /* AUMENTADO: Grande y visible en móvil */
+            nav h1 { font-size: 2rem; } /* Grande en móvil */
             nav a { padding: 0.3rem 0.5rem; font-size: 0.8rem; }
         }
 
@@ -417,7 +414,6 @@
 
     <nav>
         <div class="nav-branding">
-            <!-- Logo eliminado -->
             <h1><a href="#shop" style="text-decoration:none; color:inherit;">Tienda Cell Smar</a></h1>
         </div>
         <div class="nav-links">
@@ -718,7 +714,6 @@
 
         function escapeHTML(str) {
             if (!str) return '';
-            // Orden corregido para evitar doble escape y manejo de saltos de línea
             return str
                 .replace(/&/g, '&amp;') 
                 .replace(/"/g, '&quot;')
@@ -762,17 +757,16 @@
                     groupedProducts[category].forEach(product => {
                         const formattedPrice = parseFloat(product.price).toFixed(2);
                         const safeName = escapeHTML(product.name);
-                        // Aseguramos que la descripción no sea null/undefined
-                        const safeDescription = escapeHTML(product.description || 'Sin descripción detallada.');
+                        // Usamos raw text en dataset, JS se encarga de escapar
+                        const rawDescription = product.description || 'Sin descripción detallada.';
                         const card = document.createElement('div');
                         card.className = 'product-card';
                         
-                        // Guardamos la descripción en el dataset
                         card.dataset.id = product.id;
                         card.dataset.name = safeName;
                         card.dataset.price = formattedPrice;
                         card.dataset.imageUrl = product.image_url;
-                        card.dataset.description = safeDescription;
+                        card.dataset.description = rawDescription;
 
                         card.innerHTML = `
                             <div class="product-image-container">
@@ -801,7 +795,7 @@
             }
         }
 
-        // --- LÓGICA MODAL DETALLES DEL PRODUCTO ---
+        // --- LÓGICA MODAL DETALLES ---
         const detailsOverlay = document.getElementById('details-overlay');
         const detailsModal = document.getElementById('details-modal');
         const closeDetailsBtn = document.getElementById('close-details-btn');
@@ -811,9 +805,8 @@
             decoder.innerHTML = productData.name;
             const decodedName = decoder.value;
             
-            // Decodificar la descripción
-            decoder.innerHTML = productData.description;
-            const decodedDesc = decoder.value;
+            // Descripción directa del dataset (ya es texto plano)
+            const decodedDesc = productData.description;
 
             document.getElementById('details-image').src = productData.imageUrl;
             document.getElementById('details-title').textContent = decodedName;
@@ -838,7 +831,7 @@
         detailsOverlay.addEventListener('click', closeDetailsModal);
 
 
-        // --- LÓGICA DEL MODAL DE COMPRA (CONTRA ENTREGA) ---
+        // --- COMPRA ---
         const codOverlay = document.getElementById('cod-overlay');
         const codModal = document.getElementById('cod-modal');
         const closeCodBtn = document.getElementById('close-cod-btn');
@@ -1001,9 +994,11 @@
             document.getElementById('edit-product-id').value = ds.id;
             document.getElementById('edit-product-name').value = decoder.value;
             
-            // Decodificar descripción para el textarea
-            decoder.innerHTML = ds.description;
-            let desc = decoder.value;
+            // Decodificar descripción de forma segura
+            let desc = '';
+            if(ds.descriptionEncoded) {
+                try { desc = decodeURIComponent(ds.descriptionEncoded); } catch(e) { desc = ''; }
+            }
             if(desc === 'undefined' || desc === 'null') desc = '';
             document.getElementById('edit-product-description').value = desc; 
             
@@ -1043,7 +1038,7 @@
                 }
                 await _supabase.from('products').update(data).eq('id', id);
                 productsLoaded = false; 
-                loadAdminProducts(); // Recargar lista para actualizar botones
+                loadAdminProducts(); 
                 editOverlay.classList.remove('visible'); editModal.classList.remove('visible');
                 editOverlay.classList.add('hidden'); editModal.classList.add('hidden');
             } catch (err) { console.error(err); }
@@ -1114,8 +1109,9 @@
             if (data) {
                 data.forEach(p => {
                     const div = document.createElement('div'); div.className = 'admin-product-card';
-                    // Nos aseguramos de usar escapeHTML en la descripción para el dataset
-                    const safeDesc = escapeHTML(p.description || '');
+                    // USAR URI Encoding para seguridad en dataset
+                    const encodedDesc = encodeURIComponent(p.description || '');
+                    
                     div.innerHTML = `
                         <img src="${p.image_url}">
                         <div class="admin-product-info"><h4>${p.name}</h4><p>$${p.price}</p></div>
@@ -1125,7 +1121,7 @@
                                 data-name="${escapeHTML(p.name)}" 
                                 data-price="${p.price}" 
                                 data-category="${p.category}" 
-                                data-description="${safeDesc}" 
+                                data-description-encoded="${encodedDesc}" 
                                 data-image-url="${p.image_url}">Editar</button>
                             <button class="btn-delete" data-id="${p.id}" data-image-url="${p.image_url}">Eliminar</button>
                         </div>`;
