@@ -184,13 +184,14 @@
             text-overflow: ellipsis;
             min-height: 2.6em;
         }
-        
-        /* ESTILO NUEVO PARA LA DESCRIPCIÓN EN LA TARJETA */
+
+        /* --- ESTILO PARA LA DESCRIPCIÓN CORTA EN LA TARJETA --- */
         .product-short-desc {
             font-size: 0.8rem;
             color: var(--color-text-muted);
             margin-bottom: 0.4rem;
             line-height: 1.3;
+            /* Limitar a 2 lineas */
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
@@ -977,13 +978,13 @@
                 const category = document.getElementById('product-category').value;
                 const file = document.getElementById('product-image').files[0];
 
-                const fileName = `${Date.now()}-${file.name}`;
+                const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
                 const { error: upErr } = await _supabase.storage.from('product-images').upload(fileName, file);
                 if (upErr) throw upErr;
                 const { data: urlData } = _supabase.storage.from('product-images').getPublicUrl(fileName);
 
                 const { error: insErr } = await _supabase.from('products').insert([{ 
-                    name, price, category, description: desc, image_url: urlData.publicUrl 
+                    name, price: parseFloat(price), category, description: desc || null, image_url: urlData.publicUrl 
                 }]);
                 if (insErr) throw insErr;
 
@@ -1033,44 +1034,83 @@
             editFileInput.value = ''; 
             document.getElementById('edit-file-name').textContent = 'Ningún archivo nuevo';
             
+            document.getElementById('edit-product-status').classList.add('hidden'); // Resetear mensajes
+
             editOverlay.classList.remove('hidden'); 
             editModal.classList.remove('hidden');
             editOverlay.classList.add('visible'); 
             editModal.classList.add('visible');
         }
 
+        // --- MANEJO DE EDICIÓN CORREGIDO (ERROR 400) ---
         editForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('edit-submit-btn'); const ldr = document.getElementById('edit-loader'); const txt = document.getElementById('edit-btn-text');
-            btn.disabled = true; ldr.classList.remove('hidden'); txt.textContent = 'Guardando...';
+            
+            const btn = document.getElementById('edit-submit-btn'); 
+            const ldr = document.getElementById('edit-loader'); 
+            const txt = document.getElementById('edit-btn-text');
+            const statusMsg = document.getElementById('edit-product-status');
 
-            const id = document.getElementById('edit-product-id').value;
-            const data = {
-                name: document.getElementById('edit-product-name').value,
-                description: document.getElementById('edit-product-description').value,
-                price: document.getElementById('edit-product-price').value,
-                category: document.getElementById('edit-product-category').value
-            };
-            const file = editFileInput.files[0];
+            btn.disabled = true; 
+            ldr.classList.remove('hidden'); 
+            txt.textContent = 'Guardando...';
+            statusMsg.classList.add('hidden');
 
             try {
+                const id = document.getElementById('edit-product-id').value;
+                const rawPrice = document.getElementById('edit-product-price').value;
+                
+                // Asegurar que precio sea numero
+                const price = parseFloat(rawPrice);
+                if (isNaN(price)) throw new Error("El precio no es válido.");
+
+                const data = {
+                    name: document.getElementById('edit-product-name').value,
+                    description: document.getElementById('edit-product-description').value || null, // NUNCA ENVIAR STRING VACIO SI DA ERROR
+                    price: price,
+                    category: document.getElementById('edit-product-category').value
+                };
+                
+                const file = editFileInput.files[0];
+
                 if (file) {
-                    const fileName = `${Date.now()}-${file.name}`;
-                    await _supabase.storage.from('product-images').upload(fileName, file);
+                    const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
+                    const { error: uploadError } = await _supabase.storage.from('product-images').upload(fileName, file);
+                    if (uploadError) throw uploadError;
+
                     const { data: url } = _supabase.storage.from('product-images').getPublicUrl(fileName);
                     data.image_url = url.publicUrl;
                     
                     const oldUrl = document.getElementById('edit-old-image-url').value;
-                    const oldName = oldUrl.split('product-images/')[1];
-                    if (oldName) await _supabase.storage.from('product-images').remove([oldName]);
+                    if (oldUrl && oldUrl.includes('product-images/')) {
+                        const oldName = oldUrl.split('product-images/')[1];
+                        if (oldName) await _supabase.storage.from('product-images').remove([oldName]);
+                    }
                 }
-                await _supabase.from('products').update(data).eq('id', id);
+
+                // Enviar UPDATE
+                const { error } = await _supabase.from('products').update(data).eq('id', id);
+                if (error) throw error;
+
                 productsLoaded = false; 
                 loadAdminProducts(); 
+                
                 editOverlay.classList.remove('visible'); editModal.classList.remove('visible');
                 editOverlay.classList.add('hidden'); editModal.classList.add('hidden');
-            } catch (err) { console.error(err); }
-            finally { btn.disabled = false; ldr.classList.add('hidden'); txt.textContent = 'Guardar Cambios'; }
+                
+                // Feedback visual simple
+                alert("Producto actualizado correctamente.");
+
+            } catch (err) { 
+                console.error("Error al editar:", err);
+                statusMsg.textContent = `Error: ${err.message}`;
+                statusMsg.className = 'status-message error';
+                statusMsg.classList.remove('hidden');
+            } finally { 
+                btn.disabled = false; 
+                ldr.classList.add('hidden'); 
+                txt.textContent = 'Guardar Cambios'; 
+            }
         });
 
         document.getElementById('close-edit-modal-btn').addEventListener('click', () => { editOverlay.classList.remove('visible'); editModal.classList.remove('visible'); editOverlay.classList.add('hidden'); editModal.classList.add('hidden'); });
